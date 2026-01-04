@@ -1,0 +1,73 @@
+name: Weekday Pipeline
+
+on:
+  workflow_dispatch:
+  schedule:
+    # GitHub cron is UTC. This runs Mon–Fri at 18:10 UTC.
+    # In winter (CET=UTC+1) that's 19:10 Bratislava.
+    # In summer (CEST=UTC+2) that's 20:10 Bratislava.
+    - cron: "10 18 * * 1-5"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: stare-weekday-pipeline
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run pipeline (weekday)
+        env:
+          PYTHONUNBUFFERED: "1"
+        run: |
+          python src/run_pipeline.py
+
+      # Optional: run fundamentals once a week (Monday) to reduce load
+      - name: Run fundamentals (Mondays only)
+        if: ${{ github.event_name == 'schedule' && startsWith(github.event.schedule, '10 18') }}
+        run: |
+          # Monday is day-of-week 1 in cron; schedule already is 1-5.
+          # GitHub doesn't expose weekday easily, so we check via date:
+          if [ "$(date -u +%u)" = "1" ]; then
+            python src/fetch_fundamentals.py
+          else
+            echo "Skipping fundamentals (not Monday)."
+          fi
+
+      - name: Commit & push updated data/reports
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Stage the artifacts you want committed
+          git add data/stocks.db data/universe_sp500.csv reports/ || true
+
+          # If nothing changed, don't fail
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+
+          git commit -m "Automated pipeline update (weekday)"
+          git push
