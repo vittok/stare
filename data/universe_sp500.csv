@@ -111,6 +111,7 @@ CPAY,CPAY,Corpay,Financials,Transaction & Payment Processing Services
 CPB,CPB,Campbell's Company (The),Consumer Staples,Packaged Foods & Meats
 CPRT,CPRT,Copart,Industrials,Diversified Support Services
 CPT,CPT,Camden Property Trust,Real Estate,Multi-Family Residential REITs
+CRH,CRH,CRH plc,Materials,Construction Materials
 CRL,CRL,Charles River Laboratories,Health Care,Life Sciences Tools & Services
 CRM,CRM,Salesforce,Information Technology,Application Software
 CRWD,CRWD,CrowdStrike,Information Technology,Systems Software
@@ -121,6 +122,7 @@ CTAS,CTAS,Cintas,Industrials,Diversified Support Services
 CTRA,CTRA,Coterra,Energy,Oil & Gas Exploration & Production
 CTSH,CTSH,Cognizant,Information Technology,IT Consulting & Other Services
 CTVA,CTVA,Corteva,Materials,Fertilizers & Agricultural Chemicals
+CVNA,CVNA,Carvana,Consumer Discretionary,Automotive Retail
 CVS,CVS,CVS Health,Health Care,Health Care Services
 CVX,CVX,Chevron Corporation,Energy,Integrated Oil & Gas
 D,D,Dominion Energy,Utilities,Multi-Utilities
@@ -410,7 +412,6 @@ SNA,SNA,Snap-on,Industrials,Industrial Machinery & Supplies & Components
 SNDK,SNDK,Sandisk,Information Technology,"Technology Hardware, Storage & Peripherals"
 SNPS,SNPS,Synopsys,Information Technology,Application Software
 SO,SO,Southern Company,Utilities,Electric Utilities
-SOLS,SOLS,Solstice Advanced Materials,Materials,Specialty Chemicals
 SOLV,SOLV,Solventum,Health Care,Health Care Technology
 SPG,SPG,Simon Property Group,Real Estate,Retail REITs
 SPGI,SPGI,S&P Global,Financials,Financial Exchanges & Data
