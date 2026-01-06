@@ -5,17 +5,17 @@
       "sector": "Materials",
       "week_ending": "2026-01-02",
       "direction": "Bullish",
-      "strength": 45,
-      "raw_score": 0.4587067055999573,
+      "strength": 44,
+      "raw_score": 0.4426326824916855,
       "diagnostics": {
         "n_stocks": 51,
         "breadth": 0.8235294117647058,
-        "median_return": 0.02102623744945098,
-        "median_vol_ratio": 0.6329039675277446,
+        "median_return": 0.019290123400010906,
+        "median_vol_ratio": 0.646839436867286,
         "signals": {
           "breadth_signal": 0.6470588235294117,
-          "return_signal": 0.700874581648366,
-          "volume_signal": -0.7341920649445108
+          "return_signal": 0.6430041133336969,
+          "volume_signal": -0.7063211262654281
         }
       },
       "top10_active": [
@@ -245,17 +245,17 @@
       "sector": "Consumer Staples",
       "week_ending": "2026-01-02",
       "direction": "Bearish",
-      "strength": 41,
-      "raw_score": -0.4143539218246632,
+      "strength": 40,
+      "raw_score": -0.4015360906439753,
       "diagnostics": {
         "n_stocks": 72,
         "breadth": 0.3194444444444444,
-        "median_return": -0.01153250386763488,
-        "median_vol_ratio": 0.6691583739554423,
+        "median_return": -0.010757300235978706,
+        "median_vol_ratio": 0.6817376699933284,
         "signals": {
           "breadth_signal": -0.36111111111111116,
-          "return_signal": -0.3844167955878294,
-          "volume_signal": -0.6616832520891154
+          "return_signal": -0.35857667453262354,
+          "volume_signal": -0.6365246600133432
         }
       },
       "top10_active": [
@@ -482,260 +482,20 @@
       ]
     },
     {
-      "sector": "Communication Services",
-      "week_ending": "2026-01-02",
-      "direction": "Bearish",
-      "strength": 40,
-      "raw_score": -0.4007745249194117,
-      "diagnostics": {
-        "n_stocks": 46,
-        "breadth": 0.2826086956521739,
-        "median_return": -0.005433297086393729,
-        "median_vol_ratio": 0.6000174847878044,
-        "signals": {
-          "breadth_signal": -0.4347826086956522,
-          "return_signal": -0.18110990287979098,
-          "volume_signal": -0.7999650304243913
-        }
-      },
-      "top10_active": [
-        {
-          "rank": 1,
-          "ticker": "META",
-          "weekly_return": -0.019418361967594056,
-          "dollar_vol_week": 30608132532.37915,
-          "vol_ratio": 0.4172536365195359,
-          "fundamentals": {
-            "shortName": "Meta Platforms, Inc.",
-            "industry": "Internet Content & Information",
-            "exchange": "NMS",
-            "currency": "USD",
-            "marketCap": 1639376355328.0,
-            "trailingPE": 28.817455,
-            "forwardPE": 21.382032,
-            "priceToBook": 8.449077,
-            "profitMargins": 0.30892,
-            "operatingMargins": 0.40075,
-            "returnOnEquity": 0.32643002,
-            "dividendYield": 0.32,
-            "beta": 1.273
-          }
-        },
-        {
-          "rank": 2,
-          "ticker": "GOOGL",
-          "weekly_return": 0.00523104232648075,
-          "dollar_vol_week": 30232263557.366943,
-          "vol_ratio": 0.4733764500761495,
-          "fundamentals": {
-            "shortName": "Alphabet Inc.",
-            "industry": "Internet Content & Information",
-            "exchange": "NMS",
-            "currency": "USD",
-            "marketCap": 3817135144960.0,
-            "trailingPE": 31.141304,
-            "forwardPE": 28.149628,
-            "priceToBook": 9.838291,
-            "profitMargins": 0.32233003,
-            "operatingMargins": 0.30512,
-            "returnOnEquity": 0.3545,
-            "dividendYield": 0.27,
-            "beta": 1.07
-          }
-        },
-        {
-          "rank": 3,
-          "ticker": "GOOG",
-          "weekly_return": 0.0011430527016380587,
-          "dollar_vol_week": 19810650923.239136,
-          "vol_ratio": 0.48555223831669597,
-          "fundamentals": {
-            "shortName": "Alphabet Inc.",
-            "industry": "Internet Content & Information",
-            "exchange": "NMS",
-            "currency": "USD",
-            "marketCap": 3806490787840.0,
-            "trailingPE": 31.158104,
-            "forwardPE": 28.164812,
-            "priceToBook": 9.843598,
-            "profitMargins": 0.32233003,
-            "operatingMargins": 0.30512,
-            "returnOnEquity": 0.3545,
-            "dividendYield": 0.27,
-            "beta": 1.07
-          }
-        },
-        {
-          "rank": 4,
-          "ticker": "NFLX",
-          "weekly_return": -0.0368371261984376,
-          "dollar_vol_week": 12525447865.220642,
-          "vol_ratio": 0.5984279674116844,
-          "fundamentals": {
-            "shortName": "Netflix, Inc.",
-            "industry": "Entertainment",
-            "exchange": "NMS",
-            "currency": "USD",
-            "marketCap": 385554022400.0,
-            "trailingPE": 38.07113,
-            "forwardPE": 28.061249,
-            "priceToBook": 14.85551,
-            "profitMargins": 0.24047,
-            "operatingMargins": 0.28219998,
-            "returnOnEquity": 0.42861,
-            "dividendYield": null,
-            "beta": 1.706
-          }
-        },
-        {
-          "rank": 5,
-          "ticker": "DIS",
-          "weekly_return": -0.01505811131767898,
-          "dollar_vol_week": 4063972546.7285156,
-          "vol_ratio": 0.6049315133323516,
-          "fundamentals": {
-            "shortName": "Walt Disney Company (The)",
-            "industry": "Entertainment",
-            "exchange": "NYQ",
-            "currency": "USD",
-            "marketCap": 201098903552.0,
-            "trailingPE": 16.328466,
-            "forwardPE": 15.202505,
-            "priceToBook": 1.8232944,
-            "profitMargins": 0.13136,
-            "operatingMargins": 0.11868,
-            "returnOnEquity": 0.12203,
-            "dividendYield": 1.34,
-            "beta": 1.497
-          }
-        },
-        {
-          "rank": 6,
-          "ticker": "VZ",
-          "weekly_return": 0.0009881649204468435,
-          "dollar_vol_week": 3757590770.8690643,
-          "vol_ratio": 0.6629025219304427,
-          "fundamentals": {
-            "shortName": "Verizon Communications Inc.",
-            "industry": "Telecom Services",
-            "exchange": "NYQ",
-            "currency": "USD",
-            "marketCap": 170849566720.0,
-            "trailingPE": 8.639659,
-            "forwardPE": 8.442915,
-            "priceToBook": 1.6264601,
-            "profitMargins": 0.14428,
-            "operatingMargins": 0.23932,
-            "returnOnEquity": 0.19875,
-            "dividendYield": 6.81,
-            "beta": 0.32
-          }
-        },
-        {
-          "rank": 7,
-          "ticker": "TMUS",
-          "weekly_return": -0.007064667507190592,
-          "dollar_vol_week": 3332610525.6591797,
-          "vol_ratio": 0.605467605817446,
-          "fundamentals": {
-            "shortName": "T-Mobile US, Inc.",
-            "industry": "Telecom Services",
-            "exchange": "NMS",
-            "currency": "USD",
-            "marketCap": 224611123200.0,
-            "trailingPE": 19.22736,
-            "forwardPE": 16.22243,
-            "priceToBook": 3.6912093,
-            "profitMargins": 0.13826999,
-            "operatingMargins": 0.2223,
-            "returnOnEquity": 0.19034,
-            "dividendYield": 2.04,
-            "beta": 0.436
-          }
-        },
-        {
-          "rank": 8,
-          "ticker": "WBD",
-          "weekly_return": -0.010069410272953494,
-          "dollar_vol_week": 3041022140.191078,
-          "vol_ratio": 0.386202656497511,
-          "fundamentals": {
-            "shortName": "Warner Bros. Discovery, Inc. -",
-            "industry": "Entertainment",
-            "exchange": "NMS",
-            "currency": "USD",
-            "marketCap": 70659145728.0,
-            "trailingPE": 150.05263,
-            "forwardPE": -132.14981,
-            "priceToBook": 1.960663,
-            "profitMargins": 0.01281,
-            "operatingMargins": 0.087340005,
-            "returnOnEquity": 0.00969,
-            "dividendYield": null,
-            "beta": 1.608
-          }
-        },
-        {
-          "rank": 9,
-          "ticker": "CMCSA",
-          "weekly_return": -0.004045817009511454,
-          "dollar_vol_week": 3008033742.1813965,
-          "vol_ratio": 0.5069938345647864,
-          "fundamentals": {
-            "shortName": "Comcast Corporation",
-            "industry": "Telecom Services",
-            "exchange": "NMS",
-            "currency": "USD",
-            "marketCap": 109067788288.0,
-            "trailingPE": 4.9069767,
-            "forwardPE": 7.120904,
-            "priceToBook": 1.1119895,
-            "profitMargins": 0.18333,
-            "operatingMargins": 0.17735,
-            "returnOnEquity": 0.24186,
-            "dividendYield": 4.47,
-            "beta": 0.829
-          }
-        },
-        {
-          "rank": 10,
-          "ticker": "T",
-          "weekly_return": -0.0036511218653421107,
-          "dollar_vol_week": 2943580029.6735764,
-          "vol_ratio": 0.5049825615514962,
-          "fundamentals": {
-            "shortName": "AT&T Inc.",
-            "industry": "Telecom Services",
-            "exchange": "NYQ",
-            "currency": "USD",
-            "marketCap": 175613460480.0,
-            "trailingPE": 8.0,
-            "forwardPE": 11.004718,
-            "priceToBook": 1.5770885,
-            "profitMargins": 0.17870001,
-            "operatingMargins": 0.2158,
-            "returnOnEquity": 0.19139999,
-            "dividendYield": 4.52,
-            "beta": 0.593
-          }
-        }
-      ]
-    },
-    {
       "sector": "Energy",
       "week_ending": "2026-01-02",
       "direction": "Bullish",
-      "strength": 37,
-      "raw_score": 0.377612734231282,
+      "strength": 40,
+      "raw_score": 0.4014001650090888,
       "diagnostics": {
         "n_stocks": 44,
-        "breadth": 0.7045454545454546,
+        "breadth": 0.7272727272727273,
         "median_return": 0.022209908966475345,
-        "median_vol_ratio": 0.7131722502564944,
+        "median_vol_ratio": 0.7167061104249415,
         "signals": {
-          "breadth_signal": 0.40909090909090917,
+          "breadth_signal": 0.4545454545454546,
           "return_signal": 0.7403302988825116,
-          "volume_signal": -0.5736554994870111
+          "volume_signal": -0.566587779150117
         }
       },
       "top10_active": [
@@ -962,20 +722,260 @@
       ]
     },
     {
+      "sector": "Communication Services",
+      "week_ending": "2026-01-02",
+      "direction": "Bearish",
+      "strength": 39,
+      "raw_score": -0.3942861527227852,
+      "diagnostics": {
+        "n_stocks": 46,
+        "breadth": 0.2826086956521739,
+        "median_return": -0.004959603898497811,
+        "median_vol_ratio": 0.6032239903583845,
+        "signals": {
+          "breadth_signal": -0.4347826086956522,
+          "return_signal": -0.16532012994992704,
+          "volume_signal": -0.793552019283231
+        }
+      },
+      "top10_active": [
+        {
+          "rank": 1,
+          "ticker": "META",
+          "weekly_return": -0.019418361967594056,
+          "dollar_vol_week": 30608132532.37915,
+          "vol_ratio": 0.4172536365195359,
+          "fundamentals": {
+            "shortName": "Meta Platforms, Inc.",
+            "industry": "Internet Content & Information",
+            "exchange": "NMS",
+            "currency": "USD",
+            "marketCap": 1639376355328.0,
+            "trailingPE": 28.817455,
+            "forwardPE": 21.382032,
+            "priceToBook": 8.449077,
+            "profitMargins": 0.30892,
+            "operatingMargins": 0.40075,
+            "returnOnEquity": 0.32643002,
+            "dividendYield": 0.32,
+            "beta": 1.273
+          }
+        },
+        {
+          "rank": 2,
+          "ticker": "GOOGL",
+          "weekly_return": 0.00523104232648075,
+          "dollar_vol_week": 30232263557.366943,
+          "vol_ratio": 0.4733764500761495,
+          "fundamentals": {
+            "shortName": "Alphabet Inc.",
+            "industry": "Internet Content & Information",
+            "exchange": "NMS",
+            "currency": "USD",
+            "marketCap": 3817135144960.0,
+            "trailingPE": 31.141304,
+            "forwardPE": 28.149628,
+            "priceToBook": 9.838291,
+            "profitMargins": 0.32233003,
+            "operatingMargins": 0.30512,
+            "returnOnEquity": 0.3545,
+            "dividendYield": 0.27,
+            "beta": 1.07
+          }
+        },
+        {
+          "rank": 3,
+          "ticker": "GOOG",
+          "weekly_return": 0.0011430527016380587,
+          "dollar_vol_week": 19810650923.239136,
+          "vol_ratio": 0.48555223831669597,
+          "fundamentals": {
+            "shortName": "Alphabet Inc.",
+            "industry": "Internet Content & Information",
+            "exchange": "NMS",
+            "currency": "USD",
+            "marketCap": 3806490787840.0,
+            "trailingPE": 31.158104,
+            "forwardPE": 28.164812,
+            "priceToBook": 9.843598,
+            "profitMargins": 0.32233003,
+            "operatingMargins": 0.30512,
+            "returnOnEquity": 0.3545,
+            "dividendYield": 0.27,
+            "beta": 1.07
+          }
+        },
+        {
+          "rank": 4,
+          "ticker": "NFLX",
+          "weekly_return": -0.0368371261984376,
+          "dollar_vol_week": 12525447865.220642,
+          "vol_ratio": 0.5984279674116844,
+          "fundamentals": {
+            "shortName": "Netflix, Inc.",
+            "industry": "Entertainment",
+            "exchange": "NMS",
+            "currency": "USD",
+            "marketCap": 385554022400.0,
+            "trailingPE": 38.07113,
+            "forwardPE": 28.061249,
+            "priceToBook": 14.85551,
+            "profitMargins": 0.24047,
+            "operatingMargins": 0.28219998,
+            "returnOnEquity": 0.42861,
+            "dividendYield": null,
+            "beta": 1.706
+          }
+        },
+        {
+          "rank": 5,
+          "ticker": "DIS",
+          "weekly_return": -0.01505811131767898,
+          "dollar_vol_week": 4063972546.7285156,
+          "vol_ratio": 0.6049315133323516,
+          "fundamentals": {
+            "shortName": "Walt Disney Company (The)",
+            "industry": "Entertainment",
+            "exchange": "NYQ",
+            "currency": "USD",
+            "marketCap": 201098903552.0,
+            "trailingPE": 16.328466,
+            "forwardPE": 15.202505,
+            "priceToBook": 1.8232944,
+            "profitMargins": 0.13136,
+            "operatingMargins": 0.11868,
+            "returnOnEquity": 0.12203,
+            "dividendYield": 1.34,
+            "beta": 1.497
+          }
+        },
+        {
+          "rank": 6,
+          "ticker": "VZ",
+          "weekly_return": 0.0009881649204468435,
+          "dollar_vol_week": 3757590770.8690643,
+          "vol_ratio": 0.6629025219304427,
+          "fundamentals": {
+            "shortName": "Verizon Communications Inc.",
+            "industry": "Telecom Services",
+            "exchange": "NYQ",
+            "currency": "USD",
+            "marketCap": 170849566720.0,
+            "trailingPE": 8.639659,
+            "forwardPE": 8.442915,
+            "priceToBook": 1.6264601,
+            "profitMargins": 0.14428,
+            "operatingMargins": 0.23932,
+            "returnOnEquity": 0.19875,
+            "dividendYield": 6.81,
+            "beta": 0.32
+          }
+        },
+        {
+          "rank": 7,
+          "ticker": "TMUS",
+          "weekly_return": -0.007064667507190592,
+          "dollar_vol_week": 3332610525.6591797,
+          "vol_ratio": 0.605467605817446,
+          "fundamentals": {
+            "shortName": "T-Mobile US, Inc.",
+            "industry": "Telecom Services",
+            "exchange": "NMS",
+            "currency": "USD",
+            "marketCap": 224611123200.0,
+            "trailingPE": 19.22736,
+            "forwardPE": 16.22243,
+            "priceToBook": 3.6912093,
+            "profitMargins": 0.13826999,
+            "operatingMargins": 0.2223,
+            "returnOnEquity": 0.19034,
+            "dividendYield": 2.04,
+            "beta": 0.436
+          }
+        },
+        {
+          "rank": 8,
+          "ticker": "WBD",
+          "weekly_return": -0.010069410272953494,
+          "dollar_vol_week": 3041022140.191078,
+          "vol_ratio": 0.386202656497511,
+          "fundamentals": {
+            "shortName": "Warner Bros. Discovery, Inc. -",
+            "industry": "Entertainment",
+            "exchange": "NMS",
+            "currency": "USD",
+            "marketCap": 70659145728.0,
+            "trailingPE": 150.05263,
+            "forwardPE": -132.14981,
+            "priceToBook": 1.960663,
+            "profitMargins": 0.01281,
+            "operatingMargins": 0.087340005,
+            "returnOnEquity": 0.00969,
+            "dividendYield": null,
+            "beta": 1.608
+          }
+        },
+        {
+          "rank": 9,
+          "ticker": "CMCSA",
+          "weekly_return": -0.004045817009511454,
+          "dollar_vol_week": 3008033742.1813965,
+          "vol_ratio": 0.5069938345647864,
+          "fundamentals": {
+            "shortName": "Comcast Corporation",
+            "industry": "Telecom Services",
+            "exchange": "NMS",
+            "currency": "USD",
+            "marketCap": 109067788288.0,
+            "trailingPE": 4.9069767,
+            "forwardPE": 7.120904,
+            "priceToBook": 1.1119895,
+            "profitMargins": 0.18333,
+            "operatingMargins": 0.17735,
+            "returnOnEquity": 0.24186,
+            "dividendYield": 4.47,
+            "beta": 0.829
+          }
+        },
+        {
+          "rank": 10,
+          "ticker": "T",
+          "weekly_return": -0.0036511218653421107,
+          "dollar_vol_week": 2943580029.6735764,
+          "vol_ratio": 0.5049825615514962,
+          "fundamentals": {
+            "shortName": "AT&T Inc.",
+            "industry": "Telecom Services",
+            "exchange": "NYQ",
+            "currency": "USD",
+            "marketCap": 175613460480.0,
+            "trailingPE": 8.0,
+            "forwardPE": 11.004718,
+            "priceToBook": 1.5770885,
+            "profitMargins": 0.17870001,
+            "operatingMargins": 0.2158,
+            "returnOnEquity": 0.19139999,
+            "dividendYield": 4.52,
+            "beta": 0.593
+          }
+        }
+      ]
+    },
+    {
       "sector": "Financials",
       "week_ending": "2026-01-02",
       "direction": "Bearish",
-      "strength": 28,
-      "raw_score": -0.2880770497857789,
+      "strength": 26,
+      "raw_score": -0.2682177085712826,
       "diagnostics": {
         "n_stocks": 152,
-        "breadth": 0.39473684210526316,
-        "median_return": -0.006577655840323993,
-        "median_vol_ratio": 0.646418087486904,
+        "breadth": 0.4144736842105263,
+        "median_return": -0.006740708800865358,
+        "median_vol_ratio": 0.653167366316512,
         "signals": {
-          "breadth_signal": -0.21052631578947367,
-          "return_signal": -0.21925519467746643,
-          "volume_signal": -0.707163825026192
+          "breadth_signal": -0.17105263157894735,
+          "return_signal": -0.2246902933621786,
+          "volume_signal": -0.6936652673669761
         }
       },
       "top10_active": [
@@ -1205,17 +1205,17 @@
       "sector": "Information Technology",
       "week_ending": "2026-01-02",
       "direction": "Bearish",
-      "strength": 28,
-      "raw_score": -0.28025366665707085,
+      "strength": 24,
+      "raw_score": -0.24991810879811382,
       "diagnostics": {
         "n_stocks": 140,
-        "breadth": 0.4142857142857143,
-        "median_return": -0.00718254117237993,
-        "median_vol_ratio": 0.6308564424499357,
+        "breadth": 0.4357142857142857,
+        "median_return": -0.006606697002077888,
+        "median_vol_ratio": 0.6381524572616972,
         "signals": {
-          "breadth_signal": -0.17142857142857137,
-          "return_signal": -0.239418039079331,
-          "volume_signal": -0.7382871151001287
+          "breadth_signal": -0.12857142857142856,
+          "return_signal": -0.22022323340259628,
+          "volume_signal": -0.7236950854766055
         }
       },
       "top10_active": [
@@ -1445,16 +1445,16 @@
       "sector": "Real Estate",
       "week_ending": "2026-01-02",
       "direction": "Bearish",
-      "strength": 26,
-      "raw_score": -0.2643013992305421,
+      "strength": 23,
+      "raw_score": -0.23101179588003445,
       "diagnostics": {
         "n_stocks": 62,
-        "breadth": 0.4032258064516129,
-        "median_return": -0.005570438813096545,
+        "breadth": 0.41935483870967744,
+        "median_return": -0.004099532719458565,
         "median_vol_ratio": 0.6582041571243491,
         "signals": {
-          "breadth_signal": -0.19354838709677424,
-          "return_signal": -0.18568129376988485,
+          "breadth_signal": -0.16129032258064513,
+          "return_signal": -0.13665109064861886,
           "volume_signal": -0.6835916857513018
         }
       },
@@ -1685,17 +1685,17 @@
       "sector": "Consumer Discretionary",
       "week_ending": "2026-01-02",
       "direction": "Bearish",
-      "strength": 13,
-      "raw_score": -0.13611387483412737,
+      "strength": 11,
+      "raw_score": -0.11972613687879681,
       "diagnostics": {
         "n_stocks": 95,
-        "breadth": 0.4842105263157895,
-        "median_return": -0.0006579537101776278,
-        "median_vol_ratio": 0.6245057515627405,
+        "breadth": 0.49473684210526314,
+        "median_return": -0.00042566645711406004,
+        "median_vol_ratio": 0.6350104322742358,
         "signals": {
-          "breadth_signal": -0.03157894736842104,
-          "return_signal": -0.021931790339254263,
-          "volume_signal": -0.7509884968745191
+          "breadth_signal": -0.010526315789473717,
+          "return_signal": -0.014188881903802002,
+          "volume_signal": -0.7299791354515284
         }
       },
       "top10_active": [
@@ -1724,9 +1724,9 @@
         {
           "rank": 2,
           "ticker": "TSLA",
-          "weekly_return": -0.049457576449076335,
-          "dollar_vol_week": 143142847380.2642,
-          "vol_ratio": 0.7952189072997584,
+          "weekly_return": -0.05092089981694692,
+          "dollar_vol_week": 143880226801.62646,
+          "vol_ratio": 0.7996717112904751,
           "fundamentals": {
             "shortName": "Tesla, Inc.",
             "industry": "Auto Manufacturers",
@@ -1746,9 +1746,9 @@
         {
           "rank": 3,
           "ticker": "AMZN",
-          "weekly_return": 0.042967340692217304,
-          "dollar_vol_week": 41991575720.87262,
-          "vol_ratio": 0.7979461826840248,
+          "weekly_return": 0.03999485270967029,
+          "dollar_vol_week": 39843952083.854065,
+          "vol_ratio": 0.7591187174490927,
           "fundamentals": {
             "shortName": "Amazon.com, Inc.",
             "industry": "Internet Retail",
@@ -1812,9 +1812,9 @@
         {
           "rank": 6,
           "ticker": "NKE",
-          "weekly_return": 0.0561366473342535,
-          "dollar_vol_week": 6809097662.75827,
-          "vol_ratio": 1.1220764513836814,
+          "weekly_return": 0.05548293077231392,
+          "dollar_vol_week": 6821181615.7486725,
+          "vol_ratio": 1.1241172541841176,
           "fundamentals": {
             "shortName": "Nike, Inc.",
             "industry": "Footwear & Accessories",
@@ -1834,9 +1834,9 @@
         {
           "rank": 7,
           "ticker": "CVNA",
-          "weekly_return": 0.019043239263929257,
-          "dollar_vol_week": 5563950632.826294,
-          "vol_ratio": 0.5982752823269023,
+          "weekly_return": 0.013991409466694416,
+          "dollar_vol_week": 5577300307.496948,
+          "vol_ratio": 0.5999830691218319,
           "fundamentals": {
             "shortName": NaN,
             "industry": NaN,
@@ -1856,9 +1856,9 @@
         {
           "rank": 8,
           "ticker": "HD",
-          "weekly_return": 0.007708915441330344,
-          "dollar_vol_week": 5349437163.397247,
-          "vol_ratio": 0.6719400693135764,
+          "weekly_return": 0.007665652468628492,
+          "dollar_vol_week": 5372696608.808472,
+          "vol_ratio": 0.6748373268856261,
           "fundamentals": {
             "shortName": "Home Depot, Inc. (The)",
             "industry": "Home Improvement Retail",
@@ -1900,9 +1900,9 @@
         {
           "rank": 10,
           "ticker": "MCD",
-          "weekly_return": -0.015258293755988417,
-          "dollar_vol_week": 3915831892.820404,
-          "vol_ratio": 0.7612752561050239,
+          "weekly_return": -0.017157431688645586,
+          "dollar_vol_week": 3934875867.946045,
+          "vol_ratio": 0.7651682144779699,
           "fundamentals": {
             "shortName": "McDonald's Corporation",
             "industry": "Restaurants",
@@ -1926,16 +1926,16 @@
       "week_ending": "2026-01-02",
       "direction": "Bearish",
       "strength": 10,
-      "raw_score": -0.10636536997080333,
+      "raw_score": -0.10422781062610281,
       "diagnostics": {
         "n_stocks": 62,
         "breadth": 0.5161290322580645,
         "median_return": 0.0003952170036320979,
-        "median_vol_ratio": 0.5763157757625257,
+        "median_vol_ratio": 0.583440973578194,
         "signals": {
           "breadth_signal": 0.032258064516129004,
           "return_signal": 0.01317390012106993,
-          "volume_signal": -0.8473684484749486
+          "volume_signal": -0.833118052843612
         }
       },
       "top10_active": [
@@ -2166,16 +2166,16 @@
       "week_ending": "2026-01-02",
       "direction": "Bullish",
       "strength": 6,
-      "raw_score": 0.06450852695349116,
+      "raw_score": 0.06901025042389398,
       "diagnostics": {
         "n_stocks": 160,
         "breadth": 0.61875,
-        "median_return": 0.005785352308194436,
-        "median_vol_ratio": 0.5942091667485201,
+        "median_return": 0.006149239316558419,
+        "median_vol_ratio": 0.5950637502134858,
         "signals": {
           "breadth_signal": 0.23750000000000004,
-          "return_signal": 0.19284507693981454,
-          "volume_signal": -0.8115816665029598
+          "return_signal": 0.20497464388528064,
+          "volume_signal": -0.8098724995730284
         }
       },
       "top10_active": [
@@ -2404,18 +2404,18 @@
     {
       "sector": "Health Care",
       "week_ending": "2026-01-02",
-      "direction": "Neutral",
-      "strength": 3,
-      "raw_score": 0.03955425770789883,
+      "direction": "Bullish",
+      "strength": 5,
+      "raw_score": 0.05759445633358082,
       "diagnostics": {
         "n_stocks": 120,
-        "breadth": 0.6,
-        "median_return": 0.0063618972763219706,
-        "median_vol_ratio": 0.5511070760582528,
+        "breadth": 0.6083333333333333,
+        "median_return": 0.006896432986072343,
+        "median_vol_ratio": 0.5626757938757896,
         "signals": {
-          "breadth_signal": 0.19999999999999996,
-          "return_signal": 0.2120632425440657,
-          "volume_signal": -0.8977858478834944
+          "breadth_signal": 0.21666666666666656,
+          "return_signal": 0.22988109953574476,
+          "volume_signal": -0.8746484122484208
         }
       },
       "top10_active": [

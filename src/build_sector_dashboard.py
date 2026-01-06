@@ -122,6 +122,7 @@ def build_flat_dashboard(
     sentiment: pd.DataFrame,
     top_active: pd.DataFrame,
     fundamentals_expanded: pd.DataFrame,
+    r7: pd.DataFrame,
 ) -> pd.DataFrame:
     # join sentiment onto each top-active row by sector
     df = top_active.merge(
@@ -138,6 +139,8 @@ def build_flat_dashboard(
         suffixes=("", "_fund"),
     )
 
+    df = df.merge(r7, on="ticker", how="left")
+
     # Select a useful set of columns
     cols = [
         "sector", "week_ending", "rank", "ticker",
@@ -147,7 +150,7 @@ def build_flat_dashboard(
         "profitMargins", "operatingMargins", "returnOnEquity",
         "dividendYield", "beta",
         "shortName", "industry", "currency", "exchange",
-        "asof_utc",
+        "asof_utc", "return_7d",
     ]
     for c in cols:
         if c not in df.columns:
@@ -159,7 +162,7 @@ def build_flat_dashboard(
         "raw_score", "dollar_vol_week", "weekly_return", "vol_ratio",
         "marketCap", "trailingPE", "forwardPE", "priceToBook",
         "profitMargins", "operatingMargins", "returnOnEquity",
-        "dividendYield", "beta",
+        "dividendYield", "beta", "return_7d",
     ]
     for c in num_cols:
         df[c] = pd.to_numeric(df[c], errors="coerce")
@@ -251,6 +254,53 @@ def upsert_sql_dashboard(engine, flat: pd.DataFrame) -> None:
             records,
         )
 
+def compute_7d_returns(engine, tickers: list[str], asof_date: str) -> pd.DataFrame:
+    """
+    Compute last 7 trading-session return as of `asof_date` (inclusive).
+    Return = close(asof) / close(7 sessions earlier) - 1
+    Needs 8 closes per ticker.
+    """
+    if not tickers:
+        return pd.DataFrame(columns=["ticker", "return_7d"])
+
+    # Pull closes up to the week ending date for only tickers we need.
+    # (SQLite has no guarantee of window functions across all versions, so use pandas groupby.)
+    placeholders = ",".join([f":t{i}" for i in range(len(tickers))])
+    params = {f"t{i}": t for i, t in enumerate(tickers)}
+    params["asof"] = asof_date
+
+    df = pd.read_sql(
+        text(f"""
+            SELECT ticker, date, close
+            FROM prices
+            WHERE date <= :asof
+              AND ticker IN ({placeholders})
+              AND close IS NOT NULL
+            ORDER BY ticker, date
+        """),
+        engine,
+        params=params,
+    )
+
+    if df.empty:
+        return pd.DataFrame(columns=["ticker", "return_7d"])
+
+    df["date"] = pd.to_datetime(df["date"])
+    df["close"] = pd.to_numeric(df["close"], errors="coerce")
+
+    out_rows = []
+    for ticker, g in df.groupby("ticker", sort=False):
+        g = g.dropna(subset=["close"]).sort_values("date")
+        if len(g) < 8:
+            out_rows.append({"ticker": ticker, "return_7d": None})
+            continue
+        last8 = g.iloc[-8:]
+        c0 = float(last8["close"].iloc[0])
+        c7 = float(last8["close"].iloc[-1])
+        r7 = (c7 / c0 - 1.0) if c0 else None
+        out_rows.append({"ticker": ticker, "return_7d": r7})
+
+    return pd.DataFrame(out_rows)
 
 def main():
     cfg = DashboardConfig()
@@ -263,10 +313,13 @@ def main():
     sentiment = load_sector_sentiment(engine, week_ending)
     top_active = load_sector_top_active(engine, week_ending)
 
+    tickers = top_active["ticker"].dropna().unique().tolist()
+    r7 = compute_7d_returns(engine, tickers, week_ending)
+
     fundamentals = load_fundamentals_latest(engine)
     fundamentals_expanded = expand_fundamentals_json(fundamentals)
 
-    flat = build_flat_dashboard(sentiment, top_active, fundamentals_expanded)
+    flat = build_flat_dashboard(sentiment, top_active, fundamentals_expanded, r7)
     nested = build_nested_json(sentiment, flat)
 
     write_outputs(cfg, nested, flat)
