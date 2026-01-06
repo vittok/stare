@@ -5,6 +5,7 @@ import subprocess
 import sys
 import time
 from pathlib import Path
+from shutil import copy2
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -38,6 +39,22 @@ def run_step(name: str, cmd: list[str], idx: int, total: int):
 
     print(f"✓ Completed {name} in {elapsed:.1f}s")
 
+def publish_to_docs():
+    docs = ROOT / "docs"
+    reports = ROOT / "reports"
+    docs.mkdir(parents=True, exist_ok=True)
+
+    # HTML entry point for GitHub Pages
+    copy2(reports / "sector_dashboard.html", docs / "index.html")
+
+    # Optional: publish raw data artifacts too
+    copy2(reports / "sector_dashboard.json", docs / "sector_dashboard.json")
+    copy2(reports / "sector_dashboard_top10.csv", docs / "sector_dashboard_top10.csv")
+
+    # Ensure no Jekyll processing
+    (docs / ".nojekyll").write_text("", encoding="utf-8")
+
+    print("✓ Published GitHub Pages artifacts to docs/")
 
 def main() -> int:
     p = argparse.ArgumentParser(description="Run the STARE pipeline.")
@@ -78,6 +95,7 @@ def main() -> int:
     print("🎉 Pipeline finished.")
     return 0 if failures == 0 else 2
 
+publish_to_docs()
 
 if __name__ == "__main__":
     sys.exit(main())
