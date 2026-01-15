@@ -307,7 +307,6 @@ META,META,Meta Platforms,Communication Services,Interactive Media & Services
 MGM,MGM,MGM Resorts,Consumer Discretionary,Casinos & Gaming
 MKC,MKC,McCormick & Company,Consumer Staples,Packaged Foods & Meats
 MLM,MLM,Martin Marietta Materials,Materials,Construction Materials
-MMC,MMC,Marsh McLennan,Financials,Insurance Brokers
 MMM,MMM,3M,Industrials,Industrial Conglomerates
 MNST,MNST,Monster Beverage,Consumer Staples,Soft Drinks & Non-alcoholic Beverages
 MO,MO,Altria,Consumer Staples,Tobacco
@@ -317,6 +316,7 @@ MPC,MPC,Marathon Petroleum,Energy,Oil & Gas Refining & Marketing
 MPWR,MPWR,Monolithic Power Systems,Information Technology,Semiconductors
 MRK,MRK,Merck & Co.,Health Care,Pharmaceuticals
 MRNA,MRNA,Moderna,Health Care,Biotechnology
+MRSH,MRSH,Marsh McLennan,Financials,Insurance Brokers
 MS,MS,Morgan Stanley,Financials,Investment Banking & Brokerage
 MSCI,MSCI,MSCI Inc.,Financials,Financial Exchanges & Data
 MSFT,MSFT,Microsoft,Information Technology,Systems Software

@@ -5,17 +5,17 @@
       "sector": "Materials",
       "week_ending": "2026-01-02",
       "direction": "Bullish",
-      "strength": 63,
-      "raw_score": 0.6327055787681418,
+      "strength": 62,
+      "raw_score": 0.6217516392745461,
       "diagnostics": {
-        "n_stocks": 207,
-        "breadth": 0.8792270531400966,
-        "median_return": 0.026377049549042964,
-        "median_vol_ratio": 0.8191542696307023,
+        "n_stocks": 233,
+        "breadth": 0.871244635193133,
+        "median_return": 0.025998066785976492,
+        "median_vol_ratio": 0.8239874163722912,
         "signals": {
-          "breadth_signal": 0.7584541062801933,
-          "return_signal": 0.8792349849680988,
-          "volume_signal": -0.3616914607385955
+          "breadth_signal": 0.742489270386266,
+          "return_signal": 0.8666022261992165,
+          "volume_signal": -0.35202516725541755
         }
       },
       "top10_active": [
@@ -246,16 +246,16 @@
       "week_ending": "2026-01-02",
       "direction": "Bullish",
       "strength": 39,
-      "raw_score": 0.3932623477533128,
+      "raw_score": 0.39693844542243695,
       "diagnostics": {
-        "n_stocks": 640,
+        "n_stocks": 720,
         "breadth": 0.7375,
-        "median_return": 0.018532470947905888,
-        "median_vol_ratio": 0.7985006223147024,
+        "median_return": 0.018784406806421128,
+        "median_vol_ratio": 0.800956775602857,
         "signals": {
           "breadth_signal": 0.4750000000000001,
-          "return_signal": 0.617749031596863,
-          "volume_signal": -0.40299875537059515
+          "return_signal": 0.626146893547371,
+          "volume_signal": -0.3980864487942859
         }
       },
       "top10_active": [
@@ -482,500 +482,20 @@
       ]
     },
     {
-      "sector": "Consumer Discretionary",
-      "week_ending": "2026-01-02",
-      "direction": "Bullish",
-      "strength": 32,
-      "raw_score": 0.32740654348426096,
-      "diagnostics": {
-        "n_stocks": 383,
-        "breadth": 0.6788511749347258,
-        "median_return": 0.018504115687632217,
-        "median_vol_ratio": 0.7755800628683088,
-        "signals": {
-          "breadth_signal": 0.3577023498694516,
-          "return_signal": 0.6168038562544073,
-          "volume_signal": -0.44883987426338234
-        }
-      },
-      "top10_active": [
-        {
-          "rank": 1,
-          "ticker": "TSLA",
-          "weekly_return": -0.07811611129542784,
-          "dollar_vol_week": 144731399642.67578,
-          "vol_ratio": 0.7831982772121536,
-          "fundamentals": {
-            "shortName": "Tesla, Inc.",
-            "industry": "Auto Manufacturers",
-            "exchange": "NMS",
-            "currency": "USD",
-            "marketCap": 1497978896384.0,
-            "trailingPE": 306.40067,
-            "forwardPE": 206.30397,
-            "priceToBook": 18.721796,
-            "profitMargins": 0.05314,
-            "operatingMargins": 0.06628,
-            "returnOnEquity": 0.06791,
-            "dividendYield": null,
-            "beta": 1.835
-          }
-        },
-        {
-          "rank": 2,
-          "ticker": "TSLA",
-          "weekly_return": -0.05092089981694692,
-          "dollar_vol_week": 143880226801.62646,
-          "vol_ratio": 0.7996717112904751,
-          "fundamentals": {
-            "shortName": "Tesla, Inc.",
-            "industry": "Auto Manufacturers",
-            "exchange": "NMS",
-            "currency": "USD",
-            "marketCap": 1497978896384.0,
-            "trailingPE": 306.40067,
-            "forwardPE": 206.30397,
-            "priceToBook": 18.721796,
-            "profitMargins": 0.05314,
-            "operatingMargins": 0.06628,
-            "returnOnEquity": 0.06791,
-            "dividendYield": null,
-            "beta": 1.835
-          }
-        },
-        {
-          "rank": 3,
-          "ticker": "AMZN",
-          "weekly_return": 0.03999485270967029,
-          "dollar_vol_week": 39843952083.854065,
-          "vol_ratio": 0.7591187174490927,
-          "fundamentals": {
-            "shortName": "Amazon.com, Inc.",
-            "industry": "Internet Retail",
-            "exchange": "NMS",
-            "currency": "USD",
-            "marketCap": 2652990865408.0,
-            "trailingPE": 35.05226,
-            "forwardPE": 31.56351,
-            "priceToBook": 7.1752386,
-            "profitMargins": 0.11063,
-            "operatingMargins": 0.11057,
-            "returnOnEquity": 0.24327,
-            "dividendYield": null,
-            "beta": 1.376
-          }
-        },
-        {
-          "rank": 4,
-          "ticker": "AMZN",
-          "weekly_return": -0.025890263899216448,
-          "dollar_vol_week": 30678577011.18622,
-          "vol_ratio": 0.5536604737418227,
-          "fundamentals": {
-            "shortName": "Amazon.com, Inc.",
-            "industry": "Internet Retail",
-            "exchange": "NMS",
-            "currency": "USD",
-            "marketCap": 2652990865408.0,
-            "trailingPE": 35.05226,
-            "forwardPE": 31.56351,
-            "priceToBook": 7.1752386,
-            "profitMargins": 0.11063,
-            "operatingMargins": 0.11057,
-            "returnOnEquity": 0.24327,
-            "dividendYield": null,
-            "beta": 1.376
-          }
-        },
-        {
-          "rank": 5,
-          "ticker": "NKE",
-          "weekly_return": 0.038568824263102375,
-          "dollar_vol_week": 6957907093.099976,
-          "vol_ratio": 1.1868089497345589,
-          "fundamentals": {
-            "shortName": "Nike, Inc.",
-            "industry": "Footwear & Accessories",
-            "exchange": "NYQ",
-            "currency": "USD",
-            "marketCap": 97253785600.0,
-            "trailingPE": 38.41813,
-            "forwardPE": 28.239273,
-            "priceToBook": 6.9021854,
-            "profitMargins": 0.05426,
-            "operatingMargins": 0.08095,
-            "returnOnEquity": 0.17950001,
-            "dividendYield": 2.49,
-            "beta": 1.284
-          }
-        },
-        {
-          "rank": 6,
-          "ticker": "NKE",
-          "weekly_return": 0.05548293077231392,
-          "dollar_vol_week": 6821181615.7486725,
-          "vol_ratio": 1.1241172541841176,
-          "fundamentals": {
-            "shortName": "Nike, Inc.",
-            "industry": "Footwear & Accessories",
-            "exchange": "NYQ",
-            "currency": "USD",
-            "marketCap": 97253785600.0,
-            "trailingPE": 38.41813,
-            "forwardPE": 28.239273,
-            "priceToBook": 6.9021854,
-            "profitMargins": 0.05426,
-            "operatingMargins": 0.08095,
-            "returnOnEquity": 0.17950001,
-            "dividendYield": 2.49,
-            "beta": 1.284
-          }
-        },
-        {
-          "rank": 7,
-          "ticker": "CVNA",
-          "weekly_return": 0.013991409466694416,
-          "dollar_vol_week": 5577300307.496948,
-          "vol_ratio": 0.5999830691218319,
-          "fundamentals": {
-            "shortName": "Carvana Co.",
-            "industry": "Auto & Truck Dealerships",
-            "exchange": "NYQ",
-            "currency": "USD",
-            "marketCap": 101833654272.0,
-            "trailingPE": 106.75113,
-            "forwardPE": 63.400482,
-            "priceToBook": 29.096512,
-            "profitMargins": 0.03444,
-            "operatingMargins": 0.09793,
-            "returnOnEquity": 0.6815,
-            "dividendYield": null,
-            "beta": 3.553
-          }
-        },
-        {
-          "rank": 8,
-          "ticker": "HD",
-          "weekly_return": 0.007665652468628492,
-          "dollar_vol_week": 5372696608.808472,
-          "vol_ratio": 0.6748373268856261,
-          "fundamentals": {
-            "shortName": "Home Depot, Inc. (The)",
-            "industry": "Home Improvement Retail",
-            "exchange": "NYQ",
-            "currency": "USD",
-            "marketCap": 374337208320.0,
-            "trailingPE": 25.667236,
-            "forwardPE": 24.91022,
-            "priceToBook": 30.879936,
-            "profitMargins": 0.087740004,
-            "operatingMargins": 0.12945,
-            "returnOnEquity": 1.62909,
-            "dividendYield": 2.46,
-            "beta": 1.072
-          }
-        },
-        {
-          "rank": 9,
-          "ticker": "HD",
-          "weekly_return": -0.01132137763422203,
-          "dollar_vol_week": 4869306902.392578,
-          "vol_ratio": 0.6077232761258831,
-          "fundamentals": {
-            "shortName": "Home Depot, Inc. (The)",
-            "industry": "Home Improvement Retail",
-            "exchange": "NYQ",
-            "currency": "USD",
-            "marketCap": 374337208320.0,
-            "trailingPE": 25.667236,
-            "forwardPE": 24.91022,
-            "priceToBook": 30.879936,
-            "profitMargins": 0.087740004,
-            "operatingMargins": 0.12945,
-            "returnOnEquity": 1.62909,
-            "dividendYield": 2.46,
-            "beta": 1.072
-          }
-        },
-        {
-          "rank": 10,
-          "ticker": "MCD",
-          "weekly_return": -0.017157431688645586,
-          "dollar_vol_week": 3934875867.946045,
-          "vol_ratio": 0.7651682144779699,
-          "fundamentals": {
-            "shortName": "McDonald's Corporation",
-            "industry": "Restaurants",
-            "exchange": "NYQ",
-            "currency": "USD",
-            "marketCap": 218969522176.0,
-            "trailingPE": 26.2041,
-            "forwardPE": 23.167513,
-            "priceToBook": -101.03721,
-            "profitMargins": 0.3204,
-            "operatingMargins": 0.46905997,
-            "returnOnEquity": null,
-            "dividendYield": 2.42,
-            "beta": 0.531
-          }
-        }
-      ]
-    },
-    {
-      "sector": "Energy",
-      "week_ending": "2026-01-02",
-      "direction": "Bullish",
-      "strength": 28,
-      "raw_score": 0.28595033503618383,
-      "diagnostics": {
-        "n_stocks": 176,
-        "breadth": 0.625,
-        "median_return": 0.014264102483212415,
-        "median_vol_ratio": 0.9817860202179076,
-        "signals": {
-          "breadth_signal": 0.25,
-          "return_signal": 0.4754700827737472,
-          "volume_signal": -0.036427959564184764
-        }
-      },
-      "top10_active": [
-        {
-          "rank": 1,
-          "ticker": "XOM",
-          "weekly_return": 0.0297204340306223,
-          "dollar_vol_week": 7100659123.012543,
-          "vol_ratio": 0.7475381271103614,
-          "fundamentals": {
-            "shortName": "Exxon Mobil Corporation",
-            "industry": "Oil & Gas Integrated",
-            "exchange": "NYQ",
-            "currency": "USD",
-            "marketCap": 525295976448.0,
-            "trailingPE": 17.909157,
-            "forwardPE": 17.587896,
-            "priceToBook": 1.9942219,
-            "profitMargins": 0.091809995,
-            "operatingMargins": 0.11057,
-            "returnOnEquity": 0.11424,
-            "dividendYield": 3.31,
-            "beta": 0.365
-          }
-        },
-        {
-          "rank": 2,
-          "ticker": "CVX",
-          "weekly_return": 0.03919470374993739,
-          "dollar_vol_week": 4008778033.2366943,
-          "vol_ratio": 0.5998254827207335,
-          "fundamentals": {
-            "shortName": "Chevron Corporation",
-            "industry": "Oil & Gas Integrated",
-            "exchange": "NYQ",
-            "currency": "USD",
-            "marketCap": 327832567808.0,
-            "trailingPE": 22.852585,
-            "forwardPE": 22.132772,
-            "priceToBook": 1.7257478,
-            "profitMargins": 0.06767,
-            "operatingMargins": 0.098529994,
-            "returnOnEquity": 0.07316,
-            "dividendYield": 4.22,
-            "beta": 0.687
-          }
-        },
-        {
-          "rank": 3,
-          "ticker": "COP",
-          "weekly_return": 0.05636875662123342,
-          "dollar_vol_week": 2344112286.593628,
-          "vol_ratio": 0.7021639644236437,
-          "fundamentals": {
-            "shortName": "ConocoPhillips",
-            "industry": "Oil & Gas E&P",
-            "exchange": "NYQ",
-            "currency": "USD",
-            "marketCap": 119836016640.0,
-            "trailingPE": 13.552259,
-            "forwardPE": 15.962667,
-            "priceToBook": 1.8262622,
-            "profitMargins": 0.14445,
-            "operatingMargins": 0.19543,
-            "returnOnEquity": 0.15421,
-            "dividendYield": 3.45,
-            "beta": 0.328
-          }
-        },
-        {
-          "rank": 4,
-          "ticker": "VLO",
-          "weekly_return": 0.007926364827136378,
-          "dollar_vol_week": 2000544907.7178955,
-          "vol_ratio": 0.9078266258724614,
-          "fundamentals": {
-            "shortName": "Valero Energy Corporation",
-            "industry": "Oil & Gas Refining & Marketing",
-            "exchange": "NYQ",
-            "currency": "USD",
-            "marketCap": 56057106432.0,
-            "trailingPE": 37.437756,
-            "forwardPE": 14.707393,
-            "priceToBook": 2.317056,
-            "profitMargins": 0.01283,
-            "operatingMargins": 0.05527,
-            "returnOnEquity": 0.052389998,
-            "dividendYield": 2.44,
-            "beta": 0.767
-          }
-        },
-        {
-          "rank": 5,
-          "ticker": "OXY",
-          "weekly_return": 0.06348814782608203,
-          "dollar_vol_week": 1882780417.0856476,
-          "vol_ratio": 1.0032331621444248,
-          "fundamentals": {
-            "shortName": "Occidental Petroleum Corporatio",
-            "industry": "Oil & Gas E&P",
-            "exchange": "NYQ",
-            "currency": "USD",
-            "marketCap": 42048782336.0,
-            "trailingPE": 31.382353,
-            "forwardPE": 32.290768,
-            "priceToBook": 1.5030816,
-            "profitMargins": 0.08169,
-            "operatingMargins": 0.17723,
-            "returnOnEquity": 0.05955,
-            "dividendYield": 2.24,
-            "beta": 0.38
-          }
-        },
-        {
-          "rank": 6,
-          "ticker": "SLB",
-          "weekly_return": 0.06377347946614842,
-          "dollar_vol_week": 1560937012.5236511,
-          "vol_ratio": 0.5543077839659508,
-          "fundamentals": {
-            "shortName": "SLB Limited",
-            "industry": "Oil & Gas Equipment & Services",
-            "exchange": "NYQ",
-            "currency": "USD",
-            "marketCap": 67293786112.0,
-            "trailingPE": 17.527237,
-            "forwardPE": 15.268352,
-            "priceToBook": 2.625,
-            "profitMargins": 0.10341,
-            "operatingMargins": 0.15479,
-            "returnOnEquity": 0.15182,
-            "dividendYield": 2.52,
-            "beta": 0.723
-          }
-        },
-        {
-          "rank": 7,
-          "ticker": "EOG",
-          "weekly_return": 0.036425088338805756,
-          "dollar_vol_week": 1504906438.786316,
-          "vol_ratio": 0.7214836950856233,
-          "fundamentals": {
-            "shortName": "EOG Resources, Inc.",
-            "industry": "Oil & Gas E&P",
-            "exchange": "NYQ",
-            "currency": "USD",
-            "marketCap": 57760645120.0,
-            "trailingPE": 10.505463,
-            "forwardPE": 10.286703,
-            "priceToBook": 1.8995205,
-            "profitMargins": 0.24410999,
-            "operatingMargins": 0.33223,
-            "returnOnEquity": 0.18476999,
-            "dividendYield": 3.89,
-            "beta": 0.501
-          }
-        },
-        {
-          "rank": 8,
-          "ticker": "EQT",
-          "weekly_return": -0.008715023512766762,
-          "dollar_vol_week": 1396883562.5213623,
-          "vol_ratio": 0.6415452195050935,
-          "fundamentals": {
-            "shortName": "EQT Corporation",
-            "industry": "Oil & Gas E&P",
-            "exchange": "NYQ",
-            "currency": "USD",
-            "marketCap": 32099084288.0,
-            "trailingPE": 16.754072,
-            "forwardPE": 12.068731,
-            "priceToBook": 1.3864629,
-            "profitMargins": 0.23097,
-            "operatingMargins": 0.34897,
-            "returnOnEquity": 0.08488,
-            "dividendYield": 1.29,
-            "beta": 0.681
-          }
-        },
-        {
-          "rank": 9,
-          "ticker": "MPC",
-          "weekly_return": 0.008858188811874612,
-          "dollar_vol_week": 1157248851.927185,
-          "vol_ratio": 0.6150290828616752,
-          "fundamentals": {
-            "shortName": "Marathon Petroleum Corporation",
-            "industry": "Oil & Gas Refining & Marketing",
-            "exchange": "NYQ",
-            "currency": "USD",
-            "marketCap": 53753831424.0,
-            "trailingPE": 18.789585,
-            "forwardPE": 12.534418,
-            "priceToBook": 3.1127973,
-            "profitMargins": 0.02158,
-            "operatingMargins": 0.049689997,
-            "returnOnEquity": 0.18887,
-            "dividendYield": 2.27,
-            "beta": 0.732
-          }
-        },
-        {
-          "rank": 10,
-          "ticker": "WMB",
-          "weekly_return": 0.022345396608342005,
-          "dollar_vol_week": 1133620420.4193115,
-          "vol_ratio": 0.5052866051671892,
-          "fundamentals": {
-            "shortName": "Williams Companies, Inc. (The)",
-            "industry": "Oil & Gas Midstream",
-            "exchange": "NYQ",
-            "currency": "USD",
-            "marketCap": 72320581632.0,
-            "trailingPE": 30.683939,
-            "forwardPE": 26.157707,
-            "priceToBook": 5.796222,
-            "profitMargins": 0.20462999,
-            "operatingMargins": 0.39554,
-            "returnOnEquity": 0.16902,
-            "dividendYield": 3.32,
-            "beta": 0.658
-          }
-        }
-      ]
-    },
-    {
       "sector": "Consumer Staples",
       "week_ending": "2026-01-02",
       "direction": "Bullish",
-      "strength": 26,
-      "raw_score": 0.26555975097184736,
+      "strength": 38,
+      "raw_score": 0.3814938543175238,
       "diagnostics": {
-        "n_stocks": 288,
-        "breadth": 0.6319444444444444,
-        "median_return": 0.013781791125078713,
-        "median_vol_ratio": 0.9094258113382819,
+        "n_stocks": 324,
+        "breadth": 0.6728395061728395,
+        "median_return": 0.01981513552303893,
+        "median_vol_ratio": 0.9249258901418784,
         "signals": {
-          "breadth_signal": 0.26388888888888884,
-          "return_signal": 0.4593930375026238,
-          "volume_signal": -0.18114837732343614
+          "breadth_signal": 0.345679012345679,
+          "return_signal": 0.660504517434631,
+          "volume_signal": -0.15014821971624315
         }
       },
       "top10_active": [
@@ -1202,20 +722,500 @@
       ]
     },
     {
+      "sector": "Energy",
+      "week_ending": "2026-01-02",
+      "direction": "Bullish",
+      "strength": 33,
+      "raw_score": 0.3364592708266848,
+      "diagnostics": {
+        "n_stocks": 198,
+        "breadth": 0.6464646464646465,
+        "median_return": 0.01662932914730675,
+        "median_vol_ratio": 0.986619281033754,
+        "signals": {
+          "breadth_signal": 0.29292929292929304,
+          "return_signal": 0.5543109715768917,
+          "volume_signal": -0.026761437932492083
+        }
+      },
+      "top10_active": [
+        {
+          "rank": 1,
+          "ticker": "XOM",
+          "weekly_return": 0.0297204340306223,
+          "dollar_vol_week": 7100659123.012543,
+          "vol_ratio": 0.7475381271103614,
+          "fundamentals": {
+            "shortName": "Exxon Mobil Corporation",
+            "industry": "Oil & Gas Integrated",
+            "exchange": "NYQ",
+            "currency": "USD",
+            "marketCap": 525295976448.0,
+            "trailingPE": 17.909157,
+            "forwardPE": 17.587896,
+            "priceToBook": 1.9942219,
+            "profitMargins": 0.091809995,
+            "operatingMargins": 0.11057,
+            "returnOnEquity": 0.11424,
+            "dividendYield": 3.31,
+            "beta": 0.365
+          }
+        },
+        {
+          "rank": 2,
+          "ticker": "CVX",
+          "weekly_return": 0.03919470374993739,
+          "dollar_vol_week": 4008778033.2366943,
+          "vol_ratio": 0.5998254827207335,
+          "fundamentals": {
+            "shortName": "Chevron Corporation",
+            "industry": "Oil & Gas Integrated",
+            "exchange": "NYQ",
+            "currency": "USD",
+            "marketCap": 327832567808.0,
+            "trailingPE": 22.852585,
+            "forwardPE": 22.132772,
+            "priceToBook": 1.7257478,
+            "profitMargins": 0.06767,
+            "operatingMargins": 0.098529994,
+            "returnOnEquity": 0.07316,
+            "dividendYield": 4.22,
+            "beta": 0.687
+          }
+        },
+        {
+          "rank": 3,
+          "ticker": "COP",
+          "weekly_return": 0.05636875662123342,
+          "dollar_vol_week": 2344112286.593628,
+          "vol_ratio": 0.7021639644236437,
+          "fundamentals": {
+            "shortName": "ConocoPhillips",
+            "industry": "Oil & Gas E&P",
+            "exchange": "NYQ",
+            "currency": "USD",
+            "marketCap": 119836016640.0,
+            "trailingPE": 13.552259,
+            "forwardPE": 15.962667,
+            "priceToBook": 1.8262622,
+            "profitMargins": 0.14445,
+            "operatingMargins": 0.19543,
+            "returnOnEquity": 0.15421,
+            "dividendYield": 3.45,
+            "beta": 0.328
+          }
+        },
+        {
+          "rank": 4,
+          "ticker": "VLO",
+          "weekly_return": 0.007926364827136378,
+          "dollar_vol_week": 2000544907.7178955,
+          "vol_ratio": 0.9078266258724614,
+          "fundamentals": {
+            "shortName": "Valero Energy Corporation",
+            "industry": "Oil & Gas Refining & Marketing",
+            "exchange": "NYQ",
+            "currency": "USD",
+            "marketCap": 56057106432.0,
+            "trailingPE": 37.437756,
+            "forwardPE": 14.707393,
+            "priceToBook": 2.317056,
+            "profitMargins": 0.01283,
+            "operatingMargins": 0.05527,
+            "returnOnEquity": 0.052389998,
+            "dividendYield": 2.44,
+            "beta": 0.767
+          }
+        },
+        {
+          "rank": 5,
+          "ticker": "OXY",
+          "weekly_return": 0.06348814782608203,
+          "dollar_vol_week": 1882780417.0856476,
+          "vol_ratio": 1.0032331621444248,
+          "fundamentals": {
+            "shortName": "Occidental Petroleum Corporatio",
+            "industry": "Oil & Gas E&P",
+            "exchange": "NYQ",
+            "currency": "USD",
+            "marketCap": 42048782336.0,
+            "trailingPE": 31.382353,
+            "forwardPE": 32.290768,
+            "priceToBook": 1.5030816,
+            "profitMargins": 0.08169,
+            "operatingMargins": 0.17723,
+            "returnOnEquity": 0.05955,
+            "dividendYield": 2.24,
+            "beta": 0.38
+          }
+        },
+        {
+          "rank": 6,
+          "ticker": "SLB",
+          "weekly_return": 0.06377347946614842,
+          "dollar_vol_week": 1560937012.5236511,
+          "vol_ratio": 0.5543077839659508,
+          "fundamentals": {
+            "shortName": "SLB Limited",
+            "industry": "Oil & Gas Equipment & Services",
+            "exchange": "NYQ",
+            "currency": "USD",
+            "marketCap": 67293786112.0,
+            "trailingPE": 17.527237,
+            "forwardPE": 15.268352,
+            "priceToBook": 2.625,
+            "profitMargins": 0.10341,
+            "operatingMargins": 0.15479,
+            "returnOnEquity": 0.15182,
+            "dividendYield": 2.52,
+            "beta": 0.723
+          }
+        },
+        {
+          "rank": 7,
+          "ticker": "EOG",
+          "weekly_return": 0.036425088338805756,
+          "dollar_vol_week": 1504906438.786316,
+          "vol_ratio": 0.7214836950856233,
+          "fundamentals": {
+            "shortName": "EOG Resources, Inc.",
+            "industry": "Oil & Gas E&P",
+            "exchange": "NYQ",
+            "currency": "USD",
+            "marketCap": 57760645120.0,
+            "trailingPE": 10.505463,
+            "forwardPE": 10.286703,
+            "priceToBook": 1.8995205,
+            "profitMargins": 0.24410999,
+            "operatingMargins": 0.33223,
+            "returnOnEquity": 0.18476999,
+            "dividendYield": 3.89,
+            "beta": 0.501
+          }
+        },
+        {
+          "rank": 8,
+          "ticker": "EQT",
+          "weekly_return": -0.008715023512766762,
+          "dollar_vol_week": 1396883562.5213623,
+          "vol_ratio": 0.6415452195050935,
+          "fundamentals": {
+            "shortName": "EQT Corporation",
+            "industry": "Oil & Gas E&P",
+            "exchange": "NYQ",
+            "currency": "USD",
+            "marketCap": 32099084288.0,
+            "trailingPE": 16.754072,
+            "forwardPE": 12.068731,
+            "priceToBook": 1.3864629,
+            "profitMargins": 0.23097,
+            "operatingMargins": 0.34897,
+            "returnOnEquity": 0.08488,
+            "dividendYield": 1.29,
+            "beta": 0.681
+          }
+        },
+        {
+          "rank": 9,
+          "ticker": "MPC",
+          "weekly_return": 0.008858188811874612,
+          "dollar_vol_week": 1157248851.927185,
+          "vol_ratio": 0.6150290828616752,
+          "fundamentals": {
+            "shortName": "Marathon Petroleum Corporation",
+            "industry": "Oil & Gas Refining & Marketing",
+            "exchange": "NYQ",
+            "currency": "USD",
+            "marketCap": 53753831424.0,
+            "trailingPE": 18.789585,
+            "forwardPE": 12.534418,
+            "priceToBook": 3.1127973,
+            "profitMargins": 0.02158,
+            "operatingMargins": 0.049689997,
+            "returnOnEquity": 0.18887,
+            "dividendYield": 2.27,
+            "beta": 0.732
+          }
+        },
+        {
+          "rank": 10,
+          "ticker": "WMB",
+          "weekly_return": 0.022345396608342005,
+          "dollar_vol_week": 1133620420.4193115,
+          "vol_ratio": 0.5052866051671892,
+          "fundamentals": {
+            "shortName": "Williams Companies, Inc. (The)",
+            "industry": "Oil & Gas Midstream",
+            "exchange": "NYQ",
+            "currency": "USD",
+            "marketCap": 72320581632.0,
+            "trailingPE": 30.683939,
+            "forwardPE": 26.157707,
+            "priceToBook": 5.796222,
+            "profitMargins": 0.20462999,
+            "operatingMargins": 0.39554,
+            "returnOnEquity": 0.16902,
+            "dividendYield": 3.32,
+            "beta": 0.658
+          }
+        }
+      ]
+    },
+    {
+      "sector": "Consumer Discretionary",
+      "week_ending": "2026-01-02",
+      "direction": "Bullish",
+      "strength": 29,
+      "raw_score": 0.2927643505086731,
+      "diagnostics": {
+        "n_stocks": 431,
+        "breadth": 0.6612529002320185,
+        "median_return": 0.016797249321230945,
+        "median_vol_ratio": 0.7851451384298676,
+        "signals": {
+          "breadth_signal": 0.3225058004640371,
+          "return_signal": 0.5599083107076982,
+          "volume_signal": -0.4297097231402649
+        }
+      },
+      "top10_active": [
+        {
+          "rank": 1,
+          "ticker": "TSLA",
+          "weekly_return": -0.07811611129542784,
+          "dollar_vol_week": 144731399642.67578,
+          "vol_ratio": 0.7831982772121536,
+          "fundamentals": {
+            "shortName": "Tesla, Inc.",
+            "industry": "Auto Manufacturers",
+            "exchange": "NMS",
+            "currency": "USD",
+            "marketCap": 1497978896384.0,
+            "trailingPE": 306.40067,
+            "forwardPE": 206.30397,
+            "priceToBook": 18.721796,
+            "profitMargins": 0.05314,
+            "operatingMargins": 0.06628,
+            "returnOnEquity": 0.06791,
+            "dividendYield": null,
+            "beta": 1.835
+          }
+        },
+        {
+          "rank": 2,
+          "ticker": "TSLA",
+          "weekly_return": -0.05092089981694692,
+          "dollar_vol_week": 143880226801.62646,
+          "vol_ratio": 0.7996717112904751,
+          "fundamentals": {
+            "shortName": "Tesla, Inc.",
+            "industry": "Auto Manufacturers",
+            "exchange": "NMS",
+            "currency": "USD",
+            "marketCap": 1497978896384.0,
+            "trailingPE": 306.40067,
+            "forwardPE": 206.30397,
+            "priceToBook": 18.721796,
+            "profitMargins": 0.05314,
+            "operatingMargins": 0.06628,
+            "returnOnEquity": 0.06791,
+            "dividendYield": null,
+            "beta": 1.835
+          }
+        },
+        {
+          "rank": 3,
+          "ticker": "AMZN",
+          "weekly_return": 0.03999485270967029,
+          "dollar_vol_week": 39843952083.854065,
+          "vol_ratio": 0.7591187174490927,
+          "fundamentals": {
+            "shortName": "Amazon.com, Inc.",
+            "industry": "Internet Retail",
+            "exchange": "NMS",
+            "currency": "USD",
+            "marketCap": 2652990865408.0,
+            "trailingPE": 35.05226,
+            "forwardPE": 31.56351,
+            "priceToBook": 7.1752386,
+            "profitMargins": 0.11063,
+            "operatingMargins": 0.11057,
+            "returnOnEquity": 0.24327,
+            "dividendYield": null,
+            "beta": 1.376
+          }
+        },
+        {
+          "rank": 4,
+          "ticker": "AMZN",
+          "weekly_return": -0.025890263899216448,
+          "dollar_vol_week": 30678577011.18622,
+          "vol_ratio": 0.5536604737418227,
+          "fundamentals": {
+            "shortName": "Amazon.com, Inc.",
+            "industry": "Internet Retail",
+            "exchange": "NMS",
+            "currency": "USD",
+            "marketCap": 2652990865408.0,
+            "trailingPE": 35.05226,
+            "forwardPE": 31.56351,
+            "priceToBook": 7.1752386,
+            "profitMargins": 0.11063,
+            "operatingMargins": 0.11057,
+            "returnOnEquity": 0.24327,
+            "dividendYield": null,
+            "beta": 1.376
+          }
+        },
+        {
+          "rank": 5,
+          "ticker": "NKE",
+          "weekly_return": 0.038568824263102375,
+          "dollar_vol_week": 6957907093.099976,
+          "vol_ratio": 1.1868089497345589,
+          "fundamentals": {
+            "shortName": "Nike, Inc.",
+            "industry": "Footwear & Accessories",
+            "exchange": "NYQ",
+            "currency": "USD",
+            "marketCap": 97253785600.0,
+            "trailingPE": 38.41813,
+            "forwardPE": 28.239273,
+            "priceToBook": 6.9021854,
+            "profitMargins": 0.05426,
+            "operatingMargins": 0.08095,
+            "returnOnEquity": 0.17950001,
+            "dividendYield": 2.49,
+            "beta": 1.284
+          }
+        },
+        {
+          "rank": 6,
+          "ticker": "NKE",
+          "weekly_return": 0.05548293077231392,
+          "dollar_vol_week": 6821181615.7486725,
+          "vol_ratio": 1.1241172541841176,
+          "fundamentals": {
+            "shortName": "Nike, Inc.",
+            "industry": "Footwear & Accessories",
+            "exchange": "NYQ",
+            "currency": "USD",
+            "marketCap": 97253785600.0,
+            "trailingPE": 38.41813,
+            "forwardPE": 28.239273,
+            "priceToBook": 6.9021854,
+            "profitMargins": 0.05426,
+            "operatingMargins": 0.08095,
+            "returnOnEquity": 0.17950001,
+            "dividendYield": 2.49,
+            "beta": 1.284
+          }
+        },
+        {
+          "rank": 7,
+          "ticker": "CVNA",
+          "weekly_return": 0.013991409466694416,
+          "dollar_vol_week": 5577300307.496948,
+          "vol_ratio": 0.5999830691218319,
+          "fundamentals": {
+            "shortName": "Carvana Co.",
+            "industry": "Auto & Truck Dealerships",
+            "exchange": "NYQ",
+            "currency": "USD",
+            "marketCap": 101833654272.0,
+            "trailingPE": 106.75113,
+            "forwardPE": 63.400482,
+            "priceToBook": 29.096512,
+            "profitMargins": 0.03444,
+            "operatingMargins": 0.09793,
+            "returnOnEquity": 0.6815,
+            "dividendYield": null,
+            "beta": 3.553
+          }
+        },
+        {
+          "rank": 8,
+          "ticker": "HD",
+          "weekly_return": 0.007665652468628492,
+          "dollar_vol_week": 5372696608.808472,
+          "vol_ratio": 0.6748373268856261,
+          "fundamentals": {
+            "shortName": "Home Depot, Inc. (The)",
+            "industry": "Home Improvement Retail",
+            "exchange": "NYQ",
+            "currency": "USD",
+            "marketCap": 374337208320.0,
+            "trailingPE": 25.667236,
+            "forwardPE": 24.91022,
+            "priceToBook": 30.879936,
+            "profitMargins": 0.087740004,
+            "operatingMargins": 0.12945,
+            "returnOnEquity": 1.62909,
+            "dividendYield": 2.46,
+            "beta": 1.072
+          }
+        },
+        {
+          "rank": 9,
+          "ticker": "HD",
+          "weekly_return": -0.01132137763422203,
+          "dollar_vol_week": 4869306902.392578,
+          "vol_ratio": 0.6077232761258831,
+          "fundamentals": {
+            "shortName": "Home Depot, Inc. (The)",
+            "industry": "Home Improvement Retail",
+            "exchange": "NYQ",
+            "currency": "USD",
+            "marketCap": 374337208320.0,
+            "trailingPE": 25.667236,
+            "forwardPE": 24.91022,
+            "priceToBook": 30.879936,
+            "profitMargins": 0.087740004,
+            "operatingMargins": 0.12945,
+            "returnOnEquity": 1.62909,
+            "dividendYield": 2.46,
+            "beta": 1.072
+          }
+        },
+        {
+          "rank": 10,
+          "ticker": "MCD",
+          "weekly_return": -0.017157431688645586,
+          "dollar_vol_week": 3934875867.946045,
+          "vol_ratio": 0.7651682144779699,
+          "fundamentals": {
+            "shortName": "McDonald's Corporation",
+            "industry": "Restaurants",
+            "exchange": "NYQ",
+            "currency": "USD",
+            "marketCap": 218969522176.0,
+            "trailingPE": 26.2041,
+            "forwardPE": 23.167513,
+            "priceToBook": -101.03721,
+            "profitMargins": 0.3204,
+            "operatingMargins": 0.46905997,
+            "returnOnEquity": null,
+            "dividendYield": 2.42,
+            "beta": 0.531
+          }
+        }
+      ]
+    },
+    {
       "sector": "Communication Services",
       "week_ending": "2026-01-02",
       "direction": "Bearish",
-      "strength": 23,
-      "raw_score": -0.23420943884918718,
+      "strength": 24,
+      "raw_score": -0.24760034617867743,
       "diagnostics": {
-        "n_stocks": 184,
-        "breadth": 0.3967391304347826,
-        "median_return": -0.003842393100242647,
-        "median_vol_ratio": 0.7129311673962037,
+        "n_stocks": 207,
+        "breadth": 0.3864734299516908,
+        "median_return": -0.0044153436967222515,
+        "median_vol_ratio": 0.7247952233268601,
         "signals": {
-          "breadth_signal": -0.2065217391304348,
-          "return_signal": -0.12807977000808823,
-          "volume_signal": -0.5741376652075927
+          "breadth_signal": -0.22705314009661837,
+          "return_signal": -0.14717812322407506,
+          "volume_signal": -0.5504095533462798
         }
       },
       "top10_active": [
@@ -1442,260 +1442,20 @@
       ]
     },
     {
-      "sector": "Health Care",
-      "week_ending": "2026-01-02",
-      "direction": "Bullish",
-      "strength": 10,
-      "raw_score": 0.10232188447519525,
-      "diagnostics": {
-        "n_stocks": 480,
-        "breadth": 0.5895833333333333,
-        "median_return": 0.007458469652913413,
-        "median_vol_ratio": 0.7524102395262402,
-        "signals": {
-          "breadth_signal": 0.1791666666666667,
-          "return_signal": 0.24861565509711378,
-          "volume_signal": -0.4951795209475196
-        }
-      },
-      "top10_active": [
-        {
-          "rank": 1,
-          "ticker": "LLY",
-          "weekly_return": 0.002421698308107123,
-          "dollar_vol_week": 8663612913.012695,
-          "vol_ratio": 0.39664724822422776,
-          "fundamentals": {
-            "shortName": "Eli Lilly and Company",
-            "industry": "Drug Manufacturers - General",
-            "exchange": "NYQ",
-            "currency": "USD",
-            "marketCap": 961603829760.0,
-            "trailingPE": 52.53045,
-            "forwardPE": 32.621933,
-            "priceToBook": 40.386738,
-            "profitMargins": 0.30986,
-            "operatingMargins": 0.48294,
-            "returnOnEquity": 0.9647,
-            "dividendYield": 0.59,
-            "beta": 0.347
-          }
-        },
-        {
-          "rank": 2,
-          "ticker": "UNH",
-          "weekly_return": 0.013772134855640994,
-          "dollar_vol_week": 8070569666.674805,
-          "vol_ratio": 0.6356926226450411,
-          "fundamentals": {
-            "shortName": "UnitedHealth Group Incorporated",
-            "industry": "Healthcare Plans",
-            "exchange": "NYQ",
-            "currency": "USD",
-            "marketCap": 307704299520.0,
-            "trailingPE": 17.701406,
-            "forwardPE": 19.13353,
-            "priceToBook": 3.212958,
-            "profitMargins": 0.04042,
-            "operatingMargins": 0.03813,
-            "returnOnEquity": 0.17476,
-            "dividendYield": 2.57,
-            "beta": 0.425
-          }
-        },
-        {
-          "rank": 3,
-          "ticker": "JNJ",
-          "weekly_return": -0.00134854680302543,
-          "dollar_vol_week": 4355096415.258789,
-          "vol_ratio": 0.46392589920651633,
-          "fundamentals": {
-            "shortName": "Johnson & Johnson",
-            "industry": "Drug Manufacturers - General",
-            "exchange": "NYQ",
-            "currency": "USD",
-            "marketCap": 502250307584.0,
-            "trailingPE": 20.160889,
-            "forwardPE": 18.109064,
-            "priceToBook": 6.327241,
-            "profitMargins": 0.27259,
-            "operatingMargins": 0.30200002,
-            "returnOnEquity": 0.33619,
-            "dividendYield": 2.54,
-            "beta": 0.333
-          }
-        },
-        {
-          "rank": 4,
-          "ticker": "MRK",
-          "weekly_return": -0.0030904835627201255,
-          "dollar_vol_week": 4081164835.331726,
-          "vol_ratio": 0.5026538702540325,
-          "fundamentals": {
-            "shortName": "Merck & Company, Inc.",
-            "industry": "Drug Manufacturers - General",
-            "exchange": "NYQ",
-            "currency": "USD",
-            "marketCap": 273401102336.0,
-            "trailingPE": 14.478505,
-            "forwardPE": 14.680419,
-            "priceToBook": 5.2510195,
-            "profitMargins": 0.29632,
-            "operatingMargins": 0.40802,
-            "returnOnEquity": 0.39485002,
-            "dividendYield": 3.08,
-            "beta": 0.298
-          }
-        },
-        {
-          "rank": 5,
-          "ticker": "PFE",
-          "weekly_return": 0.003587092548447357,
-          "dollar_vol_week": 3727086671.4571,
-          "vol_ratio": 0.3916179276276689,
-          "fundamentals": {
-            "shortName": "Pfizer, Inc.",
-            "industry": "Drug Manufacturers - General",
-            "exchange": "NYQ",
-            "currency": "USD",
-            "marketCap": 143817703424.0,
-            "trailingPE": 14.706162,
-            "forwardPE": 8.477283,
-            "priceToBook": 1.5498194,
-            "profitMargins": 0.15654999,
-            "operatingMargins": 0.35277,
-            "returnOnEquity": 0.105979994,
-            "dividendYield": 6.75,
-            "beta": 0.433
-          }
-        },
-        {
-          "rank": 6,
-          "ticker": "ABBV",
-          "weekly_return": -0.002913288900740163,
-          "dollar_vol_week": 3279500452.5756836,
-          "vol_ratio": 0.4718209680217429,
-          "fundamentals": {
-            "shortName": "AbbVie Inc.",
-            "industry": "Drug Manufacturers - General",
-            "exchange": "NYQ",
-            "currency": "USD",
-            "marketCap": 387511451648.0,
-            "trailingPE": 166.10379,
-            "forwardPE": 15.3930025,
-            "priceToBook": -146.6602,
-            "profitMargins": 0.04004,
-            "operatingMargins": 0.35497,
-            "returnOnEquity": 1.37961,
-            "dividendYield": 3.14,
-            "beta": 0.35
-          }
-        },
-        {
-          "rank": 7,
-          "ticker": "TMO",
-          "weekly_return": 0.02026727921130389,
-          "dollar_vol_week": 2913183858.2702637,
-          "vol_ratio": 0.597572643195398,
-          "fundamentals": {
-            "shortName": "Thermo Fisher Scientific Inc",
-            "industry": "Diagnostics & Research",
-            "exchange": "NYQ",
-            "currency": "USD",
-            "marketCap": 228721704960.0,
-            "trailingPE": 35.128395,
-            "forwardPE": 24.69247,
-            "priceToBook": 4.483144,
-            "profitMargins": 0.15022,
-            "operatingMargins": 0.19277,
-            "returnOnEquity": 0.13116999,
-            "dividendYield": 0.28,
-            "beta": 0.91
-          }
-        },
-        {
-          "rank": 8,
-          "ticker": "ABT",
-          "weekly_return": -0.005206615792627156,
-          "dollar_vol_week": 2502679661.567688,
-          "vol_ratio": 0.629003630654499,
-          "fundamentals": {
-            "shortName": "Abbott Laboratories",
-            "industry": "Medical Devices",
-            "exchange": "NYQ",
-            "currency": "USD",
-            "marketCap": 215921344512.0,
-            "trailingPE": 15.585426,
-            "forwardPE": 21.851358,
-            "priceToBook": 4.233696,
-            "profitMargins": 0.3188,
-            "operatingMargins": 0.19395,
-            "returnOnEquity": 0.3062,
-            "dividendYield": 2.0,
-            "beta": 0.72
-          }
-        },
-        {
-          "rank": 9,
-          "ticker": "ISRG",
-          "weekly_return": -0.02739657873129564,
-          "dollar_vol_week": 2392241744.4213867,
-          "vol_ratio": 0.45827259524866965,
-          "fundamentals": {
-            "shortName": "Intuitive Surgical, Inc.",
-            "industry": "Medical Instruments & Supplies",
-            "exchange": "NMS",
-            "currency": "USD",
-            "marketCap": 204625559552.0,
-            "trailingPE": 75.505295,
-            "forwardPE": 58.822926,
-            "priceToBook": 11.966125,
-            "profitMargins": 0.28577998,
-            "operatingMargins": 0.30326,
-            "returnOnEquity": 0.16902,
-            "dividendYield": null,
-            "beta": 1.672
-          }
-        },
-        {
-          "rank": 10,
-          "ticker": "AMGN",
-          "weekly_return": -0.01588916031513965,
-          "dollar_vol_week": 2363968917.0043945,
-          "vol_ratio": 0.46153401537483385,
-          "fundamentals": {
-            "shortName": "Amgen Inc.",
-            "industry": "Drug Manufacturers - General",
-            "exchange": "NMS",
-            "currency": "USD",
-            "marketCap": 174844231680.0,
-            "trailingPE": 25.073298,
-            "forwardPE": 14.772477,
-            "priceToBook": 18.17719,
-            "profitMargins": 0.19474001,
-            "operatingMargins": 0.34153,
-            "returnOnEquity": 0.8171,
-            "dividendYield": 2.96,
-            "beta": 0.45
-          }
-        }
-      ]
-    },
-    {
       "sector": "Financials",
       "week_ending": "2026-01-02",
       "direction": "Bearish",
       "strength": 8,
-      "raw_score": -0.08097768524130117,
+      "raw_score": -0.08950862489296339,
       "diagnostics": {
-        "n_stocks": 607,
-        "breadth": 0.4843492586490939,
-        "median_return": -0.000877410485654484,
-        "median_vol_ratio": 0.8163650392519131,
+        "n_stocks": 676,
+        "breadth": 0.47781065088757396,
+        "median_return": -0.0013528019724937668,
+        "median_vol_ratio": 0.8282113796618553,
         "signals": {
-          "breadth_signal": -0.03130148270181221,
-          "return_signal": -0.0292470161884828,
-          "volume_signal": -0.3672699214961739
+          "breadth_signal": -0.044378698224852076,
+          "return_signal": -0.04509339908312556,
+          "volume_signal": -0.34357724067628936
         }
       },
       "top10_active": [
@@ -1922,20 +1682,500 @@
       ]
     },
     {
+      "sector": "Health Care",
+      "week_ending": "2026-01-02",
+      "direction": "Bullish",
+      "strength": 8,
+      "raw_score": 0.08545037827951828,
+      "diagnostics": {
+        "n_stocks": 540,
+        "breadth": 0.5833333333333334,
+        "median_return": 0.006362017108008988,
+        "median_vol_ratio": 0.7596450400647112,
+        "signals": {
+          "breadth_signal": 0.16666666666666674,
+          "return_signal": 0.21206723693363294,
+          "volume_signal": -0.48070991987057754
+        }
+      },
+      "top10_active": [
+        {
+          "rank": 1,
+          "ticker": "LLY",
+          "weekly_return": 0.002421698308107123,
+          "dollar_vol_week": 8663612913.012695,
+          "vol_ratio": 0.39664724822422776,
+          "fundamentals": {
+            "shortName": "Eli Lilly and Company",
+            "industry": "Drug Manufacturers - General",
+            "exchange": "NYQ",
+            "currency": "USD",
+            "marketCap": 961603829760.0,
+            "trailingPE": 52.53045,
+            "forwardPE": 32.621933,
+            "priceToBook": 40.386738,
+            "profitMargins": 0.30986,
+            "operatingMargins": 0.48294,
+            "returnOnEquity": 0.9647,
+            "dividendYield": 0.59,
+            "beta": 0.347
+          }
+        },
+        {
+          "rank": 2,
+          "ticker": "UNH",
+          "weekly_return": 0.013772134855640994,
+          "dollar_vol_week": 8070569666.674805,
+          "vol_ratio": 0.6356926226450411,
+          "fundamentals": {
+            "shortName": "UnitedHealth Group Incorporated",
+            "industry": "Healthcare Plans",
+            "exchange": "NYQ",
+            "currency": "USD",
+            "marketCap": 307704299520.0,
+            "trailingPE": 17.701406,
+            "forwardPE": 19.13353,
+            "priceToBook": 3.212958,
+            "profitMargins": 0.04042,
+            "operatingMargins": 0.03813,
+            "returnOnEquity": 0.17476,
+            "dividendYield": 2.57,
+            "beta": 0.425
+          }
+        },
+        {
+          "rank": 3,
+          "ticker": "JNJ",
+          "weekly_return": -0.00134854680302543,
+          "dollar_vol_week": 4355096415.258789,
+          "vol_ratio": 0.46392589920651633,
+          "fundamentals": {
+            "shortName": "Johnson & Johnson",
+            "industry": "Drug Manufacturers - General",
+            "exchange": "NYQ",
+            "currency": "USD",
+            "marketCap": 502250307584.0,
+            "trailingPE": 20.160889,
+            "forwardPE": 18.109064,
+            "priceToBook": 6.327241,
+            "profitMargins": 0.27259,
+            "operatingMargins": 0.30200002,
+            "returnOnEquity": 0.33619,
+            "dividendYield": 2.54,
+            "beta": 0.333
+          }
+        },
+        {
+          "rank": 4,
+          "ticker": "MRK",
+          "weekly_return": -0.0030904835627201255,
+          "dollar_vol_week": 4081164835.331726,
+          "vol_ratio": 0.5026538702540325,
+          "fundamentals": {
+            "shortName": "Merck & Company, Inc.",
+            "industry": "Drug Manufacturers - General",
+            "exchange": "NYQ",
+            "currency": "USD",
+            "marketCap": 273401102336.0,
+            "trailingPE": 14.478505,
+            "forwardPE": 14.680419,
+            "priceToBook": 5.2510195,
+            "profitMargins": 0.29632,
+            "operatingMargins": 0.40802,
+            "returnOnEquity": 0.39485002,
+            "dividendYield": 3.08,
+            "beta": 0.298
+          }
+        },
+        {
+          "rank": 5,
+          "ticker": "PFE",
+          "weekly_return": 0.003587092548447357,
+          "dollar_vol_week": 3727086671.4571,
+          "vol_ratio": 0.3916179276276689,
+          "fundamentals": {
+            "shortName": "Pfizer, Inc.",
+            "industry": "Drug Manufacturers - General",
+            "exchange": "NYQ",
+            "currency": "USD",
+            "marketCap": 143817703424.0,
+            "trailingPE": 14.706162,
+            "forwardPE": 8.477283,
+            "priceToBook": 1.5498194,
+            "profitMargins": 0.15654999,
+            "operatingMargins": 0.35277,
+            "returnOnEquity": 0.105979994,
+            "dividendYield": 6.75,
+            "beta": 0.433
+          }
+        },
+        {
+          "rank": 6,
+          "ticker": "ABBV",
+          "weekly_return": -0.002913288900740163,
+          "dollar_vol_week": 3279500452.5756836,
+          "vol_ratio": 0.4718209680217429,
+          "fundamentals": {
+            "shortName": "AbbVie Inc.",
+            "industry": "Drug Manufacturers - General",
+            "exchange": "NYQ",
+            "currency": "USD",
+            "marketCap": 387511451648.0,
+            "trailingPE": 166.10379,
+            "forwardPE": 15.3930025,
+            "priceToBook": -146.6602,
+            "profitMargins": 0.04004,
+            "operatingMargins": 0.35497,
+            "returnOnEquity": 1.37961,
+            "dividendYield": 3.14,
+            "beta": 0.35
+          }
+        },
+        {
+          "rank": 7,
+          "ticker": "TMO",
+          "weekly_return": 0.02026727921130389,
+          "dollar_vol_week": 2913183858.2702637,
+          "vol_ratio": 0.597572643195398,
+          "fundamentals": {
+            "shortName": "Thermo Fisher Scientific Inc",
+            "industry": "Diagnostics & Research",
+            "exchange": "NYQ",
+            "currency": "USD",
+            "marketCap": 228721704960.0,
+            "trailingPE": 35.128395,
+            "forwardPE": 24.69247,
+            "priceToBook": 4.483144,
+            "profitMargins": 0.15022,
+            "operatingMargins": 0.19277,
+            "returnOnEquity": 0.13116999,
+            "dividendYield": 0.28,
+            "beta": 0.91
+          }
+        },
+        {
+          "rank": 8,
+          "ticker": "ABT",
+          "weekly_return": -0.005206615792627156,
+          "dollar_vol_week": 2502679661.567688,
+          "vol_ratio": 0.629003630654499,
+          "fundamentals": {
+            "shortName": "Abbott Laboratories",
+            "industry": "Medical Devices",
+            "exchange": "NYQ",
+            "currency": "USD",
+            "marketCap": 215921344512.0,
+            "trailingPE": 15.585426,
+            "forwardPE": 21.851358,
+            "priceToBook": 4.233696,
+            "profitMargins": 0.3188,
+            "operatingMargins": 0.19395,
+            "returnOnEquity": 0.3062,
+            "dividendYield": 2.0,
+            "beta": 0.72
+          }
+        },
+        {
+          "rank": 9,
+          "ticker": "ISRG",
+          "weekly_return": -0.02739657873129564,
+          "dollar_vol_week": 2392241744.4213867,
+          "vol_ratio": 0.45827259524866965,
+          "fundamentals": {
+            "shortName": "Intuitive Surgical, Inc.",
+            "industry": "Medical Instruments & Supplies",
+            "exchange": "NMS",
+            "currency": "USD",
+            "marketCap": 204625559552.0,
+            "trailingPE": 75.505295,
+            "forwardPE": 58.822926,
+            "priceToBook": 11.966125,
+            "profitMargins": 0.28577998,
+            "operatingMargins": 0.30326,
+            "returnOnEquity": 0.16902,
+            "dividendYield": null,
+            "beta": 1.672
+          }
+        },
+        {
+          "rank": 10,
+          "ticker": "AMGN",
+          "weekly_return": -0.01588916031513965,
+          "dollar_vol_week": 2363968917.0043945,
+          "vol_ratio": 0.46153401537483385,
+          "fundamentals": {
+            "shortName": "Amgen Inc.",
+            "industry": "Drug Manufacturers - General",
+            "exchange": "NMS",
+            "currency": "USD",
+            "marketCap": 174844231680.0,
+            "trailingPE": 25.073298,
+            "forwardPE": 14.772477,
+            "priceToBook": 18.17719,
+            "profitMargins": 0.19474001,
+            "operatingMargins": 0.34153,
+            "returnOnEquity": 0.8171,
+            "dividendYield": 2.96,
+            "beta": 0.45
+          }
+        }
+      ]
+    },
+    {
+      "sector": "Real Estate",
+      "week_ending": "2026-01-02",
+      "direction": "Bullish",
+      "strength": 7,
+      "raw_score": 0.07180269961685803,
+      "diagnostics": {
+        "n_stocks": 279,
+        "breadth": 0.5734767025089605,
+        "median_return": 0.0033351009948312527,
+        "median_vol_ratio": 0.864721618338443,
+        "signals": {
+          "breadth_signal": 0.1469534050179211,
+          "return_signal": 0.11117003316104176,
+          "volume_signal": -0.27055676332311407
+        }
+      },
+      "top10_active": [
+        {
+          "rank": 1,
+          "ticker": "WELL",
+          "weekly_return": -0.004897254157118391,
+          "dollar_vol_week": 1664600371.3790894,
+          "vol_ratio": 0.4745211318955605,
+          "fundamentals": {
+            "shortName": "Welltower Inc.",
+            "industry": "REIT - Healthcare Facilities",
+            "exchange": "NYQ",
+            "currency": "USD",
+            "marketCap": 128693370880.0,
+            "trailingPE": 129.31723,
+            "forwardPE": 86.013756,
+            "priceToBook": 3.3097982,
+            "profitMargins": 0.09693,
+            "operatingMargins": 0.19906001,
+            "returnOnEquity": 0.0275,
+            "dividendYield": 1.59,
+            "beta": 0.857
+          }
+        },
+        {
+          "rank": 2,
+          "ticker": "AMT",
+          "weekly_return": -0.009126470023975042,
+          "dollar_vol_week": 1551977165.2008057,
+          "vol_ratio": 0.5334767865669747,
+          "fundamentals": {
+            "shortName": "American Tower Corporation (REI",
+            "industry": "REIT - Specialty",
+            "exchange": "NYQ",
+            "currency": "USD",
+            "marketCap": 79654215680.0,
+            "trailingPE": 27.130781,
+            "forwardPE": 24.534683,
+            "priceToBook": 20.152826,
+            "profitMargins": 0.28106,
+            "operatingMargins": 0.45477,
+            "returnOnEquity": 0.28839,
+            "dividendYield": 4.04,
+            "beta": 0.929
+          }
+        },
+        {
+          "rank": 3,
+          "ticker": "O",
+          "weekly_return": 0.010936721848674003,
+          "dollar_vol_week": 1523978535.981369,
+          "vol_ratio": 0.81599289313014,
+          "fundamentals": {
+            "shortName": "Realty Income Corporation",
+            "industry": "REIT - Retail",
+            "exchange": "NYQ",
+            "currency": "USD",
+            "marketCap": 54177853440.0,
+            "trailingPE": 55.042053,
+            "forwardPE": 36.713234,
+            "priceToBook": 1.3873643,
+            "profitMargins": 0.17135,
+            "operatingMargins": 0.44514,
+            "returnOnEquity": 0.02488,
+            "dividendYield": 5.54,
+            "beta": 0.807
+          }
+        },
+        {
+          "rank": 4,
+          "ticker": "PLD",
+          "weekly_return": 0.0026415687992811243,
+          "dollar_vol_week": 1481815455.519104,
+          "vol_ratio": 0.6521446114396721,
+          "fundamentals": {
+            "shortName": "Prologis, Inc.",
+            "industry": "REIT - Industrial",
+            "exchange": "NYQ",
+            "currency": "USD",
+            "marketCap": 120139653120.0,
+            "trailingPE": 37.598835,
+            "forwardPE": 44.8893,
+            "priceToBook": 2.2847552,
+            "profitMargins": 0.35243,
+            "operatingMargins": 0.42720002,
+            "returnOnEquity": 0.05963,
+            "dividendYield": 3.12,
+            "beta": 1.418
+          }
+        },
+        {
+          "rank": 5,
+          "ticker": "EQIX",
+          "weekly_return": 0.0010611785294740717,
+          "dollar_vol_week": 1333856725.756836,
+          "vol_ratio": 0.5775680255901352,
+          "fundamentals": {
+            "shortName": "Equinix, Inc.",
+            "industry": "REIT - Specialty",
+            "exchange": "NMS",
+            "currency": "USD",
+            "marketCap": 76354895872.0,
+            "trailingPE": 71.47565,
+            "forwardPE": 50.99006,
+            "priceToBook": 5.3934903,
+            "profitMargins": 0.118,
+            "operatingMargins": 0.21851999,
+            "returnOnEquity": 0.077,
+            "dividendYield": 2.34,
+            "beta": 1.036
+          }
+        },
+        {
+          "rank": 6,
+          "ticker": "PSA",
+          "weekly_return": -0.008516846426431024,
+          "dollar_vol_week": 1114349219.3115234,
+          "vol_ratio": 0.7428676558120407,
+          "fundamentals": {
+            "shortName": "Public Storage",
+            "industry": "REIT - Industrial",
+            "exchange": "NYQ",
+            "currency": "USD",
+            "marketCap": 49335808000.0,
+            "trailingPE": 29.22817,
+            "forwardPE": 27.512175,
+            "priceToBook": 9.942538,
+            "profitMargins": 0.39453998,
+            "operatingMargins": 0.46947,
+            "returnOnEquity": 0.19933,
+            "dividendYield": 4.31,
+            "beta": 0.991
+          }
+        },
+        {
+          "rank": 7,
+          "ticker": "DLR",
+          "weekly_return": 0.00012905150099884466,
+          "dollar_vol_week": 1083558042.6696777,
+          "vol_ratio": 0.68655427768123,
+          "fundamentals": {
+            "shortName": "Digital Realty Trust, Inc.",
+            "industry": "REIT - Specialty",
+            "exchange": "NYQ",
+            "currency": "USD",
+            "marketCap": 55069724672.0,
+            "trailingPE": 40.9026,
+            "forwardPE": 43.563236,
+            "priceToBook": 2.423177,
+            "profitMargins": 0.23959999,
+            "operatingMargins": 0.13333,
+            "returnOnEquity": 0.05825,
+            "dividendYield": 3.08,
+            "beta": 1.125
+          }
+        },
+        {
+          "rank": 8,
+          "ticker": "CSGP",
+          "weekly_return": -0.019698547272699374,
+          "dollar_vol_week": 984778569.7441101,
+          "vol_ratio": 0.6310788725265203,
+          "fundamentals": {
+            "shortName": "CoStar Group, Inc.",
+            "industry": "Real Estate Services",
+            "exchange": "NMS",
+            "currency": "USD",
+            "marketCap": 24893231104.0,
+            "trailingPE": 978.9167,
+            "forwardPE": 43.84551,
+            "priceToBook": 2.887092,
+            "profitMargins": 0.00664,
+            "operatingMargins": -0.061300002,
+            "returnOnEquity": 0.00252,
+            "dividendYield": null,
+            "beta": 0.841
+          }
+        },
+        {
+          "rank": 9,
+          "ticker": "VICI",
+          "weekly_return": 0.000711001008189438,
+          "dollar_vol_week": 957468801.5003204,
+          "vol_ratio": 0.4979041800890691,
+          "fundamentals": {
+            "shortName": "VICI Properties Inc.",
+            "industry": "REIT - Diversified",
+            "exchange": "NYQ",
+            "currency": "USD",
+            "marketCap": 29862590464.0,
+            "trailingPE": 10.623574,
+            "forwardPE": 9.78634,
+            "priceToBook": 1.0790977,
+            "profitMargins": 0.70175004,
+            "operatingMargins": 0.97673,
+            "returnOnEquity": 0.10357001,
+            "dividendYield": 6.36,
+            "beta": 0.72
+          }
+        },
+        {
+          "rank": 10,
+          "ticker": "CCI",
+          "weekly_return": 0.004757568812334467,
+          "dollar_vol_week": 829152321.3180542,
+          "vol_ratio": 0.6431409127322509,
+          "fundamentals": {
+            "shortName": "Crown Castle Inc.",
+            "industry": "REIT - Specialty",
+            "exchange": "NYQ",
+            "currency": "USD",
+            "marketCap": 36900315136.0,
+            "trailingPE": null,
+            "forwardPE": 24.848972,
+            "priceToBook": -24.689686,
+            "profitMargins": -0.71931,
+            "operatingMargins": 0.49254,
+            "returnOnEquity": -2.06679,
+            "dividendYield": 5.08,
+            "beta": 0.976
+          }
+        }
+      ]
+    },
+    {
       "sector": "Utilities",
       "week_ending": "2026-01-02",
-      "direction": "Bearish",
-      "strength": 8,
-      "raw_score": -0.0870445931007946,
+      "direction": "Neutral",
+      "strength": 1,
+      "raw_score": 0.017252142484474278,
       "diagnostics": {
-        "n_stocks": 248,
-        "breadth": 0.4959677419354839,
-        "median_return": -0.0003384877466637848,
-        "median_vol_ratio": 0.7364556289159967,
+        "n_stocks": 279,
+        "breadth": 0.5519713261648745,
+        "median_return": 0.0034937132844350405,
+        "median_vol_ratio": 0.7484027600039698,
         "signals": {
-          "breadth_signal": -0.008064516129032251,
-          "return_signal": -0.011282924888792827,
-          "volume_signal": -0.5270887421680066
+          "breadth_signal": 0.10394265232974909,
+          "return_signal": 0.11645710948116803,
+          "volume_signal": -0.5031944799920605
         }
       },
       "top10_active": [
@@ -2165,17 +2405,17 @@
       "sector": "Information Technology",
       "week_ending": "2026-01-02",
       "direction": "Neutral",
-      "strength": 1,
-      "raw_score": 0.013705781229270825,
+      "strength": 0,
+      "raw_score": 0.009824920101505888,
       "diagnostics": {
-        "n_stocks": 560,
-        "breadth": 0.5392857142857143,
-        "median_return": 0.002964247804517317,
-        "median_vol_ratio": 0.7994572529695151,
+        "n_stocks": 630,
+        "breadth": 0.5365079365079365,
+        "median_return": 0.0026118955464460303,
+        "median_vol_ratio": 0.8094828962834413,
         "signals": {
-          "breadth_signal": 0.07857142857142851,
-          "return_signal": 0.09880826015057724,
-          "volume_signal": -0.4010854940609698
+          "breadth_signal": 0.07301587301587298,
+          "return_signal": 0.08706318488153435,
+          "volume_signal": -0.38103420743311744
         }
       },
       "top10_active": [
@@ -2397,246 +2637,6 @@
             "returnOnEquity": 2.41886,
             "dividendYield": null,
             "beta": 2.502
-          }
-        }
-      ]
-    },
-    {
-      "sector": "Real Estate",
-      "week_ending": "2026-01-02",
-      "direction": "Neutral",
-      "strength": 0,
-      "raw_score": 0.008981671594413543,
-      "diagnostics": {
-        "n_stocks": 248,
-        "breadth": 0.5362903225806451,
-        "median_return": 0.001268902888952983,
-        "median_vol_ratio": 0.8596249399199454,
-        "signals": {
-          "breadth_signal": 0.07258064516129026,
-          "return_signal": 0.04229676296509943,
-          "volume_signal": -0.28075012016010925
-        }
-      },
-      "top10_active": [
-        {
-          "rank": 1,
-          "ticker": "WELL",
-          "weekly_return": -0.004897254157118391,
-          "dollar_vol_week": 1664600371.3790894,
-          "vol_ratio": 0.4745211318955605,
-          "fundamentals": {
-            "shortName": "Welltower Inc.",
-            "industry": "REIT - Healthcare Facilities",
-            "exchange": "NYQ",
-            "currency": "USD",
-            "marketCap": 128693370880.0,
-            "trailingPE": 129.31723,
-            "forwardPE": 86.013756,
-            "priceToBook": 3.3097982,
-            "profitMargins": 0.09693,
-            "operatingMargins": 0.19906001,
-            "returnOnEquity": 0.0275,
-            "dividendYield": 1.59,
-            "beta": 0.857
-          }
-        },
-        {
-          "rank": 2,
-          "ticker": "AMT",
-          "weekly_return": -0.009126470023975042,
-          "dollar_vol_week": 1551977165.2008057,
-          "vol_ratio": 0.5334767865669747,
-          "fundamentals": {
-            "shortName": "American Tower Corporation (REI",
-            "industry": "REIT - Specialty",
-            "exchange": "NYQ",
-            "currency": "USD",
-            "marketCap": 79654215680.0,
-            "trailingPE": 27.130781,
-            "forwardPE": 24.534683,
-            "priceToBook": 20.152826,
-            "profitMargins": 0.28106,
-            "operatingMargins": 0.45477,
-            "returnOnEquity": 0.28839,
-            "dividendYield": 4.04,
-            "beta": 0.929
-          }
-        },
-        {
-          "rank": 3,
-          "ticker": "O",
-          "weekly_return": 0.010936721848674003,
-          "dollar_vol_week": 1523978535.981369,
-          "vol_ratio": 0.81599289313014,
-          "fundamentals": {
-            "shortName": "Realty Income Corporation",
-            "industry": "REIT - Retail",
-            "exchange": "NYQ",
-            "currency": "USD",
-            "marketCap": 54177853440.0,
-            "trailingPE": 55.042053,
-            "forwardPE": 36.713234,
-            "priceToBook": 1.3873643,
-            "profitMargins": 0.17135,
-            "operatingMargins": 0.44514,
-            "returnOnEquity": 0.02488,
-            "dividendYield": 5.54,
-            "beta": 0.807
-          }
-        },
-        {
-          "rank": 4,
-          "ticker": "PLD",
-          "weekly_return": 0.0026415687992811243,
-          "dollar_vol_week": 1481815455.519104,
-          "vol_ratio": 0.6521446114396721,
-          "fundamentals": {
-            "shortName": "Prologis, Inc.",
-            "industry": "REIT - Industrial",
-            "exchange": "NYQ",
-            "currency": "USD",
-            "marketCap": 120139653120.0,
-            "trailingPE": 37.598835,
-            "forwardPE": 44.8893,
-            "priceToBook": 2.2847552,
-            "profitMargins": 0.35243,
-            "operatingMargins": 0.42720002,
-            "returnOnEquity": 0.05963,
-            "dividendYield": 3.12,
-            "beta": 1.418
-          }
-        },
-        {
-          "rank": 5,
-          "ticker": "EQIX",
-          "weekly_return": 0.0010611785294740717,
-          "dollar_vol_week": 1333856725.756836,
-          "vol_ratio": 0.5775680255901352,
-          "fundamentals": {
-            "shortName": "Equinix, Inc.",
-            "industry": "REIT - Specialty",
-            "exchange": "NMS",
-            "currency": "USD",
-            "marketCap": 76354895872.0,
-            "trailingPE": 71.47565,
-            "forwardPE": 50.99006,
-            "priceToBook": 5.3934903,
-            "profitMargins": 0.118,
-            "operatingMargins": 0.21851999,
-            "returnOnEquity": 0.077,
-            "dividendYield": 2.34,
-            "beta": 1.036
-          }
-        },
-        {
-          "rank": 6,
-          "ticker": "PSA",
-          "weekly_return": -0.008516846426431024,
-          "dollar_vol_week": 1114349219.3115234,
-          "vol_ratio": 0.7428676558120407,
-          "fundamentals": {
-            "shortName": "Public Storage",
-            "industry": "REIT - Industrial",
-            "exchange": "NYQ",
-            "currency": "USD",
-            "marketCap": 49335808000.0,
-            "trailingPE": 29.22817,
-            "forwardPE": 27.512175,
-            "priceToBook": 9.942538,
-            "profitMargins": 0.39453998,
-            "operatingMargins": 0.46947,
-            "returnOnEquity": 0.19933,
-            "dividendYield": 4.31,
-            "beta": 0.991
-          }
-        },
-        {
-          "rank": 7,
-          "ticker": "DLR",
-          "weekly_return": 0.00012905150099884466,
-          "dollar_vol_week": 1083558042.6696777,
-          "vol_ratio": 0.68655427768123,
-          "fundamentals": {
-            "shortName": "Digital Realty Trust, Inc.",
-            "industry": "REIT - Specialty",
-            "exchange": "NYQ",
-            "currency": "USD",
-            "marketCap": 55069724672.0,
-            "trailingPE": 40.9026,
-            "forwardPE": 43.563236,
-            "priceToBook": 2.423177,
-            "profitMargins": 0.23959999,
-            "operatingMargins": 0.13333,
-            "returnOnEquity": 0.05825,
-            "dividendYield": 3.08,
-            "beta": 1.125
-          }
-        },
-        {
-          "rank": 8,
-          "ticker": "CSGP",
-          "weekly_return": -0.019698547272699374,
-          "dollar_vol_week": 984778569.7441101,
-          "vol_ratio": 0.6310788725265203,
-          "fundamentals": {
-            "shortName": "CoStar Group, Inc.",
-            "industry": "Real Estate Services",
-            "exchange": "NMS",
-            "currency": "USD",
-            "marketCap": 24893231104.0,
-            "trailingPE": 978.9167,
-            "forwardPE": 43.84551,
-            "priceToBook": 2.887092,
-            "profitMargins": 0.00664,
-            "operatingMargins": -0.061300002,
-            "returnOnEquity": 0.00252,
-            "dividendYield": null,
-            "beta": 0.841
-          }
-        },
-        {
-          "rank": 9,
-          "ticker": "VICI",
-          "weekly_return": 0.000711001008189438,
-          "dollar_vol_week": 957468801.5003204,
-          "vol_ratio": 0.4979041800890691,
-          "fundamentals": {
-            "shortName": "VICI Properties Inc.",
-            "industry": "REIT - Diversified",
-            "exchange": "NYQ",
-            "currency": "USD",
-            "marketCap": 29862590464.0,
-            "trailingPE": 10.623574,
-            "forwardPE": 9.78634,
-            "priceToBook": 1.0790977,
-            "profitMargins": 0.70175004,
-            "operatingMargins": 0.97673,
-            "returnOnEquity": 0.10357001,
-            "dividendYield": 6.36,
-            "beta": 0.72
-          }
-        },
-        {
-          "rank": 10,
-          "ticker": "CCI",
-          "weekly_return": 0.004757568812334467,
-          "dollar_vol_week": 829152321.3180542,
-          "vol_ratio": 0.6431409127322509,
-          "fundamentals": {
-            "shortName": "Crown Castle Inc.",
-            "industry": "REIT - Specialty",
-            "exchange": "NYQ",
-            "currency": "USD",
-            "marketCap": 36900315136.0,
-            "trailingPE": null,
-            "forwardPE": 24.848972,
-            "priceToBook": -24.689686,
-            "profitMargins": -0.71931,
-            "operatingMargins": 0.49254,
-            "returnOnEquity": -2.06679,
-            "dividendYield": 5.08,
-            "beta": 0.976
           }
         }
       ]
