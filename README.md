@@ -138,6 +138,8 @@ flowchart TD
     U --> V["Push to main"]
     V --> W["Deploy GitHub Pages"]
     W --> X["Public S.T.A.R.E web app"]
+    W --> Y["Build scheduled email report"]
+    Y --> Z["Send email to Viktor"]
 ```
 
 ## What Gets Calculated
@@ -342,8 +344,31 @@ On each scheduled run, it:
 7. Pulls `origin/main` again before committing generated artifacts
 8. Commits updated artifacts back to the repository
 9. Deploys `docs/` to GitHub Pages
+10. Sends the updated report by email to `vittok@hotmail.com`
 
 Fundamentals are refreshed weekly on Mondays to reduce load.
+
+### Scheduled Email Report
+
+The scheduled workflow sends an HTML email report after GitHub Pages deployment. The email body is generated from the freshly embedded `stare_app.html` data and includes:
+
+- Last refresh timestamp
+- Link to the published S.T.A.R.E dashboard
+- Sector overview table
+- Top active stock summaries
+- Updated stock report with ticker, price, signal, confidence, weekly return, and dollar volume
+
+GitHub Actions does not include email credentials by default, so the repository must define SMTP secrets before email delivery can work:
+
+- `SMTP_HOST` - SMTP server host
+- `SMTP_PORT` - SMTP server port, usually `587`
+- `SMTP_USERNAME` - SMTP account username
+- `SMTP_PASSWORD` - SMTP password or app password
+- `SMTP_FROM` - sender email address; optional if the username is also the sender
+- `SMTP_STARTTLS` - optional; defaults to `true`
+- `SMTP_SSL` - optional; defaults to `false`
+
+If the required SMTP secrets are missing, the workflow logs a warning and skips only the email step.
 
 The workflow can also be triggered manually from the GitHub Actions tab.
 

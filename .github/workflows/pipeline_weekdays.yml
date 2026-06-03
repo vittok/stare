@@ -95,3 +95,23 @@ jobs:
       - name: Deploy GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Send scheduled email report
+        if: ${{ github.event_name == 'schedule' }}
+        env:
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          SMTP_FROM: ${{ secrets.SMTP_FROM }}
+          SMTP_STARTTLS: ${{ secrets.SMTP_STARTTLS }}
+          SMTP_SSL: ${{ secrets.SMTP_SSL }}
+          STARE_EMAIL_TO: vittok@hotmail.com
+          STARE_APP_URL: https://vittok.github.io/stare/
+        run: |
+          if [ -z "$SMTP_HOST" ] || [ -z "$SMTP_USERNAME" ] || [ -z "$SMTP_PASSWORD" ]; then
+            echo "::warning::Skipping email report because SMTP_HOST, SMTP_USERNAME, or SMTP_PASSWORD is not configured as a repository secret."
+            exit 0
+          fi
+
+          python src/email_stare_report.py
