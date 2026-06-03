@@ -1,45 +1,349 @@
-# STARE — Sector & Stock Trend Analysis Engine (Extended)
+# STARE - Sector & Stock Trend Analysis Engine
 
-## Overview
-STARE is an end-to-end, automated analytics pipeline for analyzing the S&P 500.
-It ingests market data from Yahoo Finance, computes sector-level sentiment and stock-level activity,
-stores everything in SQLite, and publishes a static HTML dashboard via GitHub Pages.
+STARE is an automated analytics pipeline and single-file HTML dashboard for monitoring S&P 500 sector momentum, active stocks, and basic company fundamentals.
 
-This document is the **full functional and conceptual overview** of the project.
+It collects public market data, stores it in SQLite, calculates weekly stock and sector signals, and publishes a static GitHub Pages application that can be accessed from anywhere.
 
----
+Author: Viktor Kvapil
 
-## High-Level Architecture
+## What STARE Does
 
-1. Universe Layer
-2. Market Data Layer
-3. Analytics Layer
-4. Fundamentals Layer
-5. Reporting Layer
-6. Automation Layer
+STARE answers a practical market-monitoring question:
 
----
+Which S&P 500 sectors are showing the strongest short-term trend, and which stocks are driving that activity?
 
-## Pipeline Steps
+The project turns raw market data into a publishable dashboard with:
 
-Step 1: Universe ingestion  
-Step 2: Price ingestion  
-Step 3: Weekly aggregation  
-Step 4: Sector sentiment & activity  
-Step 5: Fundamentals  
-Step 6: Dashboard generation  
-Step 7: GitHub Actions automation
+- Sector sentiment direction: Bullish, Bearish, or Neutral
+- Sector sentiment strength from 0 to 100
+- Top active stocks per sector by weekly dollar volume
+- Weekly stock returns
+- Volume activity versus recent baseline
+- Company fundamentals such as market cap, P/E, margins, dividend yield, beta, industry, exchange, and currency
+- A static HTML app that works without a backend
 
----
+The output is intended for screening, monitoring, and research. It is not financial advice.
+
+## Published App
+
+The publishable app is generated as:
+
+- `stare_app.html` - standalone root-level HTML app
+- `docs/index.html` - GitHub Pages entry point
+
+When deployed through GitHub Pages, the expected public URL is:
+
+`https://vittok.github.io/stare/`
+
+The app embeds the latest dashboard JSON directly into the HTML file, so it can be served as a single static page. No server, database, API, or JavaScript package runtime is needed by the published page.
+
+## Data Sources
+
+STARE uses public data sources:
+
+- S&P 500 universe: Wikipedia list of S&P 500 companies
+- Historical prices and volumes: Yahoo Finance through `yfinance`
+- Fundamentals: Yahoo Finance through `yfinance`
+
+The universe file is written to `data/universe_sp500.csv`. Market data and computed results are stored in `data/stocks.db`.
+
+## Pipeline Overview
+
+The main pipeline is run with:
+
+```bash
+python src/run_pipeline.py
+```
+
+Pipeline steps:
+
+1. `src/universe_sp500.py`
+   Fetches the current S&P 500 company list, normalizes ticker symbols for Yahoo Finance, and stores sector and sub-industry metadata.
+
+2. `src/fetch_prices.py`
+   Downloads recent daily OHLCV price data in chunks and upserts it into SQLite.
+
+3. `src/compute_weekly_stats.py`
+   Calculates latest 5-session stock-level metrics.
+
+4. `src/compute_sector_sentiment.py`
+   Converts stock-level weekly behavior into sector-level sentiment.
+
+5. `src/rank_sector_top_active.py`
+   Ranks the most active stocks inside each sector by weekly dollar volume.
+
+6. `src/build_sector_dashboard.py`
+   Joins sector sentiment, top active stocks, recent return data, and fundamentals into dashboard JSON/CSV outputs.
+
+7. `src/build_sector_dashboard_html.py`
+   Builds the legacy HTML report.
+
+8. `src/publish_stare_app.py`
+   Embeds fresh dashboard data into the standalone HTML app and publishes it to `docs/index.html`.
+
+## What Gets Calculated
+
+### Weekly Stock Metrics
+
+For each ticker, STARE looks at the latest 5 available trading sessions.
+
+`weekly_return`
+
+The percentage return from the first close in the 5-session window to the last close:
+
+```text
+weekly_return = last_close / first_close - 1
+```
+
+`dollar_vol_week`
+
+The total traded dollar volume over the 5-session window:
+
+```text
+dollar_vol_week = sum(close * volume)
+```
+
+`week_volume`
+
+The total share volume over the same 5-session window:
+
+```text
+week_volume = sum(volume)
+```
+
+`vol_ratio`
+
+The current 5-session share volume divided by the average weekly volume across the prior 8 weeks:
+
+```text
+vol_ratio = current_week_volume / average_prior_8_week_volume
+```
+
+This highlights whether a stock is trading with unusually high or low activity.
+
+### Sector Sentiment
+
+Sector sentiment combines three signals:
+
+`breadth_signal`
+
+How many stocks in the sector had a positive weekly return:
+
+```text
+breadth = positive_return_stock_count / sector_stock_count
+breadth_signal = (breadth - 0.5) * 2
+```
+
+A sector where most stocks are rising receives a positive breadth signal. A sector where most stocks are falling receives a negative signal.
+
+`return_signal`
+
+The sector's median weekly stock return, scaled around a 3% weekly move:
+
+```text
+return_signal = median_weekly_return / 0.03
+```
+
+The result is capped between `-1.0` and `1.0`.
+
+`volume_signal`
+
+The sector's median volume ratio, scaled around a 50% increase over baseline:
+
+```text
+volume_signal = (median_vol_ratio - 1.0) / 0.5
+```
+
+The result is capped between `-1.0` and `1.0`.
+
+`raw_score`
+
+The final sector score is a weighted blend:
+
+```text
+raw_score = 0.50 * breadth_signal
+          + 0.35 * return_signal
+          + 0.15 * volume_signal
+```
+
+This means breadth matters most, median return matters second, and abnormal volume acts as confirmation.
+
+`direction`
+
+The raw score is converted into a readable direction:
+
+```text
+abs(raw_score) < 0.05 -> Neutral
+raw_score > 0         -> Bullish
+raw_score < 0         -> Bearish
+```
+
+`strength`
+
+The strength value converts the absolute raw score into a 0-100 scale:
+
+```text
+strength = min(100, abs(raw_score) * 100)
+```
+
+### Top Active Stocks
+
+For each sector, stocks are ranked by `dollar_vol_week`.
+
+This identifies the names with the largest amount of money traded during the weekly window. It helps separate broad sector direction from the individual stocks that are carrying the most market activity.
+
+### Fundamentals
+
+STARE stores normalized fundamentals in `fundamentals_latest`, including:
+
+- Market capitalization
+- Enterprise value
+- Trailing and forward P/E
+- Price-to-book
+- Profit, operating, and gross margins
+- Return on equity and assets
+- Revenue and earnings growth
+- Debt and liquidity ratios
+- Dividend yield and payout ratio
+- Beta
+- 52-week range
+- Sector, industry, country, exchange, and currency
+
+Fundamentals are used to add business context to the active stock rankings.
+
+## Value Added
+
+Raw stock tables are noisy. STARE adds value by organizing the data into a repeatable market overview:
+
+- It compresses hundreds of S&P 500 tickers into sector-level signals.
+- It shows whether a sector move is broad-based or concentrated.
+- It combines price direction with volume confirmation.
+- It surfaces the most liquid and active names in each sector.
+- It adds fundamentals so activity can be interpreted with company context.
+- It produces static outputs that are easy to publish, archive, inspect, and share.
+
+The dashboard is especially useful as a daily pre-market or morning scan: it points attention toward sectors with broad momentum and toward stocks where activity is highest.
+
+## Automation
+
+The GitHub Actions workflow in `.github/workflows/pipeline_weekdays.yml` runs every morning at 07:00 GMT:
+
+```text
+0 7 * * *
+```
+
+On each scheduled run, it:
+
+1. Installs Python dependencies
+2. Runs the market-data pipeline
+3. Regenerates dashboard reports
+4. Embeds the latest JSON data into the HTML app
+5. Commits updated artifacts back to the repository
+6. Deploys `docs/` to GitHub Pages
+
+Fundamentals are refreshed weekly on Mondays to reduce load.
+
+The workflow can also be triggered manually from the GitHub Actions tab.
+
+## Repository Structure
+
+```text
+.
+├── data/
+│   ├── stocks.db
+│   └── universe_sp500.csv
+├── docs/
+│   ├── index.html
+│   ├── sector_dashboard.json
+│   └── sector_dashboard_top10.csv
+├── reports/
+│   ├── sector_dashboard.html
+│   ├── sector_dashboard.json
+│   ├── sector_dashboard_top10.csv
+│   └── fundamentals_sp500_latest.csv
+├── src/
+│   ├── build_sector_dashboard.py
+│   ├── build_sector_dashboard_html.py
+│   ├── compute_sector_sentiment.py
+│   ├── compute_weekly_stats.py
+│   ├── fetch_fundamentals.py
+│   ├── fetch_prices.py
+│   ├── publish_stare_app.py
+│   ├── rank_sector_top_active.py
+│   ├── run_pipeline.py
+│   ├── store_sqlite.py
+│   └── universe_sp500.py
+├── stare_app.html
+├── requirements.txt
+└── README.md
+```
+
+## Database Tables
+
+Core SQLite tables:
+
+- `prices`
+- `weekly_stats`
+- `sector_sentiment`
+- `sector_top_active`
+- `fundamentals_snapshot`
+- `fundamentals_latest`
+- `sector_dashboard_top10`
+
+See `DATA_SCHEMA.md` for a compact schema summary.
+
+## Local Setup
+
+Recommended Python version:
+
+```text
+3.11.7
+```
+
+Install dependencies:
+
+```bash
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+Run the full pipeline:
+
+```bash
+python src/run_pipeline.py
+```
+
+Refresh only the publishable app from existing report data:
+
+```bash
+python src/publish_stare_app.py
+```
+
+Open the local app:
+
+```text
+stare_app.html
+```
+
+## Outputs
+
+Primary generated outputs:
+
+- `reports/sector_dashboard.json` - nested dashboard data
+- `reports/sector_dashboard_top10.csv` - flat top-active table
+- `reports/sector_dashboard.html` - legacy report HTML
+- `stare_app.html` - standalone publishable app
+- `docs/index.html` - GitHub Pages app
 
 ## Design Principles
 
-- Deterministic runs
-- SQLite-first
-- Static outputs
-- CI-friendly
-
----
+- SQLite-first storage
+- Deterministic calculations from stored data
+- Static publishing
+- No backend required for the published app
+- CI-friendly automation
+- Human-readable outputs for inspection and sharing
 
 ## License
+
 MIT
