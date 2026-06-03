@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import csv
 import json
+import math
 import re
 from datetime import datetime, timezone
 from pathlib import Path
@@ -26,9 +27,31 @@ def _num(value: Any) -> float | None:
     try:
         if value is None or value == "":
             return None
-        return float(value)
+        n = float(value)
+        return n if math.isfinite(n) else None
     except (TypeError, ValueError):
         return None
+
+
+def _text(value: Any) -> str | None:
+    if value is None:
+        return None
+    if isinstance(value, float) and not math.isfinite(value):
+        return None
+    text = str(value).strip()
+    if not text or text.lower() in {"nan", "none", "null"}:
+        return None
+    return text
+
+
+def _json_safe(value: Any) -> Any:
+    if isinstance(value, float):
+        return value if math.isfinite(value) else None
+    if isinstance(value, dict):
+        return {k: _json_safe(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [_json_safe(v) for v in value]
+    return value
 
 
 def _fmt_num(value: Any, digits: int = 2) -> str:
@@ -104,7 +127,7 @@ def _load_peg_fallbacks() -> dict[str, float | None]:
 def _summary_for_stock(sector: dict[str, Any], stock: dict[str, Any]) -> str:
     fundamentals = stock.get("fundamentals") or {}
     ticker = stock.get("ticker") or "Ticker"
-    name = fundamentals.get("shortName") or fundamentals.get("industry") or ticker
+    name = _text(fundamentals.get("shortName")) or _text(fundamentals.get("industry")) or ticker
     pb = _num(fundamentals.get("priceToBook"))
     pe = _num(fundamentals.get("trailingPE") or fundamentals.get("forwardPE"))
     peg = _num(fundamentals.get("pegRatio"))
@@ -160,7 +183,12 @@ def enrich_dashboard_data(data: dict[str, Any]) -> dict[str, Any]:
 def load_compact_dashboard_json() -> str:
     data = json.loads(REPORT_JSON.read_text(encoding="utf-8"))
     data = enrich_dashboard_data(data)
-    return json.dumps(data, ensure_ascii=False, separators=(",", ":")).replace(
+    return json.dumps(
+        _json_safe(data),
+        ensure_ascii=False,
+        separators=(",", ":"),
+        allow_nan=False,
+    ).replace(
         "</", "<\\/"
     )
 

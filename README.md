@@ -1,14 +1,14 @@
 # Sector & Stock Trend Analysis Engine (S.T.A.R.E)
 
-STARE is an automated analytics pipeline and single-file HTML dashboard for monitoring S&P 500 sector momentum, active stocks, and basic company fundamentals.
+Sector & Stock Trend Analysis Engine (S.T.A.R.E) is an automated analytics pipeline and single-file HTML dashboard for monitoring S&P 500 sector momentum, active stocks, and basic company fundamentals.
 
 It collects public market data, stores it in SQLite, calculates weekly stock and sector signals, and publishes a static GitHub Pages application that can be accessed from anywhere.
 
 Author: Viktor Kvapil
 
-## What STARE Does
+## What S.T.A.R.E Does
 
-STARE answers a practical market-monitoring question:
+S.T.A.R.E answers a practical market-monitoring question:
 
 Which S&P 500 sectors are showing the strongest short-term trend, and which stocks are driving that activity?
 
@@ -36,6 +36,8 @@ When deployed through GitHub Pages, the expected public URL is:
 `https://vittok.github.io/stare/`
 
 The app embeds the latest dashboard JSON directly into the HTML file, so it can be served as a single static page. No server, database, API, or JavaScript package runtime is needed by the published page.
+
+During publishing, the embedded data is sanitized into strict browser-safe JSON. Missing or non-finite values such as `NaN`, `Infinity`, and `-Infinity` are converted to `null` so the app can reliably parse and render the data in any browser.
 
 ## Data Sources
 
@@ -67,10 +69,10 @@ Pipeline steps:
    Calculates latest 5-session stock-level metrics.
 
 4. `src/compute_sector_sentiment.py`
-   Converts stock-level weekly behavior into sector-level sentiment.
+   Converts the latest available weekly stock behavior into sector-level sentiment.
 
 5. `src/rank_sector_top_active.py`
-   Ranks the most active stocks inside each sector by weekly dollar volume.
+   Ranks the most active stocks inside each sector by weekly dollar volume for the latest available `week_ending`.
 
 6. `src/build_sector_dashboard.py`
    Joins sector sentiment, top active stocks, recent return data, and fundamentals into dashboard JSON/CSV outputs.
@@ -79,7 +81,7 @@ Pipeline steps:
    Builds the legacy HTML report.
 
 8. `src/publish_stare_app.py`
-   Embeds fresh dashboard data into the standalone HTML app and publishes it to `docs/index.html`.
+   Embeds fresh dashboard data, refresh metadata, and generated top-3 stock summaries into the standalone HTML app and publishes it to `docs/index.html`.
 
 ## What Gets Calculated
 
@@ -211,6 +213,19 @@ STARE stores normalized fundamentals in `fundamentals_latest`, including:
 
 Fundamentals are used to add business context to the active stock rankings.
 
+### Daily Stock Summaries
+
+During each publish step, S.T.A.R.E selects the top 3 active stocks in each sector and generates short explanatory summaries from the fundamentals available in the dashboard data.
+
+The summaries focus on:
+
+- Price-to-book (P/B)
+- Price-to-earnings (P/E)
+- Price/earnings-to-growth (PEG), when available
+- Dividend yield
+
+These summaries are embedded into the HTML and shown when hovering over or clicking ticker symbols in the app table.
+
 ## Value Added
 
 Raw stock tables are noisy. STARE adds value by organizing the data into a repeatable market overview:
@@ -234,12 +249,15 @@ The GitHub Actions workflow in `.github/workflows/pipeline_weekdays.yml` runs ev
 
 On each scheduled run, it:
 
-1. Installs Python dependencies
-2. Runs the market-data pipeline
-3. Regenerates dashboard reports
-4. Embeds the latest JSON data into the HTML app
-5. Commits updated artifacts back to the repository
-6. Deploys `docs/` to GitHub Pages
+1. Checks out `main`
+2. Pulls the latest `origin/main` with `git pull --ff-only origin main`
+3. Installs Python dependencies
+4. Runs the market-data pipeline
+5. Regenerates dashboard reports
+6. Embeds the latest JSON data into the HTML app
+7. Pulls `origin/main` again before committing generated artifacts
+8. Commits updated artifacts back to the repository
+9. Deploys `docs/` to GitHub Pages
 
 Fundamentals are refreshed weekly on Mondays to reduce load.
 
