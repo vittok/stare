@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from io import StringIO
 from pathlib import Path
 from datetime import datetime, timezone
 
@@ -37,7 +38,7 @@ def find_constituents_table(tables: list[pd.DataFrame]) -> pd.DataFrame:
 
 def fetch_sp500_table() -> pd.DataFrame:
     html = fetch_html(WIKI_URL)
-    tables = pd.read_html(html)
+    tables = pd.read_html(StringIO(html))
     if not tables:
         raise RuntimeError("No tables found on the Wikipedia page.")
     return find_constituents_table(tables)
@@ -78,4 +79,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

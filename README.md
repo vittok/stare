@@ -1,4 +1,4 @@
-# STARE - Sector & Stock Trend Analysis Engine
+# Sector & Stock Trend Analysis Engine (S.T.A.R.E)
 
 STARE is an automated analytics pipeline and single-file HTML dashboard for monitoring S&P 500 sector momentum, active stocks, and basic company fundamentals.
 

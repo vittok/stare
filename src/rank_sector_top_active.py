@@ -37,6 +37,10 @@ def init_schema(engine):
 
 def load_inputs(engine, universe_csv: Path):
     weekly = pd.read_sql("SELECT * FROM weekly_stats", engine)
+    if weekly.empty:
+        raise RuntimeError("No weekly_stats data found. Run compute_weekly_stats.py first.")
+    latest_week = weekly["week_ending"].max()
+    weekly = weekly[weekly["week_ending"] == latest_week].copy()
     universe = pd.read_csv(universe_csv)
     return weekly, universe
 

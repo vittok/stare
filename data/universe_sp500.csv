@@ -60,12 +60,12 @@ BEN,BEN,Franklin Resources,Financials,Asset Management & Custody Banks
 BF-B,BF.B,Brown–Forman,Consumer Staples,Distillers & Vintners
 BG,BG,Bunge Global,Consumer Staples,Agricultural Products & Services
 BIIB,BIIB,Biogen,Health Care,Biotechnology
-BK,BK,BNY Mellon,Financials,Asset Management & Custody Banks
 BKNG,BKNG,Booking Holdings,Consumer Discretionary,"Hotels, Resorts & Cruise Lines"
 BKR,BKR,Baker Hughes,Energy,Oil & Gas Equipment & Services
 BLDR,BLDR,Builders FirstSource,Industrials,Building Products
 BLK,BLK,BlackRock,Financials,Asset Management & Custody Banks
 BMY,BMY,Bristol Myers Squibb,Health Care,Pharmaceuticals
+BNY,BNY,BNY Mellon,Financials,Asset Management & Custody Banks
 BR,BR,Broadridge Financial Solutions,Industrials,Data Processing & Outsourced Services
 BRK-B,BRK.B,Berkshire Hathaway,Financials,Multi-Sector Holdings
 BRO,BRO,Brown & Brown,Financials,Insurance Brokers
@@ -76,12 +76,13 @@ C,C,Citigroup,Financials,Diversified Banks
 CAG,CAG,Conagra Brands,Consumer Staples,Packaged Foods & Meats
 CAH,CAH,Cardinal Health,Health Care,Health Care Distributors
 CARR,CARR,Carrier Global,Industrials,Building Products
+CASY,CASY,Casey's,Consumer Staples,Food Retail
 CAT,CAT,Caterpillar Inc.,Industrials,Construction Machinery & Heavy Transportation Equipment
 CB,CB,Chubb Limited,Financials,Property & Casualty Insurance
 CBOE,CBOE,Cboe Global Markets,Financials,Financial Exchanges & Data
 CBRE,CBRE,CBRE Group,Real Estate,Real Estate Services
 CCI,CCI,Crown Castle,Real Estate,Telecom Tower REITs
-CCL,CCL,Carnival,Consumer Discretionary,"Hotels, Resorts & Cruise Lines"
+CCL,CCL,Carnival Corporation,Consumer Discretionary,"Hotels, Resorts & Cruise Lines"
 CDNS,CDNS,Cadence Design Systems,Information Technology,Application Software
 CDW,CDW,CDW Corporation,Information Technology,Technology Distributors
 CEG,CEG,Constellation Energy,Utilities,Electric Utilities
@@ -91,6 +92,7 @@ CHD,CHD,Church & Dwight,Consumer Staples,Household Products
 CHRW,CHRW,C.H. Robinson,Industrials,Air Freight & Logistics
 CHTR,CHTR,Charter Communications,Communication Services,Cable & Satellite
 CI,CI,Cigna,Health Care,Health Care Services
+CIEN,CIEN,Ciena,Information Technology,Communications Equipment
 CINF,CINF,Cincinnati Financial,Financials,Property & Casualty Insurance
 CL,CL,Colgate-Palmolive,Consumer Staples,Household Products
 CLX,CLX,Clorox,Consumer Staples,Household Products
@@ -102,6 +104,7 @@ CMS,CMS,CMS Energy,Utilities,Multi-Utilities
 CNC,CNC,Centene Corporation,Health Care,Managed Health Care
 CNP,CNP,CenterPoint Energy,Utilities,Multi-Utilities
 COF,COF,Capital One,Financials,Consumer Finance
+COHR,COHR,Coherent Corp.,Information Technology,Electronic Components
 COIN,COIN,Coinbase,Financials,Financial Exchanges & Data
 COO,COO,Cooper Companies (The),Health Care,Health Care Supplies
 COP,COP,ConocoPhillips,Energy,Oil & Gas Exploration & Production
@@ -119,7 +122,6 @@ CSCO,CSCO,Cisco,Information Technology,Communications Equipment
 CSGP,CSGP,CoStar Group,Real Estate,Real Estate Services
 CSX,CSX,CSX Corporation,Industrials,Rail Transportation
 CTAS,CTAS,Cintas,Industrials,Diversified Support Services
-CTRA,CTRA,Coterra,Energy,Oil & Gas Exploration & Production
 CTSH,CTSH,Cognizant,Information Technology,IT Consulting & Other Services
 CTVA,CTVA,Corteva,Materials,Fertilizers & Agricultural Chemicals
 CVNA,CVNA,Carvana,Consumer Discretionary,Automotive Retail
@@ -128,7 +130,6 @@ CVX,CVX,Chevron Corporation,Energy,Integrated Oil & Gas
 D,D,Dominion Energy,Utilities,Multi-Utilities
 DAL,DAL,Delta Air Lines,Industrials,Passenger Airlines
 DASH,DASH,DoorDash,Consumer Discretionary,Specialized Consumer Services
-DAY,DAY,Dayforce,Industrials,Human Resource & Employment Services
 DD,DD,DuPont,Materials,Specialty Chemicals
 DDOG,DDOG,Datadog,Information Technology,Application Software
 DE,DE,Deere & Company,Industrials,Agricultural & Farm Machinery
@@ -225,7 +226,6 @@ HD,HD,Home Depot (The),Consumer Discretionary,Home Improvement Retail
 HIG,HIG,Hartford (The),Financials,Property & Casualty Insurance
 HII,HII,Huntington Ingalls Industries,Industrials,Aerospace & Defense
 HLT,HLT,Hilton Worldwide,Consumer Discretionary,"Hotels, Resorts & Cruise Lines"
-HOLX,HOLX,Hologic,Health Care,Health Care Equipment
 HON,HON,Honeywell,Industrials,Industrial Conglomerates
 HOOD,HOOD,Robinhood Markets,Financials,Investment Banking & Brokerage
 HPE,HPE,Hewlett Packard Enterprise,Information Technology,"Technology Hardware, Storage & Peripherals"
@@ -281,6 +281,7 @@ LH,LH,Labcorp,Health Care,Health Care Services
 LHX,LHX,L3Harris,Industrials,Aerospace & Defense
 LII,LII,Lennox International,Industrials,Building Products
 LIN,LIN,Linde plc,Materials,Industrial Gases
+LITE,LITE,Lumentum,Information Technology,Communications Equipment
 LLY,LLY,Lilly (Eli),Health Care,Pharmaceuticals
 LMT,LMT,Lockheed Martin,Industrials,Aerospace & Defense
 LNT,LNT,Alliant Energy,Utilities,Electric Utilities
@@ -289,7 +290,6 @@ LRCX,LRCX,Lam Research,Information Technology,Semiconductor Materials & Equipmen
 LULU,LULU,Lululemon Athletica,Consumer Discretionary,"Apparel, Accessories & Luxury Goods"
 LUV,LUV,Southwest Airlines,Industrials,Passenger Airlines
 LVS,LVS,Las Vegas Sands,Consumer Discretionary,Casinos & Gaming
-LW,LW,Lamb Weston,Consumer Staples,Packaged Foods & Meats
 LYB,LYB,LyondellBasell,Materials,Specialty Chemicals
 LYV,LYV,Live Nation Entertainment,Communication Services,Movies & Entertainment
 MA,MA,Mastercard,Financials,Transaction & Payment Processing Services
@@ -310,7 +310,6 @@ MLM,MLM,Martin Marietta Materials,Materials,Construction Materials
 MMM,MMM,3M,Industrials,Industrial Conglomerates
 MNST,MNST,Monster Beverage,Consumer Staples,Soft Drinks & Non-alcoholic Beverages
 MO,MO,Altria,Consumer Staples,Tobacco
-MOH,MOH,Molina Healthcare,Health Care,Managed Health Care
 MOS,MOS,Mosaic Company (The),Materials,Fertilizers & Agricultural Chemicals
 MPC,MPC,Marathon Petroleum,Energy,Oil & Gas Refining & Marketing
 MPWR,MPWR,Monolithic Power Systems,Information Technology,Semiconductors
@@ -322,7 +321,6 @@ MSCI,MSCI,MSCI Inc.,Financials,Financial Exchanges & Data
 MSFT,MSFT,Microsoft,Information Technology,Systems Software
 MSI,MSI,Motorola Solutions,Information Technology,Communications Equipment
 MTB,MTB,M&T Bank,Financials,Regional Banks
-MTCH,MTCH,Match Group,Communication Services,Interactive Media & Services
 MTD,MTD,Mettler Toledo,Health Care,Life Sciences Tools & Services
 MU,MU,Micron Technology,Information Technology,Semiconductors
 NCLH,NCLH,Norwegian Cruise Line Holdings,Consumer Discretionary,"Hotels, Resorts & Cruise Lines"
@@ -355,7 +353,6 @@ ORLY,ORLY,O’Reilly Automotive,Consumer Discretionary,Automotive Retail
 OTIS,OTIS,Otis Worldwide,Industrials,Industrial Machinery & Supplies & Components
 OXY,OXY,Occidental Petroleum,Energy,Oil & Gas Exploration & Production
 PANW,PANW,Palo Alto Networks,Information Technology,Systems Software
-PAYC,PAYC,Paycom,Industrials,Human Resource & Employment Services
 PAYX,PAYX,Paychex,Industrials,Human Resource & Employment Services
 PCAR,PCAR,Paccar,Industrials,Construction Machinery & Heavy Transportation Equipment
 PCG,PCG,PG&E Corporation,Utilities,Multi-Utilities
@@ -401,6 +398,7 @@ ROST,ROST,Ross Stores,Consumer Discretionary,Apparel Retail
 RSG,RSG,Republic Services,Industrials,Environmental & Facilities Services
 RTX,RTX,RTX Corporation,Industrials,Aerospace & Defense
 RVTY,RVTY,Revvity,Health Care,Health Care Equipment
+SATS,SATS,EchoStar,Communication Services,Wireless Telecommunication Services
 SBAC,SBAC,SBA Communications,Real Estate,Telecom Tower REITs
 SBUX,SBUX,Starbucks,Consumer Discretionary,Restaurants
 SCHW,SCHW,Charles Schwab Corporation,Financials,Investment Banking & Brokerage
@@ -443,7 +441,7 @@ TMUS,TMUS,T-Mobile US,Communication Services,Wireless Telecommunication Services
 TPL,TPL,Texas Pacific Land Corporation,Energy,Oil & Gas Exploration & Production
 TPR,TPR,"Tapestry, Inc.",Consumer Discretionary,"Apparel, Accessories & Luxury Goods"
 TRGP,TRGP,Targa Resources,Energy,Oil & Gas Storage & Transportation
-TRMB,TRMB,Trimble Inc.,Information Technology,Electronic Equipment & Instruments
+TRMB,TRMB,Trimble Inc.,Information Technology,Application Software
 TROW,TROW,T. Rowe Price,Financials,Asset Management & Custody Banks
 TRV,TRV,Travelers Companies (The),Financials,Property & Casualty Insurance
 TSCO,TSCO,Tractor Supply,Consumer Discretionary,Other Specialty Retail
@@ -466,12 +464,14 @@ UPS,UPS,United Parcel Service,Industrials,Air Freight & Logistics
 URI,URI,United Rentals,Industrials,Trading Companies & Distributors
 USB,USB,U.S. Bancorp,Financials,Diversified Banks
 V,V,Visa Inc.,Financials,Transaction & Payment Processing Services
+VEEV,VEEV,Veeva Systems,Health Care,Health Care Technology
 VICI,VICI,Vici Properties,Real Estate,Hotel & Resort REITs
 VLO,VLO,Valero Energy,Energy,Oil & Gas Refining & Marketing
 VLTO,VLTO,Veralto,Industrials,Environmental & Facilities Services
 VMC,VMC,Vulcan Materials Company,Materials,Construction Materials
 VRSK,VRSK,Verisk Analytics,Industrials,Research & Consulting Services
 VRSN,VRSN,Verisign,Information Technology,Internet Services & Infrastructure
+VRT,VRT,Vertiv,Industrials,Electrical Components & Equipment
 VRTX,VRTX,Vertex Pharmaceuticals,Health Care,Biotechnology
 VST,VST,Vistra Corp.,Utilities,Electric Utilities
 VTR,VTR,Ventas,Real Estate,Health Care REITs
