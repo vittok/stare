@@ -85,6 +85,61 @@ Pipeline steps:
 8. `src/publish_stare_app.py`
    Embeds fresh dashboard data, refresh metadata, generated top-3 stock summaries, and Buy/Hold/Sell model signals into the standalone HTML app and publishes it to `docs/index.html`.
 
+## Application Workflow
+
+```mermaid
+flowchart TD
+    A[GitHub Actions schedule<br/>Daily 07:00 GMT] --> B[Checkout main]
+    B --> C[Install Python dependencies]
+    C --> D[Run src/run_pipeline.py]
+
+    D --> E[Fetch S&P 500 universe<br/>Wikipedia]
+    D --> F[Fetch price and volume data<br/>Yahoo Finance via yfinance]
+    D --> G[Fetch fundamentals<br/>Yahoo Finance via yfinance]
+
+    E --> H[(SQLite database<br/>data/stocks.db)]
+    F --> H
+    G --> H
+
+    H --> I[Compute weekly stock metrics]
+    I --> I1[weekly_return]
+    I --> I2[dollar_vol_week]
+    I --> I3[vol_ratio]
+
+    I --> J[Compute sector sentiment]
+    J --> J1[Breadth signal]
+    J --> J2[Return signal]
+    J --> J3[Volume signal]
+    J1 --> K[Sector raw_score]
+    J2 --> K
+    J3 --> K
+    K --> L[Direction and strength<br/>Bullish / Bearish / Neutral]
+
+    I --> M[Rank top active stocks<br/>per sector]
+    M --> N[Top 10 by weekly dollar volume]
+
+    H --> O[Build dashboard dataset]
+    L --> O
+    N --> O
+    O --> P[Add latest close price<br/>currentPrice + priceDate]
+    P --> Q[Generate Buy / Hold / Sell signal]
+    Q --> R[Generate stock summaries]
+
+    R --> S[Write report artifacts]
+    S --> S1[reports/sector_dashboard.json]
+    S --> S2[reports/sector_dashboard_top10.csv]
+    S --> S3[reports/sector_dashboard.html]
+
+    R --> T[Publish single-file HTML app]
+    T --> T1[stare_app.html]
+    T --> T2[docs/index.html]
+
+    T2 --> U[Commit generated artifacts]
+    U --> V[Push to main]
+    V --> W[Deploy GitHub Pages]
+    W --> X[Public S.T.A.R.E web app]
+```
+
 ## What Gets Calculated
 
 ### Weekly Stock Metrics
