@@ -253,6 +253,7 @@ def enrich_dashboard_data(data: dict[str, Any]) -> dict[str, Any]:
             if ticker and fundamentals.get("pegRatio") is None:
                 fundamentals["pegRatio"] = peg_fallbacks.get(ticker)
             stock["recommendation"] = _recommendation_for_stock(sector, stock)
+            stock["daily_summary"] = _summary_for_stock(sector, stock)
 
         selected = []
         seen = set()
@@ -267,13 +268,11 @@ def enrich_dashboard_data(data: dict[str, Any]) -> dict[str, Any]:
 
         sector["top3_explanations"] = []
         for stock in selected:
-            summary = _summary_for_stock(sector, stock)
-            stock["daily_summary"] = summary
             sector["top3_explanations"].append(
                 {
                     "rank": stock.get("rank"),
                     "ticker": stock.get("ticker"),
-                    "summary": summary,
+                    "summary": stock.get("daily_summary"),
                 }
             )
 
