@@ -21,10 +21,13 @@ CREATE TABLE IF NOT EXISTS sector_dashboard_top10 (
   dollar_vol_week REAL,
   weekly_return REAL,
   vol_ratio REAL,
+  currentPrice REAL,
+  priceDate TEXT,
   marketCap REAL,
   trailingPE REAL,
   forwardPE REAL,
   priceToBook REAL,
+  pegRatio REAL,
   profitMargins REAL,
   operatingMargins REAL,
   returnOnEquity REAL,
@@ -53,6 +56,18 @@ def init_schema(engine):
             s = stmt.strip()
             if s:
                 conn.execute(text(s))
+        cols = {
+            row[1]
+            for row in conn.execute(text("PRAGMA table_info(sector_dashboard_top10)"))
+        }
+        migrations = {
+            "currentPrice": "ALTER TABLE sector_dashboard_top10 ADD COLUMN currentPrice REAL",
+            "priceDate": "ALTER TABLE sector_dashboard_top10 ADD COLUMN priceDate TEXT",
+            "pegRatio": "ALTER TABLE sector_dashboard_top10 ADD COLUMN pegRatio REAL",
+        }
+        for col, stmt in migrations.items():
+            if col not in cols:
+                conn.execute(text(stmt))
 
 
 def _load_latest_week_ending(engine) -> str:
@@ -123,6 +138,7 @@ def build_flat_dashboard(
     top_active: pd.DataFrame,
     fundamentals_expanded: pd.DataFrame,
     r7: pd.DataFrame,
+    latest_prices: pd.DataFrame,
 ) -> pd.DataFrame:
     # join sentiment onto each top-active row by sector
     df = top_active.merge(
@@ -140,12 +156,14 @@ def build_flat_dashboard(
     )
 
     df = df.merge(r7, on="ticker", how="left")
+    df = df.merge(latest_prices, on="ticker", how="left")
 
     # Select a useful set of columns
     cols = [
         "sector", "week_ending", "rank", "ticker",
         "direction", "strength", "raw_score",
         "dollar_vol_week", "weekly_return", "vol_ratio",
+        "currentPrice", "priceDate",
         "marketCap", "trailingPE", "forwardPE", "priceToBook", "pegRatio",
         "profitMargins", "operatingMargins", "returnOnEquity",
         "dividendYield", "beta",
@@ -160,6 +178,7 @@ def build_flat_dashboard(
     # Ensure numeric types where possible
     num_cols = [
         "raw_score", "dollar_vol_week", "weekly_return", "vol_ratio",
+        "currentPrice",
         "marketCap", "trailingPE", "forwardPE", "priceToBook", "pegRatio",
         "profitMargins", "operatingMargins", "returnOnEquity",
         "dividendYield", "beta", "return_7d",
@@ -192,6 +211,8 @@ def build_nested_json(sentiment: pd.DataFrame, flat_top10: pd.DataFrame) -> Dict
                 "weekly_return": None if pd.isna(r["weekly_return"]) else float(r["weekly_return"]),
                 "dollar_vol_week": None if pd.isna(r["dollar_vol_week"]) else float(r["dollar_vol_week"]),
                 "vol_ratio": None if pd.isna(r["vol_ratio"]) else float(r["vol_ratio"]),
+                "currentPrice": None if pd.isna(r.get("currentPrice")) else float(r.get("currentPrice")),
+                "priceDate": None if pd.isna(r.get("priceDate")) else r.get("priceDate"),
                 "fundamentals": {
                     "shortName": r.get("shortName"),
                     "industry": r.get("industry"),
@@ -238,7 +259,8 @@ def upsert_sql_dashboard(engine, flat: pd.DataFrame) -> None:
               sector, week_ending, rank, ticker,
               direction, strength, raw_score,
               dollar_vol_week, weekly_return, vol_ratio,
-              marketCap, trailingPE, forwardPE, priceToBook,
+              currentPrice, priceDate,
+              marketCap, trailingPE, forwardPE, priceToBook, pegRatio,
               profitMargins, operatingMargins, returnOnEquity,
               dividendYield, beta,
               shortName, industry, currency, exchange
@@ -246,7 +268,8 @@ def upsert_sql_dashboard(engine, flat: pd.DataFrame) -> None:
               :sector, :week_ending, :rank, :ticker,
               :direction, :strength, :raw_score,
               :dollar_vol_week, :weekly_return, :vol_ratio,
-              :marketCap, :trailingPE, :forwardPE, :priceToBook,
+              :currentPrice, :priceDate,
+              :marketCap, :trailingPE, :forwardPE, :priceToBook, :pegRatio,
               :profitMargins, :operatingMargins, :returnOnEquity,
               :dividendYield, :beta,
               :shortName, :industry, :currency, :exchange
@@ -254,6 +277,53 @@ def upsert_sql_dashboard(engine, flat: pd.DataFrame) -> None:
             """),
             records,
         )
+
+def compute_latest_prices(engine, tickers: list[str], asof_date: str) -> pd.DataFrame:
+    """
+    Pull the latest close at or before `asof_date` for each dashboard ticker.
+    """
+    if not tickers:
+        return pd.DataFrame(columns=["ticker", "currentPrice", "priceDate"])
+
+    placeholders = ",".join([f":t{i}" for i in range(len(tickers))])
+    params = {f"t{i}": t for i, t in enumerate(tickers)}
+    params["asof"] = asof_date
+
+    df = pd.read_sql(
+        text(f"""
+            SELECT ticker, date, close
+            FROM prices
+            WHERE date <= :asof
+              AND ticker IN ({placeholders})
+              AND close IS NOT NULL
+            ORDER BY ticker, date
+        """),
+        engine,
+        params=params,
+    )
+
+    if df.empty:
+        return pd.DataFrame(columns=["ticker", "currentPrice", "priceDate"])
+
+    df["date"] = pd.to_datetime(df["date"])
+    df["close"] = pd.to_numeric(df["close"], errors="coerce")
+
+    rows = []
+    for ticker, g in df.groupby("ticker", sort=False):
+        g = g.dropna(subset=["close"]).sort_values("date")
+        if g.empty:
+            rows.append({"ticker": ticker, "currentPrice": None, "priceDate": None})
+            continue
+        last = g.iloc[-1]
+        rows.append(
+            {
+                "ticker": ticker,
+                "currentPrice": float(last["close"]),
+                "priceDate": last["date"].date().isoformat(),
+            }
+        )
+
+    return pd.DataFrame(rows)
 
 def compute_7d_returns(engine, tickers: list[str], asof_date: str) -> pd.DataFrame:
     """
@@ -316,11 +386,12 @@ def main():
 
     tickers = top_active["ticker"].dropna().unique().tolist()
     r7 = compute_7d_returns(engine, tickers, week_ending)
+    latest_prices = compute_latest_prices(engine, tickers, week_ending)
 
     fundamentals = load_fundamentals_latest(engine)
     fundamentals_expanded = expand_fundamentals_json(fundamentals)
 
-    flat = build_flat_dashboard(sentiment, top_active, fundamentals_expanded, r7)
+    flat = build_flat_dashboard(sentiment, top_active, fundamentals_expanded, r7, latest_prices)
     nested = build_nested_json(sentiment, flat)
 
     write_outputs(cfg, nested, flat)

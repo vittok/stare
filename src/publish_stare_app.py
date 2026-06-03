@@ -111,6 +111,97 @@ def _yield_note(dividend_yield: float | None) -> str:
     return "modest dividend yield"
 
 
+def _market_sentiment_note(sector: dict[str, Any]) -> str:
+    direction = sector.get("direction") or "Neutral"
+    strength = _num(sector.get("strength")) or 0
+    return f"{direction.lower()} sector sentiment with strength {strength:.0f}"
+
+
+def _recommendation_for_stock(sector: dict[str, Any], stock: dict[str, Any]) -> dict[str, Any]:
+    fundamentals = stock.get("fundamentals") or {}
+    raw_score = _num(sector.get("raw_score")) or 0.0
+    weekly_return = _num(stock.get("weekly_return")) or 0.0
+    pb = _num(fundamentals.get("priceToBook"))
+    pe = _num(fundamentals.get("trailingPE") or fundamentals.get("forwardPE"))
+    peg = _num(fundamentals.get("pegRatio"))
+    dividend_yield = _num(fundamentals.get("dividendYield"))
+
+    score = raw_score * 1.5
+    reasons = [_market_sentiment_note(sector)]
+
+    if pe is not None:
+        if pe <= 0:
+            score -= 0.4
+            reasons.append("negative P/E limits earnings visibility")
+        elif pe < 15:
+            score += 0.6
+            reasons.append("low P/E supports valuation")
+        elif pe <= 35:
+            score += 0.2
+            reasons.append("moderate P/E")
+        elif pe > 50:
+            score -= 0.7
+            reasons.append("high P/E adds valuation risk")
+        else:
+            score -= 0.2
+            reasons.append("somewhat elevated P/E")
+
+    if pb is not None:
+        if 0 < pb < 2:
+            score += 0.4
+            reasons.append("lower P/B")
+        elif pb > 12:
+            score -= 0.5
+            reasons.append("high P/B")
+        elif pb > 0:
+            score += 0.1
+            reasons.append("reasonable P/B range")
+
+    if peg is not None:
+        if peg <= 0:
+            score -= 0.3
+            reasons.append("negative PEG limits growth visibility")
+        elif peg < 1:
+            score += 0.7
+            reasons.append("PEG below 1")
+        elif peg <= 2:
+            score += 0.2
+            reasons.append("balanced PEG")
+        else:
+            score -= 0.5
+            reasons.append("high PEG")
+
+    if dividend_yield is not None:
+        if dividend_yield >= 4:
+            score += 0.35
+            reasons.append("high dividend yield")
+        elif dividend_yield >= 2:
+            score += 0.2
+            reasons.append("meaningful dividend yield")
+
+    if weekly_return > 0.03:
+        score += 0.25
+        reasons.append("positive weekly momentum")
+    elif weekly_return < -0.05:
+        score -= 0.35
+        reasons.append("weak weekly momentum")
+
+    if score >= 0.8:
+        action = "Buy"
+    elif score <= -0.8:
+        action = "Sell"
+    else:
+        action = "Hold"
+
+    confidence = min(100, max(0, round(abs(score) * 45 + 35)))
+    return {
+        "action": action,
+        "score": round(score, 3),
+        "confidence": confidence,
+        "rationale": "; ".join(reasons[:5]),
+    }
+
+
 def _load_peg_fallbacks() -> dict[str, float | None]:
     if not FUNDAMENTALS_CSV.exists():
         return {}
@@ -126,6 +217,7 @@ def _load_peg_fallbacks() -> dict[str, float | None]:
 
 def _summary_for_stock(sector: dict[str, Any], stock: dict[str, Any]) -> str:
     fundamentals = stock.get("fundamentals") or {}
+    recommendation = stock.get("recommendation") or {}
     ticker = stock.get("ticker") or "Ticker"
     name = _text(fundamentals.get("shortName")) or _text(fundamentals.get("industry")) or ticker
     pb = _num(fundamentals.get("priceToBook"))
@@ -135,9 +227,13 @@ def _summary_for_stock(sector: dict[str, Any], stock: dict[str, Any]) -> str:
 
     return (
         f"{ticker} ({name}) is a top active {sector.get('sector')} stock for this run. "
+        f"Last close: {_fmt_num(stock.get('currentPrice'))}. "
+        f"Model signal: {recommendation.get('action', 'Hold')} "
+        f"({recommendation.get('confidence', 'n/a')} confidence). "
         f"Fundamentals snapshot: P/B {_fmt_num(pb)}, P/E {_fmt_num(pe)}, "
         f"PEG {_fmt_num(peg)}, dividend yield {_fmt_yield(dividend_yield)}. "
-        f"Read-through: {_valuation_note(pb, pe, peg)} with {_yield_note(dividend_yield)}."
+        f"Read-through: {_valuation_note(pb, pe, peg)} with {_yield_note(dividend_yield)}. "
+        f"Signal rationale: {recommendation.get('rationale', 'n/a')}."
     )
 
 
@@ -151,13 +247,17 @@ def enrich_dashboard_data(data: dict[str, Any]) -> dict[str, Any]:
 
     peg_fallbacks = _load_peg_fallbacks()
     for sector in data.get("sectors", []):
-        selected = []
-        seen = set()
         for stock in sector.get("top10_active", []):
             fundamentals = stock.setdefault("fundamentals", {})
             ticker = stock.get("ticker")
             if ticker and fundamentals.get("pegRatio") is None:
                 fundamentals["pegRatio"] = peg_fallbacks.get(ticker)
+            stock["recommendation"] = _recommendation_for_stock(sector, stock)
+
+        selected = []
+        seen = set()
+        for stock in sector.get("top10_active", []):
+            ticker = stock.get("ticker")
             if ticker in seen:
                 continue
             seen.add(ticker)

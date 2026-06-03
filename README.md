@@ -17,9 +17,11 @@ The project turns raw market data into a publishable dashboard with:
 - Sector sentiment direction: Bullish, Bearish, or Neutral
 - Sector sentiment strength from 0 to 100
 - Top active stocks per sector by weekly dollar volume
+- Latest available close price for every displayed stock
 - Weekly stock returns
 - Volume activity versus recent baseline
 - Company fundamentals such as market cap, P/E, margins, dividend yield, beta, industry, exchange, and currency
+- Deterministic Buy, Hold, or Sell model signals for every displayed stock
 - A static HTML app that works without a backend
 
 The output is intended for screening, monitoring, and research. It is not financial advice.
@@ -75,13 +77,13 @@ Pipeline steps:
    Ranks the most active stocks inside each sector by weekly dollar volume for the latest available `week_ending`.
 
 6. `src/build_sector_dashboard.py`
-   Joins sector sentiment, top active stocks, recent return data, and fundamentals into dashboard JSON/CSV outputs.
+   Joins sector sentiment, top active stocks, recent return data, latest available close prices, and fundamentals into dashboard JSON/CSV outputs.
 
 7. `src/build_sector_dashboard_html.py`
    Builds the legacy HTML report.
 
 8. `src/publish_stare_app.py`
-   Embeds fresh dashboard data, refresh metadata, and generated top-3 stock summaries into the standalone HTML app and publishes it to `docs/index.html`.
+   Embeds fresh dashboard data, refresh metadata, generated top-3 stock summaries, and Buy/Hold/Sell model signals into the standalone HTML app and publishes it to `docs/index.html`.
 
 ## What Gets Calculated
 
@@ -194,6 +196,12 @@ For each sector, stocks are ranked by `dollar_vol_week`.
 
 This identifies the names with the largest amount of money traded during the weekly window. It helps separate broad sector direction from the individual stocks that are carrying the most market activity.
 
+### Displayed Stock Prices
+
+For each stock shown in the dashboard, S.T.A.R.E pulls the latest close price already stored in the `prices` table at or before the current dashboard `week_ending`.
+
+The app displays this as `currentPrice` beside the ticker symbol and stores the source trading date as `priceDate`. This keeps the published app static while still showing the most recent price captured during the scheduled data refresh.
+
 ### Fundamentals
 
 STARE stores normalized fundamentals in `fundamentals_latest`, including:
@@ -226,6 +234,25 @@ The summaries focus on:
 
 These summaries are embedded into the HTML and shown when hovering over or clicking ticker symbols in the app table.
 
+### Buy, Hold, or Sell Signals
+
+During publishing, S.T.A.R.E also generates a deterministic model signal for every displayed stock:
+
+- `Buy`
+- `Hold`
+- `Sell`
+
+The signal combines sector market sentiment with stock-level weekly momentum and selected fundamentals:
+
+- Price-to-book (P/B)
+- Price-to-earnings (P/E)
+- Price/earnings-to-growth (PEG), when available
+- Dividend yield
+
+Bullish sector sentiment, positive weekly return, lower valuation ratios, reasonable PEG, and higher dividend yield add support to the score. Bearish sector sentiment, negative weekly return, elevated valuation ratios, and weak or missing growth/value support reduce the score.
+
+The output includes a recommendation action, confidence score, and short rationale. These signals are research-oriented model outputs for screening and monitoring only; they are not personalized financial advice.
+
 ## Value Added
 
 Raw stock tables are noisy. STARE adds value by organizing the data into a repeatable market overview:
@@ -234,7 +261,9 @@ Raw stock tables are noisy. STARE adds value by organizing the data into a repea
 - It shows whether a sector move is broad-based or concentrated.
 - It combines price direction with volume confirmation.
 - It surfaces the most liquid and active names in each sector.
+- It shows the latest captured close price next to each displayed stock.
 - It adds fundamentals so activity can be interpreted with company context.
+- It turns sector sentiment and fundamentals into plain Buy/Hold/Sell screening signals.
 - It produces static outputs that are easy to publish, archive, inspect, and share.
 
 The dashboard is especially useful as a daily pre-market or morning scan: it points attention toward sectors with broad momentum and toward stocks where activity is highest.
@@ -254,7 +283,7 @@ On each scheduled run, it:
 3. Installs Python dependencies
 4. Runs the market-data pipeline
 5. Regenerates dashboard reports
-6. Embeds the latest JSON data into the HTML app
+6. Embeds the latest JSON data, displayed prices, stock summaries, and model signals into the HTML app
 7. Pulls `origin/main` again before committing generated artifacts
 8. Commits updated artifacts back to the repository
 9. Deploys `docs/` to GitHub Pages

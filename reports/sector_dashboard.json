@@ -25,6 +25,8 @@
           "weekly_return": -0.07610284282113744,
           "dollar_vol_week": 66743627293.44653,
           "vol_ratio": 1.3196609678476767,
+          "currentPrice": 360.44000244140625,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Alphabet Inc.",
             "industry": "Internet Content & Information",
@@ -48,6 +50,8 @@
           "weekly_return": -0.020675516983999054,
           "dollar_vol_week": 59529626777.41626,
           "vol_ratio": 1.2168187597589146,
+          "currentPrice": 622.155029296875,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Meta Platforms, Inc.",
             "industry": "Internet Content & Information",
@@ -71,6 +75,8 @@
           "weekly_return": -0.07632342689675775,
           "dollar_vol_week": 54303596855.70996,
           "vol_ratio": 1.6370092374505216,
+          "currentPrice": 356.6499938964844,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Alphabet Inc.",
             "industry": "Internet Content & Information",
@@ -94,6 +100,8 @@
           "weekly_return": -0.05604565904592995,
           "dollar_vol_week": 14837900906.211365,
           "vol_ratio": 0.9223969902882398,
+          "currentPrice": 81.5198974609375,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Netflix, Inc.",
             "industry": "Entertainment",
@@ -117,6 +125,8 @@
           "weekly_return": -0.04923627473640757,
           "dollar_vol_week": 5337673381.966404,
           "vol_ratio": 1.1866516641122484,
+          "currentPrice": 23.655000686645508,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "AT&T Inc.",
             "industry": "Telecom Services",
@@ -140,6 +150,8 @@
           "weekly_return": -0.03655482846852809,
           "dollar_vol_week": 4987728079.7469635,
           "vol_ratio": 0.8971115701877426,
+          "currentPrice": 46.255001068115234,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Verizon Communications Inc.",
             "industry": "Telecom Services",
@@ -163,6 +175,8 @@
           "weekly_return": -0.04079144849030336,
           "dollar_vol_week": 4323669756.687576,
           "vol_ratio": 0.8191641767782408,
+          "currentPrice": 181.3000030517578,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "T-Mobile US, Inc.",
             "industry": "Telecom Services",
@@ -186,6 +200,8 @@
           "weekly_return": -0.0414538023002039,
           "dollar_vol_week": 4097374086.247978,
           "vol_ratio": 0.9502954049823041,
+          "currentPrice": 99.43000030517578,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Walt Disney Company (The)",
             "industry": "Entertainment",
@@ -209,6 +225,8 @@
           "weekly_return": -0.06614790046431795,
           "dollar_vol_week": 3844030957.928932,
           "vol_ratio": 0.9933748734653217,
+          "currentPrice": 122.4000015258789,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": NaN,
             "industry": NaN,
@@ -232,6 +250,8 @@
           "weekly_return": -0.061208228041269686,
           "dollar_vol_week": 3529888374.7737045,
           "vol_ratio": 0.9472167025538266,
+          "currentPrice": 23.6200008392334,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Comcast Corporation",
             "industry": "Telecom Services",
@@ -275,6 +295,8 @@
           "weekly_return": -0.020941949805001303,
           "dollar_vol_week": 15399469618.187347,
           "vol_ratio": 1.4488374461589353,
+          "currentPrice": 116.41000366210938,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Walmart Inc.",
             "industry": "Discount Stores",
@@ -298,6 +320,8 @@
           "weekly_return": -0.03398815493582874,
           "dollar_vol_week": 15280349059.44458,
           "vol_ratio": 1.6557898931805928,
+          "currentPrice": 961.375,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Costco Wholesale Corporation",
             "industry": "Discount Stores",
@@ -321,6 +345,8 @@
           "weekly_return": -0.029812939444434083,
           "dollar_vol_week": 6742056200.755249,
           "vol_ratio": 1.1306047730946578,
+          "currentPrice": 141.55999755859375,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Procter & Gamble Company (The)",
             "industry": "Household & Personal Products",
@@ -344,6 +370,8 @@
           "weekly_return": -0.018716637411641868,
           "dollar_vol_week": 6199490692.853851,
           "vol_ratio": 1.1233347966235623,
+          "currentPrice": 78.90499877929688,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Coca-Cola Company (The)",
             "industry": "Beverages - Non-Alcoholic",
@@ -367,6 +395,8 @@
           "weekly_return": -0.0228313383770401,
           "dollar_vol_week": 5599034327.801529,
           "vol_ratio": 1.2525757227317296,
+          "currentPrice": 142.9499969482422,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Pepsico, Inc.",
             "industry": "Beverages - Non-Alcoholic",
@@ -390,6 +420,8 @@
           "weekly_return": -0.008008838754839598,
           "dollar_vol_week": 3605874205.1880493,
           "vol_ratio": 1.7508044514318508,
+          "currentPrice": 112.09500122070312,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Dollar Tree, Inc.",
             "industry": "Discount Stores",
@@ -413,6 +445,8 @@
           "weekly_return": -0.007224105348104137,
           "dollar_vol_week": 3296977905.063507,
           "vol_ratio": 0.7675290471550573,
+          "currentPrice": 177.27999877929688,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Philip Morris International Inc",
             "industry": "Tobacco",
@@ -436,6 +470,8 @@
           "weekly_return": -0.048180146455216066,
           "dollar_vol_week": 3149867402.376915,
           "vol_ratio": 1.7475715555635776,
+          "currentPrice": 104.6050033569336,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Dollar General Corporation",
             "industry": "Discount Stores",
@@ -459,6 +495,8 @@
           "weekly_return": -0.018618923781533625,
           "dollar_vol_week": 2768662750.098572,
           "vol_ratio": 0.8864016929179042,
+          "currentPrice": 70.62999725341797,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Altria Group, Inc.",
             "industry": "Tobacco",
@@ -482,6 +520,8 @@
           "weekly_return": 0.016138263811966036,
           "dollar_vol_week": 2565369778.4903564,
           "vol_ratio": 1.147990911014561,
+          "currentPrice": 89.41000366210938,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Monster Beverage Corporation",
             "industry": "Beverages - Non-Alcoholic",
@@ -525,6 +565,8 @@
           "weekly_return": 0.16048375541737236,
           "dollar_vol_week": 230865046094.82373,
           "vol_ratio": 0.9420689136553834,
+          "currentPrice": 1071.72998046875,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Micron Technology, Inc.",
             "industry": "Semiconductors",
@@ -548,6 +590,8 @@
           "weekly_return": 0.0064177362893815815,
           "dollar_vol_week": 204825790839.44855,
           "vol_ratio": 1.2060746974775323,
+          "currentPrice": 215.625,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "NVIDIA Corporation",
             "industry": "Semiconductors",
@@ -571,6 +615,8 @@
           "weekly_return": -0.0013115004365473748,
           "dollar_vol_week": 106760073424.18988,
           "vol_ratio": 1.4411431943928588,
+          "currentPrice": 426.42999267578125,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Microsoft Corporation",
             "industry": "Software - Infrastructure",
@@ -594,6 +640,8 @@
           "weekly_return": 0.11817450736393376,
           "dollar_vol_week": 75120220251.49976,
           "vol_ratio": 0.562539060971876,
+          "currentPrice": 1835.6400146484375,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Sandisk Corporation",
             "industry": "Computer Hardware",
@@ -617,6 +665,8 @@
           "weekly_return": -0.00990368667878605,
           "dollar_vol_week": 74303867925.39374,
           "vol_ratio": 1.0492256055706268,
+          "currentPrice": 309.4150085449219,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Apple Inc.",
             "industry": "Consumer Electronics",
@@ -640,6 +690,8 @@
           "weekly_return": 0.04329361985969782,
           "dollar_vol_week": 72248670539.48242,
           "vol_ratio": 0.6886959817837496,
+          "currentPrice": 540.52001953125,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Advanced Micro Devices, Inc.",
             "industry": "Semiconductors",
@@ -663,6 +715,8 @@
           "weekly_return": -0.07213170042789996,
           "dollar_vol_week": 69778815327.19142,
           "vol_ratio": 0.8944097015008586,
+          "currentPrice": 112.16999816894531,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Intel Corporation",
             "industry": "Semiconductors",
@@ -686,6 +740,8 @@
           "weekly_return": 0.14154417748299442,
           "dollar_vol_week": 68627555663.35547,
           "vol_ratio": 1.452820805662548,
+          "currentPrice": 486.95989990234375,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Broadcom Inc.",
             "industry": "Semiconductors",
@@ -709,6 +765,8 @@
           "weekly_return": 0.32237825550524435,
           "dollar_vol_week": 46700549774.15112,
           "vol_ratio": 3.411029127858188,
+          "currentPrice": 419.260009765625,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Dell Technologies Inc.",
             "industry": "Computer Hardware",
@@ -732,6 +790,8 @@
           "weekly_return": -0.004778830585282168,
           "dollar_vol_week": 41312917638.608,
           "vol_ratio": 1.202906090510572,
+          "currentPrice": 142.65499877929688,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Palantir Technologies Inc.",
             "industry": "Software - Infrastructure",
@@ -775,6 +835,8 @@
           "weekly_return": -0.04489597482054786,
           "dollar_vol_week": 82243322608.10886,
           "vol_ratio": 0.624046553786145,
+          "currentPrice": 422.2514953613281,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Tesla, Inc.",
             "industry": "Auto Manufacturers",
@@ -798,6 +860,8 @@
           "weekly_return": -0.0906569209412067,
           "dollar_vol_week": 58350804411.58829,
           "vol_ratio": 0.994829930537336,
+          "currentPrice": 249.16000366210938,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Amazon.com, Inc.",
             "industry": "Internet Retail",
@@ -821,6 +885,8 @@
           "weekly_return": -0.02980729774966462,
           "dollar_vol_week": 7811976416.067505,
           "vol_ratio": 1.1082263797805874,
+          "currentPrice": 311.6355895996094,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Home Depot, Inc. (The)",
             "industry": "Home Improvement Retail",
@@ -844,6 +910,8 @@
           "weekly_return": -0.05615612536722192,
           "dollar_vol_week": 7678117439.03511,
           "vol_ratio": 1.6322887670557087,
+          "currentPrice": 15.71500015258789,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Ford Motor Company",
             "industry": "Auto Manufacturers",
@@ -867,6 +935,8 @@
           "weekly_return": -0.08359719598404258,
           "dollar_vol_week": 5783621820.730377,
           "vol_ratio": 0.9979325989787533,
+          "currentPrice": 43.40999984741211,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Nike, Inc.",
             "industry": "Footwear & Accessories",
@@ -890,6 +960,8 @@
           "weekly_return": 0.015480068198424846,
           "dollar_vol_week": 5711306618.550781,
           "vol_ratio": 1.546769277628306,
+          "currentPrice": 3053.6298828125,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "AutoZone, Inc.",
             "industry": "Auto Parts",
@@ -913,6 +985,8 @@
           "weekly_return": -0.013112886274291968,
           "dollar_vol_week": 5513265515.049011,
           "vol_ratio": 1.0816279036577883,
+          "currentPrice": 274.32501220703125,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "McDonald's Corporation",
             "industry": "Restaurants",
@@ -936,6 +1010,8 @@
           "weekly_return": -0.026557587864276422,
           "dollar_vol_week": 5478788265.141724,
           "vol_ratio": 0.8719938897724582,
+          "currentPrice": 165.30999755859375,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Booking Holdings Inc. Common St",
             "industry": "Travel Services",
@@ -959,6 +1035,8 @@
           "weekly_return": 0.019142593773480154,
           "dollar_vol_week": 5055396104.611435,
           "vol_ratio": 1.3084688885946085,
+          "currentPrice": 157.85499572753906,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "TJX Companies, Inc. (The)",
             "industry": "Apparel Retail",
@@ -982,6 +1060,8 @@
           "weekly_return": 0.017759699455579536,
           "dollar_vol_week": 4835284302.194992,
           "vol_ratio": 1.6714965983702255,
+          "currentPrice": 231.23500061035156,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Ross Stores, Inc.",
             "industry": "Apparel Retail",
@@ -1025,6 +1105,8 @@
           "weekly_return": 0.04436573704277502,
           "dollar_vol_week": 11211836276.514969,
           "vol_ratio": 0.7956147957026464,
+          "currentPrice": 153.47999572753906,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Exxon Mobil Corporation",
             "industry": "Oil & Gas Integrated",
@@ -1048,6 +1130,8 @@
           "weekly_return": 0.040512531248296124,
           "dollar_vol_week": 7620383556.462463,
           "vol_ratio": 0.7538617697478316,
+          "currentPrice": 190.44500732421875,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Chevron Corporation",
             "industry": "Oil & Gas Integrated",
@@ -1071,6 +1155,8 @@
           "weekly_return": 0.024492059415433642,
           "dollar_vol_week": 4186312445.046173,
           "vol_ratio": 1.1120256530036088,
+          "currentPrice": 56.470001220703125,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "SLB Limited",
             "industry": "Oil & Gas Equipment & Services",
@@ -1094,6 +1180,8 @@
           "weekly_return": 0.03326380249322436,
           "dollar_vol_week": 4043079063.548279,
           "vol_ratio": 0.8526318511817993,
+          "currentPrice": 118.81500244140625,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "ConocoPhillips",
             "industry": "Oil & Gas E&P",
@@ -1117,6 +1205,8 @@
           "weekly_return": 0.07496418219810064,
           "dollar_vol_week": 3181816258.7668457,
           "vol_ratio": 0.8123312928115424,
+          "currentPrice": 263.2049865722656,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Valero Energy Corporation",
             "industry": "Oil & Gas Refining & Marketing",
@@ -1140,6 +1230,8 @@
           "weekly_return": 0.05406933322448193,
           "dollar_vol_week": 3112627167.4059677,
           "vol_ratio": 0.9642559820078251,
+          "currentPrice": 46.494998931884766,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Devon Energy Corporation",
             "industry": "Oil & Gas E&P",
@@ -1163,6 +1255,8 @@
           "weekly_return": 0.0471912394531806,
           "dollar_vol_week": 3033467133.5657883,
           "vol_ratio": 0.7399560514926586,
+          "currentPrice": 60.025001525878906,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Occidental Petroleum Corporatio",
             "industry": "Oil & Gas E&P",
@@ -1186,6 +1280,8 @@
           "weekly_return": 0.07703020120680004,
           "dollar_vol_week": 2968909932.0562744,
           "vol_ratio": 1.0168148913486255,
+          "currentPrice": 270.69000244140625,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Marathon Petroleum Corporation",
             "industry": "Oil & Gas Refining & Marketing",
@@ -1209,6 +1305,8 @@
           "weekly_return": 0.05617474703324943,
           "dollar_vol_week": 2472183270.710724,
           "vol_ratio": 0.9512864368224005,
+          "currentPrice": 142.13999938964844,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "EOG Resources, Inc.",
             "industry": "Oil & Gas E&P",
@@ -1232,6 +1330,8 @@
           "weekly_return": -0.014221262882363028,
           "dollar_vol_week": 2450149706.3131714,
           "vol_ratio": 1.0934142632616102,
+          "currentPrice": 72.08999633789062,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Williams Companies, Inc. (The)",
             "industry": "Oil & Gas Midstream",
@@ -1275,6 +1375,8 @@
           "weekly_return": -0.031017103059709394,
           "dollar_vol_week": 17031632375.388794,
           "vol_ratio": 0.9693418165965251,
+          "currentPrice": 1091.8499755859375,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Eli Lilly and Company",
             "industry": "Drug Manufacturers - General",
@@ -1298,6 +1400,8 @@
           "weekly_return": 0.001516185852394436,
           "dollar_vol_week": 10983446594.358765,
           "vol_ratio": 0.7260110187293242,
+          "currentPrice": 383.1099853515625,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "UnitedHealth Group Incorporated",
             "industry": "Healthcare Plans",
@@ -1321,6 +1425,8 @@
           "weekly_return": -0.029159426510188657,
           "dollar_vol_week": 8476429204.649109,
           "vol_ratio": 0.9988410973538815,
+          "currentPrice": 224.07000732421875,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Johnson & Johnson",
             "industry": "Drug Manufacturers - General",
@@ -1344,6 +1450,8 @@
           "weekly_return": -0.026989848248302195,
           "dollar_vol_week": 7039617827.310059,
           "vol_ratio": 1.301909458695898,
+          "currentPrice": 474.07000732421875,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Thermo Fisher Scientific Inc",
             "industry": "Diagnostics & Research",
@@ -1367,6 +1475,8 @@
           "weekly_return": -0.03308898350242495,
           "dollar_vol_week": 6997643716.557251,
           "vol_ratio": 1.5518022320728202,
+          "currentPrice": 47.48500061035156,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Boston Scientific Corporation",
             "industry": "Medical Devices",
@@ -1390,6 +1500,8 @@
           "weekly_return": -0.0465264292611437,
           "dollar_vol_week": 5848656402.735352,
           "vol_ratio": 1.283911065541697,
+          "currentPrice": 403.9200134277344,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Intuitive Surgical, Inc.",
             "industry": "Medical Instruments & Supplies",
@@ -1413,6 +1525,8 @@
           "weekly_return": 0.0023326830510264074,
           "dollar_vol_week": 5655886872.823105,
           "vol_ratio": 0.8342930547516935,
+          "currentPrice": 219.13999938964844,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "AbbVie Inc.",
             "industry": "Drug Manufacturers - General",
@@ -1436,6 +1550,8 @@
           "weekly_return": 0.02712720735789831,
           "dollar_vol_week": 5582909418.75071,
           "vol_ratio": 1.6435163879571086,
+          "currentPrice": 77.62000274658203,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Medtronic plc.",
             "industry": "Medical Devices",
@@ -1459,6 +1575,8 @@
           "weekly_return": -0.03682543112856618,
           "dollar_vol_week": 5449162886.716293,
           "vol_ratio": 1.0338499294927574,
+          "currentPrice": 115.4749984741211,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Merck & Company, Inc.",
             "industry": "Drug Manufacturers - General",
@@ -1482,6 +1600,8 @@
           "weekly_return": -0.050322975085227206,
           "dollar_vol_week": 5258573326.873016,
           "vol_ratio": 1.3815595184748513,
+          "currentPrice": 129.36500549316406,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Gilead Sciences, Inc.",
             "industry": "Drug Manufacturers - General",
@@ -1525,6 +1645,8 @@
           "weekly_return": -0.013319157263014803,
           "dollar_vol_week": 17319020036.711662,
           "vol_ratio": 1.3305837193391632,
+          "currentPrice": 83.70999908447266,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Robinhood Markets, Inc.",
             "industry": "Capital Markets",
@@ -1548,6 +1670,8 @@
           "weekly_return": -0.034085865445425134,
           "dollar_vol_week": 15173990773.950104,
           "vol_ratio": 1.317248871537003,
+          "currentPrice": 313.8738098144531,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Visa Inc.",
             "industry": "Credit Services",
@@ -1571,6 +1695,8 @@
           "weekly_return": 0.015704524279898546,
           "dollar_vol_week": 12848542098.551514,
           "vol_ratio": 1.0327788371678452,
+          "currentPrice": 301.3900146484375,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "JP Morgan Chase & Co.",
             "industry": "Banks - Diversified",
@@ -1594,6 +1720,8 @@
           "weekly_return": 0.0010472958525766796,
           "dollar_vol_week": 12711545834.320953,
           "vol_ratio": 1.1425944836018258,
+          "currentPrice": 477.9200134277344,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Berkshire Hathaway Inc. New",
             "industry": "Insurance - Diversified",
@@ -1617,6 +1745,8 @@
           "weekly_return": -0.04346327383306958,
           "dollar_vol_week": 10991247852.18457,
           "vol_ratio": 1.3002507499866653,
+          "currentPrice": 472.2900085449219,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Mastercard Incorporated",
             "industry": "Credit Services",
@@ -1640,6 +1770,8 @@
           "weekly_return": 0.03834906247960945,
           "dollar_vol_week": 10862702854.756836,
           "vol_ratio": 1.048499498342212,
+          "currentPrice": 1047.0400390625,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Goldman Sachs Group, Inc. (The)",
             "industry": "Capital Markets",
@@ -1663,6 +1795,8 @@
           "weekly_return": 0.03279497538930465,
           "dollar_vol_week": 10248397497.197014,
           "vol_ratio": 1.1655470095062737,
+          "currentPrice": 52.435001373291016,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Bank of America Corporation",
             "industry": "Banks - Diversified",
@@ -1686,6 +1820,8 @@
           "weekly_return": -0.0934705276384602,
           "dollar_vol_week": 7821404464.017944,
           "vol_ratio": 0.8884707785881678,
+          "currentPrice": 165.21499633789062,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Coinbase Global, Inc. - 3",
             "industry": "Financial Data & Stock Exchanges",
@@ -1709,6 +1845,8 @@
           "weekly_return": 0.04551648547058673,
           "dollar_vol_week": 7299350601.222458,
           "vol_ratio": 1.0154946082745253,
+          "currentPrice": 130.35499572753906,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Citigroup, Inc.",
             "industry": "Banks - Diversified",
@@ -1732,6 +1870,8 @@
           "weekly_return": -0.08508762830291272,
           "dollar_vol_week": 6756936273.952026,
           "vol_ratio": 2.208583354891046,
+          "currentPrice": 253.81500244140625,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "CME Group Inc.",
             "industry": "Financial Data & Stock Exchanges",
@@ -1775,6 +1915,8 @@
           "weekly_return": -0.07112916212507481,
           "dollar_vol_week": 7197846451.196716,
           "vol_ratio": 1.6627130528375273,
+          "currentPrice": 265.94500732421875,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Constellation Energy Corporatio",
             "industry": "Utilities - Independent Power Producers",
@@ -1798,6 +1940,8 @@
           "weekly_return": -0.025558777729897897,
           "dollar_vol_week": 5919544000.840019,
           "vol_ratio": 1.3486922826708887,
+          "currentPrice": 85.0199966430664,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "NextEra Energy, Inc.",
             "industry": "Utilities - Regulated Electric",
@@ -1821,6 +1965,8 @@
           "weekly_return": -0.021297085442088748,
           "dollar_vol_week": 3192508459.021866,
           "vol_ratio": 1.529572099292212,
+          "currentPrice": 65.94499969482422,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Dominion Energy, Inc.",
             "industry": "Utilities - Regulated Electric",
@@ -1844,6 +1990,8 @@
           "weekly_return": -0.037153742677866086,
           "dollar_vol_week": 2903736017.775223,
           "vol_ratio": 0.768886898423635,
+          "currentPrice": 154.3249969482422,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Vistra Corp.",
             "industry": "Utilities - Independent Power Producers",
@@ -1867,6 +2015,8 @@
           "weekly_return": -0.006701201250356559,
           "dollar_vol_week": 2726395178.5373535,
           "vol_ratio": 1.2175014175896863,
+          "currentPrice": 91.9000015258789,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Southern Company (The)",
             "industry": "Utilities - Regulated Electric",
@@ -1890,6 +2040,8 @@
           "weekly_return": -0.013247577888694573,
           "dollar_vol_week": 2612584640.064804,
           "vol_ratio": 1.382980235066067,
+          "currentPrice": 78.20999908447266,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Xcel Energy Inc.",
             "industry": "Utilities - Regulated Electric",
@@ -1913,6 +2065,8 @@
           "weekly_return": 7.822876227936426e-05,
           "dollar_vol_week": 2506638363.4344635,
           "vol_ratio": 1.0940650140786679,
+          "currentPrice": 127.7699966430664,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "American Electric Power Company",
             "industry": "Utilities - Regulated Electric",
@@ -1936,6 +2090,8 @@
           "weekly_return": -0.020921199460937845,
           "dollar_vol_week": 2097612031.4638367,
           "vol_ratio": 2.404079857027501,
+          "currentPrice": 169.41000366210938,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Atmos Energy Corporation",
             "industry": "Utilities - Regulated Gas",
@@ -1959,6 +2115,8 @@
           "weekly_return": -0.003620028716517676,
           "dollar_vol_week": 1975100532.6099396,
           "vol_ratio": 1.0891193095879177,
+          "currentPrice": 45.415000915527344,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Exelon Corporation",
             "industry": "Utilities - Regulated Electric",
@@ -1982,6 +2140,8 @@
           "weekly_return": 0.00011109781590668,
           "dollar_vol_week": 1896059985.1660843,
           "vol_ratio": 1.2947375131317604,
+          "currentPrice": 90.04000091552734,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "DBA Sempra",
             "industry": "Utilities - Diversified",
@@ -2025,6 +2185,8 @@
           "weekly_return": -0.05100095671282612,
           "dollar_vol_week": 4675312613.999695,
           "vol_ratio": 1.5432980822614197,
+          "currentPrice": 199.56500244140625,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Welltower Inc.",
             "industry": "REIT - Healthcare Facilities",
@@ -2048,6 +2210,8 @@
           "weekly_return": 0.018042194982862414,
           "dollar_vol_week": 2632915072.475464,
           "vol_ratio": 0.919083419635943,
+          "currentPrice": 1088.7349853515625,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Equinix, Inc.",
             "industry": "REIT - Specialty",
@@ -2071,6 +2235,8 @@
           "weekly_return": -0.025542441886109546,
           "dollar_vol_week": 2599214832.131607,
           "vol_ratio": 1.0891135844233557,
+          "currentPrice": 141.9199981689453,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Prologis, Inc.",
             "industry": "REIT - Industrial",
@@ -2094,6 +2260,8 @@
           "weekly_return": -0.006026355496777103,
           "dollar_vol_week": 2444648389.9104004,
           "vol_ratio": 0.8660583850531356,
+          "currentPrice": 185.55499267578125,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "American Tower Corporation (REI",
             "industry": "REIT - Specialty",
@@ -2117,6 +2285,8 @@
           "weekly_return": 0.0013051804929378186,
           "dollar_vol_week": 2348495810.279114,
           "vol_ratio": 1.7684390236392424,
+          "currentPrice": 126.58499908447266,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "CBRE Group Inc",
             "industry": "Real Estate Services",
@@ -2140,6 +2310,8 @@
           "weekly_return": -0.022369870062219355,
           "dollar_vol_week": 2147664688.9240837,
           "vol_ratio": 1.3082831372367723,
+          "currentPrice": 60.310001373291016,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Realty Income Corporation",
             "industry": "REIT - Retail",
@@ -2163,6 +2335,8 @@
           "weekly_return": -0.011075148704375537,
           "dollar_vol_week": 1908946031.0352325,
           "vol_ratio": 1.3791591803420966,
+          "currentPrice": 204.47999572753906,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Simon Property Group, Inc.",
             "industry": "REIT - Retail",
@@ -2186,6 +2360,8 @@
           "weekly_return": -0.01029565413546707,
           "dollar_vol_week": 1880184373.7797623,
           "vol_ratio": 2.796127840536489,
+          "currentPrice": 37.4900016784668,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "UDR, Inc.",
             "industry": "REIT - Residential",
@@ -2209,6 +2385,8 @@
           "weekly_return": -0.030637781219102656,
           "dollar_vol_week": 1726626502.053894,
           "vol_ratio": 0.8934461390756394,
+          "currentPrice": 185.56500244140625,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Digital Realty Trust, Inc.",
             "industry": "REIT - Specialty",
@@ -2232,6 +2410,8 @@
           "weekly_return": -0.011276233253386336,
           "dollar_vol_week": 1700450939.1155396,
           "vol_ratio": 2.061871083323895,
+          "currentPrice": 19.290000915527344,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Healthpeak Properties, Inc.",
             "industry": "REIT - Healthcare Facilities",
@@ -2275,6 +2455,8 @@
           "weekly_return": -0.02525605351091864,
           "dollar_vol_week": 14072116046.39746,
           "vol_ratio": 1.2182463604222458,
+          "currentPrice": 970.844970703125,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "GE Vernova Inc.",
             "industry": "Specialty Industrial Machinery",
@@ -2298,6 +2480,8 @@
           "weekly_return": 0.04283125515476405,
           "dollar_vol_week": 13087542235.666504,
           "vol_ratio": 1.2356952713985834,
+          "currentPrice": 925.6900024414062,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Caterpillar, Inc.",
             "industry": "Farm & Heavy Construction Machinery",
@@ -2321,6 +2505,8 @@
           "weekly_return": 0.06827300498783395,
           "dollar_vol_week": 8486982860.173096,
           "vol_ratio": 0.9413649374762321,
+          "currentPrice": 335.6300048828125,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": NaN,
             "industry": NaN,
@@ -2344,6 +2530,8 @@
           "weekly_return": -0.001315564976473893,
           "dollar_vol_week": 8482702597.948662,
           "vol_ratio": 1.4675970553893336,
+          "currentPrice": 70.82669830322266,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Uber Technologies, Inc.",
             "industry": "Software - Application",
@@ -2367,6 +2555,8 @@
           "weekly_return": -0.0040365731505817015,
           "dollar_vol_week": 8284435801.259155,
           "vol_ratio": 0.8465871151550687,
+          "currentPrice": 319.5249938964844,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "GE Aerospace",
             "industry": "Aerospace & Defense",
@@ -2390,6 +2580,8 @@
           "weekly_return": -0.06565261103506992,
           "dollar_vol_week": 6796224188.183975,
           "vol_ratio": 0.8912403067443855,
+          "currentPrice": 213.75999450683594,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Boeing Company (The)",
             "industry": "Aerospace & Defense",
@@ -2413,6 +2605,8 @@
           "weekly_return": 0.09249532554499074,
           "dollar_vol_week": 5109241196.459961,
           "vol_ratio": 1.5848251185027524,
+          "currentPrice": 588.85498046875,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Deere & Company",
             "industry": "Farm & Heavy Construction Machinery",
@@ -2436,6 +2630,8 @@
           "weekly_return": -0.009613757481390817,
           "dollar_vol_week": 5071953823.81842,
           "vol_ratio": 1.0856669246361716,
+          "currentPrice": 230.75999450683594,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Honeywell International Inc.",
             "industry": "Conglomerates",
@@ -2459,6 +2655,8 @@
           "weekly_return": -0.011067365439197063,
           "dollar_vol_week": 4911482145.105499,
           "vol_ratio": 1.2570199901826369,
+          "currentPrice": 264.0450134277344,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Union Pacific Corporation",
             "industry": "Railroads",
@@ -2482,6 +2680,8 @@
           "weekly_return": -0.02112211609451753,
           "dollar_vol_week": 4596947689.766296,
           "vol_ratio": 0.9784912993310224,
+          "currentPrice": 175.17999267578125,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "RTX Corporation",
             "industry": "Aerospace & Defense",
@@ -2525,6 +2725,8 @@
           "weekly_return": 0.009123842527646753,
           "dollar_vol_week": 6530169451.991272,
           "vol_ratio": 1.32798284599797,
+          "currentPrice": 506.55999755859375,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Linde plc",
             "industry": "Specialty Chemicals",
@@ -2548,6 +2750,8 @@
           "weekly_return": -0.002864318380975228,
           "dollar_vol_week": 4234344627.8330994,
           "vol_ratio": 1.0379588257870436,
+          "currentPrice": 107.91999816894531,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Newmont Corporation",
             "industry": "Gold",
@@ -2571,6 +2775,8 @@
           "weekly_return": 0.07165619241686638,
           "dollar_vol_week": 3956875167.5454407,
           "vol_ratio": 0.7609414402421053,
+          "currentPrice": 70.58999633789062,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Freeport-McMoRan, Inc.",
             "industry": "Copper",
@@ -2594,6 +2800,8 @@
           "weekly_return": -0.026512507265851526,
           "dollar_vol_week": 2998221838.386902,
           "vol_ratio": 1.0565205261847652,
+          "currentPrice": 297.04998779296875,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Sherwin-Williams Company (The)",
             "industry": "Specialty Chemicals",
@@ -2617,6 +2825,8 @@
           "weekly_return": -0.009740648077269487,
           "dollar_vol_week": 2135073394.1853333,
           "vol_ratio": 1.108903821881657,
+          "currentPrice": 257.7149963378906,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Ecolab Inc.",
             "industry": "Specialty Chemicals",
@@ -2640,6 +2850,8 @@
           "weekly_return": 0.035800252476951844,
           "dollar_vol_week": 2122541060.068695,
           "vol_ratio": 1.1471856646862615,
+          "currentPrice": 258.2250061035156,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Nucor Corporation",
             "industry": "Steel",
@@ -2663,6 +2875,8 @@
           "weekly_return": -0.011802192872033213,
           "dollar_vol_week": 2099545686.5098572,
           "vol_ratio": 0.7995750263563418,
+          "currentPrice": 105.5,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "CRH PLC",
             "industry": "Building Materials",
@@ -2686,6 +2900,8 @@
           "weekly_return": 0.027497688713866264,
           "dollar_vol_week": 1911189096.1359863,
           "vol_ratio": 1.305835799579958,
+          "currentPrice": 284.3599853515625,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Vulcan Materials Company (Holdi",
             "industry": "Building Materials",
@@ -2709,6 +2925,8 @@
           "weekly_return": 0.011216548303534912,
           "dollar_vol_week": 1900674426.0313377,
           "vol_ratio": 0.8275622653114226,
+          "currentPrice": 35.15999984741211,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Dow Inc.",
             "industry": "Chemicals",
@@ -2732,6 +2950,8 @@
           "weekly_return": -0.042451226743588366,
           "dollar_vol_week": 1683494370.7310333,
           "vol_ratio": 0.9333035874196902,
+          "currentPrice": 168.8350067138672,
+          "priceDate": "2026-06-03",
           "fundamentals": {
             "shortName": "Albemarle Corporation",
             "industry": "Specialty Chemicals",
