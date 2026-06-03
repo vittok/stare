@@ -146,7 +146,7 @@ def build_flat_dashboard(
         "sector", "week_ending", "rank", "ticker",
         "direction", "strength", "raw_score",
         "dollar_vol_week", "weekly_return", "vol_ratio",
-        "marketCap", "trailingPE", "forwardPE", "priceToBook",
+        "marketCap", "trailingPE", "forwardPE", "priceToBook", "pegRatio",
         "profitMargins", "operatingMargins", "returnOnEquity",
         "dividendYield", "beta",
         "shortName", "industry", "currency", "exchange",
@@ -160,7 +160,7 @@ def build_flat_dashboard(
     # Ensure numeric types where possible
     num_cols = [
         "raw_score", "dollar_vol_week", "weekly_return", "vol_ratio",
-        "marketCap", "trailingPE", "forwardPE", "priceToBook",
+        "marketCap", "trailingPE", "forwardPE", "priceToBook", "pegRatio",
         "profitMargins", "operatingMargins", "returnOnEquity",
         "dividendYield", "beta", "return_7d",
     ]
@@ -201,6 +201,7 @@ def build_nested_json(sentiment: pd.DataFrame, flat_top10: pd.DataFrame) -> Dict
                     "trailingPE": None if pd.isna(r.get("trailingPE")) else float(r.get("trailingPE")),
                     "forwardPE": None if pd.isna(r.get("forwardPE")) else float(r.get("forwardPE")),
                     "priceToBook": None if pd.isna(r.get("priceToBook")) else float(r.get("priceToBook")),
+                    "pegRatio": None if pd.isna(r.get("pegRatio")) else float(r.get("pegRatio")),
                     "profitMargins": None if pd.isna(r.get("profitMargins")) else float(r.get("profitMargins")),
                     "operatingMargins": None if pd.isna(r.get("operatingMargins")) else float(r.get("operatingMargins")),
                     "returnOnEquity": None if pd.isna(r.get("returnOnEquity")) else float(r.get("returnOnEquity")),
