@@ -335,13 +335,16 @@ The dashboard is especially useful as a daily pre-market or morning scan: it poi
 
 ## Automation
 
-The GitHub Actions workflow in `.github/workflows/pipeline_weekdays.yml` runs every morning at 07:00 GMT:
+The GitHub Actions workflow in `.github/workflows/pipeline_weekdays.yml` refreshes around the regular US market open and close:
 
 ```text
-0 7 * * *
+09:35 America/New_York - market open refresh
+16:10 America/New_York - market close refresh
 ```
 
-On each scheduled run, it:
+GitHub Actions schedules are defined in UTC/GMT, so the workflow includes paired UTC cron entries for daylight saving time and standard time. A guard step checks the current `America/New_York` time and only lets the run proceed when it matches the intended market refresh window.
+
+On each scheduled market refresh, it:
 
 1. Checks out `main`
 2. Pulls the latest `origin/main` with `git pull --ff-only origin main`
@@ -354,7 +357,7 @@ On each scheduled run, it:
 9. Deploys `docs/` to GitHub Pages
 10. Sends the updated report by email to `vittok@hotmail.com`
 
-Fundamentals are refreshed weekly on Mondays to reduce load.
+Fundamentals are refreshed weekly after the Monday market close to reduce load.
 
 ### Scheduled Email Report
 

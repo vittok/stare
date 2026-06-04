@@ -1,10 +1,16 @@
-name: Daily STARE Publish
+name: STARE Market Refresh
 
 on:
   workflow_dispatch:
   schedule:
-    # GitHub cron is UTC/GMT. This runs every morning at 07:00 GMT.
-    - cron: "0 7 * * *"
+    # GitHub cron is UTC/GMT. Paired schedules cover US daylight saving shifts.
+    # The guard step below only allows the run that maps to New York market time.
+    # Market open refresh: 09:35 America/New_York
+    - cron: "35 13 * * 1-5"
+    - cron: "35 14 * * 1-5"
+    # Market close refresh: 16:10 America/New_York
+    - cron: "10 20 * * 1-5"
+    - cron: "10 21 * * 1-5"
 
 permissions:
   contents: write
@@ -24,47 +30,93 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
+      - name: Check market refresh window
+        id: market-window
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          python - <<'PY'
+          import os
+          from datetime import datetime
+          from zoneinfo import ZoneInfo
+
+          event_name = os.environ.get("EVENT_NAME", "")
+          now = datetime.now(ZoneInfo("America/New_York"))
+
+          if event_name == "workflow_dispatch":
+              should_run = True
+              label = "manual"
+          else:
+              is_weekday = now.weekday() < 5
+              is_market_open_refresh = now.hour == 9 and 30 <= now.minute <= 59
+              is_market_close_refresh = now.hour == 16 and 5 <= now.minute <= 45
+              should_run = is_weekday and (is_market_open_refresh or is_market_close_refresh)
+              label = "market-open" if is_market_open_refresh else "market-close" if is_market_close_refresh else "outside-window"
+
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as f:
+              f.write(f"should_run={str(should_run).lower()}\n")
+              f.write(f"label={label}\n")
+              f.write(f"ny_time={now.isoformat(timespec='seconds')}\n")
+
+          print(f"New York time: {now.isoformat(timespec='seconds')}")
+          print(f"Refresh label: {label}")
+          print(f"Should run: {should_run}")
+          PY
+
       - name: Checkout
+        if: ${{ steps.market-window.outputs.should_run == 'true' }}
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: main
 
       - name: Sync latest main before calculation
+        if: ${{ steps.market-window.outputs.should_run == 'true' }}
         run: |
           git pull --ff-only origin main
 
       - name: Set up Python
+        if: ${{ steps.market-window.outputs.should_run == 'true' }}
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
           cache: "pip"
 
       - name: Install dependencies
+        if: ${{ steps.market-window.outputs.should_run == 'true' }}
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
       - name: Run pipeline and publish app
+        if: ${{ steps.market-window.outputs.should_run == 'true' }}
         env:
           PYTHONUNBUFFERED: "1"
+          STARE_REFRESH_LABEL: ${{ steps.market-window.outputs.label }}
         run: |
           python src/run_pipeline.py
 
-      # Optional: run fundamentals once a week (Monday) to reduce load
-      - name: Run fundamentals (Mondays only)
-        if: ${{ github.event_name == 'schedule' && startsWith(github.event.schedule, '0 7') }}
+      # Optional: run fundamentals once a week after Monday market close to reduce load
+      - name: Run fundamentals (Monday close only)
+        if: ${{ github.event_name == 'schedule' && steps.market-window.outputs.should_run == 'true' }}
         run: |
-          if [ "$(date -u +%u)" = "1" ]; then
+          if python - <<'PY'
+          from datetime import datetime
+          from zoneinfo import ZoneInfo
+          now = datetime.now(ZoneInfo("America/New_York"))
+          raise SystemExit(0 if now.weekday() == 0 and now.hour == 16 else 1)
+          PY
+          then
             python src/fetch_fundamentals.py
             python src/build_sector_dashboard.py
             python src/build_sector_dashboard_html.py
             python src/publish_stare_app.py
           else
-            echo "Skipping fundamentals (not Monday)."
+            echo "Skipping fundamentals (not Monday market close)."
           fi
 
       - name: Commit & push updated data/reports/site
+        if: ${{ steps.market-window.outputs.should_run == 'true' }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -85,19 +137,22 @@ jobs:
           git push
 
       - name: Configure GitHub Pages
+        if: ${{ steps.market-window.outputs.should_run == 'true' }}
         uses: actions/configure-pages@v5
 
       - name: Upload Pages artifact
+        if: ${{ steps.market-window.outputs.should_run == 'true' }}
         uses: actions/upload-pages-artifact@v3
         with:
           path: docs
 
       - name: Deploy GitHub Pages
+        if: ${{ steps.market-window.outputs.should_run == 'true' }}
         id: deployment
         uses: actions/deploy-pages@v4
 
       - name: Send scheduled email report
-        if: ${{ github.event_name == 'schedule' }}
+        if: ${{ github.event_name == 'schedule' && steps.market-window.outputs.should_run == 'true' }}
         env:
           SMTP_HOST: ${{ secrets.SMTP_HOST }}
           SMTP_PORT: ${{ secrets.SMTP_PORT }}
