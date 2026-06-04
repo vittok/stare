@@ -164,7 +164,6 @@ ELV,ELV,Elevance Health,Health Care,Managed Health Care
 EME,EME,Emcor,Industrials,Construction & Engineering
 EMR,EMR,Emerson Electric,Industrials,Electrical Components & Equipment
 EOG,EOG,EOG Resources,Energy,Oil & Gas Exploration & Production
-EPAM,EPAM,EPAM Systems,Information Technology,IT Consulting & Other Services
 EQIX,EQIX,Equinix,Real Estate,Data Center REITs
 EQR,EQR,Equity Residential,Real Estate,Multi-Family Residential REITs
 EQT,EQT,EQT Corporation,Energy,Oil & Gas Exploration & Production
@@ -186,6 +185,7 @@ FAST,FAST,Fastenal,Industrials,Trading Companies & Distributors
 FCX,FCX,Freeport-McMoRan,Materials,Copper
 FDS,FDS,FactSet,Financials,Financial Exchanges & Data
 FDX,FDX,FedEx,Industrials,Air Freight & Logistics
+FDXF,FDXF,FedEx Freight,Industrials,Cargo Ground Transportation
 FE,FE,FirstEnergy,Utilities,Electric Utilities
 FFIV,FFIV,"F5, Inc.",Information Technology,Communications Equipment
 FICO,FICO,Fair Isaac,Information Technology,Application Software
