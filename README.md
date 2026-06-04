@@ -259,6 +259,14 @@ For each stock shown in the dashboard, S.T.A.R.E pulls the latest close price al
 
 The app displays this as `currentPrice` beside the ticker symbol and stores the source trading date as `priceDate`. This keeps the published app static while still showing the most recent price captured during the scheduled data refresh.
 
+S.T.A.R.E also stores the prior trading-session close as `previousClose` with `previousCloseDate`. The app compares `currentPrice` against `previousClose` and displays the day-over-day close direction:
+
+- Green up marker when the latest close is higher
+- Black neutral marker when the latest close is unchanged
+- Red down marker when the latest close is lower
+
+The page header shows both the app refresh timestamp and the market data date, so users can distinguish when the static app was regenerated from the trading date behind the displayed prices.
+
 ### Fundamentals
 
 STARE stores normalized fundamentals in `fundamentals_latest`, including:

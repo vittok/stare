@@ -81,6 +81,11 @@ def _flatten_rows(data: dict[str, Any]) -> list[dict[str, Any]]:
                     "ticker": stock.get("ticker"),
                     "price": stock.get("currentPrice"),
                     "price_date": stock.get("priceDate"),
+                    "previous_close": stock.get("previousClose"),
+                    "previous_close_date": stock.get("previousCloseDate"),
+                    "close_change": stock.get("closeChange"),
+                    "close_change_pct": stock.get("closeChangePct"),
+                    "close_direction": stock.get("closeDirection"),
                     "signal": recommendation.get("action", "Hold"),
                     "confidence": recommendation.get("confidence"),
                     "weekly_return": stock.get("weekly_return"),
@@ -126,6 +131,8 @@ def _stock_table(rows: list[dict[str, Any]]) -> str:
         f"<td>{html.escape(str(r.get('ticker') or ''))}</td>"
         f"<td>{html.escape(str(r.get('name') or ''))}</td>"
         f"<td style=\"text-align:right\">{_fmt_price(r.get('price'))}</td>"
+        f"<td style=\"text-align:right\">{_fmt_price(r.get('previous_close'))}</td>"
+        f"<td>{html.escape(str(r.get('close_direction') or 'unknown'))}</td>"
         f"<td>{html.escape(str(r.get('signal') or ''))}</td>"
         f"<td style=\"text-align:right\">{html.escape(str(r.get('confidence') or 'n/a'))}</td>"
         f"<td style=\"text-align:right\">{_fmt_pct(r.get('weekly_return'))}</td>"
@@ -136,7 +143,8 @@ def _stock_table(rows: list[dict[str, Any]]) -> str:
     return (
         "<table>"
         "<thead><tr><th>Sector</th><th>Ticker</th><th>Name</th><th>Price</th>"
-        "<th>Signal</th><th>Confidence</th><th>Weekly</th><th>Dollar Volume</th></tr></thead>"
+        "<th>Previous Close</th><th>Close Direction</th><th>Signal</th><th>Confidence</th>"
+        "<th>Weekly</th><th>Dollar Volume</th></tr></thead>"
         f"<tbody>{body}</tbody></table>"
     )
 
@@ -158,8 +166,10 @@ def _top_summaries(rows: list[dict[str, Any]], limit: int = 12) -> str:
 def _build_html_email(data: dict[str, Any]) -> str:
     rows = _flatten_rows(data)
     refresh = data.get("last_refresh") or {}
+    market_data = data.get("market_data") or {}
     app_url = _env("STARE_APP_URL", "https://vittok.github.io/stare/")
     refresh_display = html.escape(str(refresh.get("display") or refresh.get("iso_utc") or "n/a"))
+    market_date = html.escape(str(market_data.get("latest_price_date") or "n/a"))
     return f"""\
 <!doctype html>
 <html>
@@ -177,6 +187,7 @@ def _build_html_email(data: dict[str, Any]) -> str:
   <body>
     <h1>S.T.A.R.E Daily Report</h1>
     <p class="meta">Last refresh: {refresh_display}</p>
+    <p class="meta">Market data date: {market_date}</p>
     <p><a href="{html.escape(app_url)}">Open the published S.T.A.R.E dashboard</a></p>
 
     <h2>Sector Overview</h2>
@@ -197,10 +208,12 @@ def _build_html_email(data: dict[str, Any]) -> str:
 def _build_text_email(data: dict[str, Any]) -> str:
     rows = _flatten_rows(data)
     refresh = data.get("last_refresh") or {}
+    market_data = data.get("market_data") or {}
     app_url = _env("STARE_APP_URL", "https://vittok.github.io/stare/")
     lines = [
         "S.T.A.R.E Daily Report",
         f"Last refresh: {refresh.get('display') or refresh.get('iso_utc') or 'n/a'}",
+        f"Market data date: {market_data.get('latest_price_date') or 'n/a'}",
         f"Dashboard: {app_url}",
         "",
         "Sector overview:",
@@ -211,7 +224,8 @@ def _build_text_email(data: dict[str, Any]) -> str:
     for row in sorted(rows, key=lambda r: (_num(r.get("dollar_vol_week")) or 0), reverse=True)[:20]:
         lines.append(
             f"- {row.get('ticker')} {row.get('signal')} "
-            f"{_fmt_price(row.get('price'))}, weekly {_fmt_pct(row.get('weekly_return'))}: "
+            f"{_fmt_price(row.get('price'))}, previous close {_fmt_price(row.get('previous_close'))} "
+            f"({row.get('close_direction') or 'unknown'}), weekly {_fmt_pct(row.get('weekly_return'))}: "
             f"{row.get('summary')}"
         )
     lines.append("")

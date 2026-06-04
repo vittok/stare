@@ -23,6 +23,11 @@ CREATE TABLE IF NOT EXISTS sector_dashboard_top10 (
   vol_ratio REAL,
   currentPrice REAL,
   priceDate TEXT,
+  previousClose REAL,
+  previousCloseDate TEXT,
+  closeChange REAL,
+  closeChangePct REAL,
+  closeDirection TEXT,
   marketCap REAL,
   trailingPE REAL,
   forwardPE REAL,
@@ -63,6 +68,11 @@ def init_schema(engine):
         migrations = {
             "currentPrice": "ALTER TABLE sector_dashboard_top10 ADD COLUMN currentPrice REAL",
             "priceDate": "ALTER TABLE sector_dashboard_top10 ADD COLUMN priceDate TEXT",
+            "previousClose": "ALTER TABLE sector_dashboard_top10 ADD COLUMN previousClose REAL",
+            "previousCloseDate": "ALTER TABLE sector_dashboard_top10 ADD COLUMN previousCloseDate TEXT",
+            "closeChange": "ALTER TABLE sector_dashboard_top10 ADD COLUMN closeChange REAL",
+            "closeChangePct": "ALTER TABLE sector_dashboard_top10 ADD COLUMN closeChangePct REAL",
+            "closeDirection": "ALTER TABLE sector_dashboard_top10 ADD COLUMN closeDirection TEXT",
             "pegRatio": "ALTER TABLE sector_dashboard_top10 ADD COLUMN pegRatio REAL",
         }
         for col, stmt in migrations.items():
@@ -163,7 +173,8 @@ def build_flat_dashboard(
         "sector", "week_ending", "rank", "ticker",
         "direction", "strength", "raw_score",
         "dollar_vol_week", "weekly_return", "vol_ratio",
-        "currentPrice", "priceDate",
+        "currentPrice", "priceDate", "previousClose", "previousCloseDate",
+        "closeChange", "closeChangePct", "closeDirection",
         "marketCap", "trailingPE", "forwardPE", "priceToBook", "pegRatio",
         "profitMargins", "operatingMargins", "returnOnEquity",
         "dividendYield", "beta",
@@ -178,7 +189,7 @@ def build_flat_dashboard(
     # Ensure numeric types where possible
     num_cols = [
         "raw_score", "dollar_vol_week", "weekly_return", "vol_ratio",
-        "currentPrice",
+        "currentPrice", "previousClose", "closeChange", "closeChangePct",
         "marketCap", "trailingPE", "forwardPE", "priceToBook", "pegRatio",
         "profitMargins", "operatingMargins", "returnOnEquity",
         "dividendYield", "beta", "return_7d",
@@ -213,6 +224,11 @@ def build_nested_json(sentiment: pd.DataFrame, flat_top10: pd.DataFrame) -> Dict
                 "vol_ratio": None if pd.isna(r["vol_ratio"]) else float(r["vol_ratio"]),
                 "currentPrice": None if pd.isna(r.get("currentPrice")) else float(r.get("currentPrice")),
                 "priceDate": None if pd.isna(r.get("priceDate")) else r.get("priceDate"),
+                "previousClose": None if pd.isna(r.get("previousClose")) else float(r.get("previousClose")),
+                "previousCloseDate": None if pd.isna(r.get("previousCloseDate")) else r.get("previousCloseDate"),
+                "closeChange": None if pd.isna(r.get("closeChange")) else float(r.get("closeChange")),
+                "closeChangePct": None if pd.isna(r.get("closeChangePct")) else float(r.get("closeChangePct")),
+                "closeDirection": None if pd.isna(r.get("closeDirection")) else r.get("closeDirection"),
                 "fundamentals": {
                     "shortName": r.get("shortName"),
                     "industry": r.get("industry"),
@@ -233,8 +249,14 @@ def build_nested_json(sentiment: pd.DataFrame, flat_top10: pd.DataFrame) -> Dict
 
         sectors.append(sector_block)
 
+    price_dates = flat_top10["priceDate"].dropna().astype(str).unique().tolist()
+    latest_price_date = max(price_dates) if price_dates else None
+
     return {
         "generated_from": "stare pipeline",
+        "market_data": {
+            "latest_price_date": latest_price_date,
+        },
         "sectors": sectors,
     }
 
@@ -260,6 +282,7 @@ def upsert_sql_dashboard(engine, flat: pd.DataFrame) -> None:
               direction, strength, raw_score,
               dollar_vol_week, weekly_return, vol_ratio,
               currentPrice, priceDate,
+              previousClose, previousCloseDate, closeChange, closeChangePct, closeDirection,
               marketCap, trailingPE, forwardPE, priceToBook, pegRatio,
               profitMargins, operatingMargins, returnOnEquity,
               dividendYield, beta,
@@ -269,6 +292,7 @@ def upsert_sql_dashboard(engine, flat: pd.DataFrame) -> None:
               :direction, :strength, :raw_score,
               :dollar_vol_week, :weekly_return, :vol_ratio,
               :currentPrice, :priceDate,
+              :previousClose, :previousCloseDate, :closeChange, :closeChangePct, :closeDirection,
               :marketCap, :trailingPE, :forwardPE, :priceToBook, :pegRatio,
               :profitMargins, :operatingMargins, :returnOnEquity,
               :dividendYield, :beta,
@@ -280,10 +304,15 @@ def upsert_sql_dashboard(engine, flat: pd.DataFrame) -> None:
 
 def compute_latest_prices(engine, tickers: list[str], asof_date: str) -> pd.DataFrame:
     """
-    Pull the latest close at or before `asof_date` for each dashboard ticker.
+    Pull the latest close and previous trading-session close at or before `asof_date`.
     """
     if not tickers:
-        return pd.DataFrame(columns=["ticker", "currentPrice", "priceDate"])
+        return pd.DataFrame(
+            columns=[
+                "ticker", "currentPrice", "priceDate", "previousClose",
+                "previousCloseDate", "closeChange", "closeChangePct", "closeDirection",
+            ]
+        )
 
     placeholders = ",".join([f":t{i}" for i in range(len(tickers))])
     params = {f"t{i}": t for i, t in enumerate(tickers)}
@@ -303,7 +332,12 @@ def compute_latest_prices(engine, tickers: list[str], asof_date: str) -> pd.Data
     )
 
     if df.empty:
-        return pd.DataFrame(columns=["ticker", "currentPrice", "priceDate"])
+        return pd.DataFrame(
+            columns=[
+                "ticker", "currentPrice", "priceDate", "previousClose",
+                "previousCloseDate", "closeChange", "closeChangePct", "closeDirection",
+            ]
+        )
 
     df["date"] = pd.to_datetime(df["date"])
     df["close"] = pd.to_numeric(df["close"], errors="coerce")
@@ -312,14 +346,43 @@ def compute_latest_prices(engine, tickers: list[str], asof_date: str) -> pd.Data
     for ticker, g in df.groupby("ticker", sort=False):
         g = g.dropna(subset=["close"]).sort_values("date")
         if g.empty:
-            rows.append({"ticker": ticker, "currentPrice": None, "priceDate": None})
+            rows.append(
+                {
+                    "ticker": ticker,
+                    "currentPrice": None,
+                    "priceDate": None,
+                    "previousClose": None,
+                    "previousCloseDate": None,
+                    "closeChange": None,
+                    "closeChangePct": None,
+                    "closeDirection": "unknown",
+                }
+            )
             continue
         last = g.iloc[-1]
+        previous = g.iloc[-2] if len(g) >= 2 else None
+        current_price = float(last["close"])
+        previous_close = None if previous is None else float(previous["close"])
+        close_change = None if previous_close in {None, 0} else current_price - previous_close
+        close_change_pct = None if close_change is None or not previous_close else close_change / previous_close
+        if close_change is None:
+            close_direction = "unknown"
+        elif close_change > 0:
+            close_direction = "up"
+        elif close_change < 0:
+            close_direction = "down"
+        else:
+            close_direction = "flat"
         rows.append(
             {
                 "ticker": ticker,
-                "currentPrice": float(last["close"]),
+                "currentPrice": current_price,
                 "priceDate": last["date"].date().isoformat(),
+                "previousClose": previous_close,
+                "previousCloseDate": None if previous is None else previous["date"].date().isoformat(),
+                "closeChange": close_change,
+                "closeChangePct": close_change_pct,
+                "closeDirection": close_direction,
             }
         )
 
