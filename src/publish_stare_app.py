@@ -15,6 +15,7 @@ APP_HTML = ROOT / "stare_app.html"
 REPORT_JSON = ROOT / "reports" / "sector_dashboard.json"
 REPORT_CSV = ROOT / "reports" / "sector_dashboard_top10.csv"
 FUNDAMENTALS_CSV = ROOT / "reports" / "fundamentals_sp500_latest.csv"
+LOGO = ROOT / "Logo.png"
 DOCS = ROOT / "docs"
 
 DATA_RE = re.compile(
@@ -314,6 +315,8 @@ def publish() -> None:
     copy2(REPORT_JSON, DOCS / "sector_dashboard.json")
     if REPORT_CSV.exists():
         copy2(REPORT_CSV, DOCS / "sector_dashboard_top10.csv")
+    if LOGO.exists():
+        copy2(LOGO, DOCS / LOGO.name)
     (DOCS / ".nojekyll").write_text("", encoding="utf-8")
 
     print("Published STARE app to:")
