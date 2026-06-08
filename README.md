@@ -342,7 +342,7 @@ The GitHub Actions workflow in `.github/workflows/pipeline_weekdays.yml` refresh
 16:10 America/New_York - market close refresh
 ```
 
-GitHub Actions schedules are defined in UTC/GMT, so the workflow includes paired UTC cron entries for daylight saving time and standard time. A guard step checks the current `America/New_York` time and only lets the run proceed when it matches the intended market refresh window.
+GitHub Actions schedules are defined in UTC/GMT, so the workflow includes paired UTC cron entries for daylight saving time and standard time. A guard step checks which cron expression triggered the run and only lets the active New York-time pair proceed, even if GitHub starts the scheduled job late.
 
 On each scheduled market refresh, it:
 

@@ -34,6 +34,7 @@ jobs:
         id: market-window
         env:
           EVENT_NAME: ${{ github.event_name }}
+          EVENT_SCHEDULE: ${{ github.event.schedule }}
         run: |
           python - <<'PY'
           import os
@@ -41,17 +42,27 @@ jobs:
           from zoneinfo import ZoneInfo
 
           event_name = os.environ.get("EVENT_NAME", "")
+          event_schedule = os.environ.get("EVENT_SCHEDULE", "")
           now = datetime.now(ZoneInfo("America/New_York"))
 
           if event_name == "workflow_dispatch":
               should_run = True
               label = "manual"
           else:
-              is_weekday = now.weekday() < 5
-              is_market_open_refresh = now.hour == 9 and 30 <= now.minute <= 59
-              is_market_close_refresh = now.hour == 16 and 5 <= now.minute <= 45
-              should_run = is_weekday and (is_market_open_refresh or is_market_close_refresh)
-              label = "market-open" if is_market_open_refresh else "market-close" if is_market_close_refresh else "outside-window"
+              # GitHub scheduled runs can start late. Use the cron expression
+              # that triggered the run, and only use NY time to choose the
+              # daylight-saving pair that should be active today.
+              is_dst = bool(now.dst() and now.dst().total_seconds())
+              market_open_schedule = "35 13 * * 1-5" if is_dst else "35 14 * * 1-5"
+              market_close_schedule = "10 20 * * 1-5" if is_dst else "10 21 * * 1-5"
+              should_run = event_schedule in {market_open_schedule, market_close_schedule}
+              label = (
+                  "market-open"
+                  if event_schedule == market_open_schedule
+                  else "market-close"
+                  if event_schedule == market_close_schedule
+                  else "inactive-dst-pair"
+              )
 
           with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as f:
               f.write(f"should_run={str(should_run).lower()}\n")
@@ -59,6 +70,7 @@ jobs:
               f.write(f"ny_time={now.isoformat(timespec='seconds')}\n")
 
           print(f"New York time: {now.isoformat(timespec='seconds')}")
+          print(f"Triggered schedule: {event_schedule}")
           print(f"Refresh label: {label}")
           print(f"Should run: {should_run}")
           PY
