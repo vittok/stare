@@ -176,8 +176,12 @@ def build_flat_dashboard(
         "currentPrice", "priceDate", "previousClose", "previousCloseDate",
         "closeChange", "closeChangePct", "closeDirection",
         "marketCap", "trailingPE", "forwardPE", "priceToBook", "pegRatio",
-        "profitMargins", "operatingMargins", "returnOnEquity",
-        "dividendYield", "beta",
+        "profitMargins", "operatingMargins", "grossMargins",
+        "returnOnEquity", "returnOnAssets",
+        "revenueGrowth", "earningsGrowth",
+        "totalDebt", "debtToEquity", "currentRatio", "quickRatio",
+        "dividendYield", "payoutRatio", "fiveYearAvgDividendYield",
+        "beta", "fiftyTwoWeekLow", "fiftyTwoWeekHigh",
         "shortName", "industry", "currency", "exchange",
         "asof_utc", "return_7d",
     ]
@@ -191,8 +195,12 @@ def build_flat_dashboard(
         "raw_score", "dollar_vol_week", "weekly_return", "vol_ratio",
         "currentPrice", "previousClose", "closeChange", "closeChangePct",
         "marketCap", "trailingPE", "forwardPE", "priceToBook", "pegRatio",
-        "profitMargins", "operatingMargins", "returnOnEquity",
-        "dividendYield", "beta", "return_7d",
+        "profitMargins", "operatingMargins", "grossMargins",
+        "returnOnEquity", "returnOnAssets",
+        "revenueGrowth", "earningsGrowth",
+        "totalDebt", "debtToEquity", "currentRatio", "quickRatio",
+        "dividendYield", "payoutRatio", "fiveYearAvgDividendYield",
+        "beta", "fiftyTwoWeekLow", "fiftyTwoWeekHigh", "return_7d",
     ]
     for c in num_cols:
         df[c] = pd.to_numeric(df[c], errors="coerce")
@@ -241,9 +249,21 @@ def build_nested_json(sentiment: pd.DataFrame, flat_top10: pd.DataFrame) -> Dict
                     "pegRatio": None if pd.isna(r.get("pegRatio")) else float(r.get("pegRatio")),
                     "profitMargins": None if pd.isna(r.get("profitMargins")) else float(r.get("profitMargins")),
                     "operatingMargins": None if pd.isna(r.get("operatingMargins")) else float(r.get("operatingMargins")),
+                    "grossMargins": None if pd.isna(r.get("grossMargins")) else float(r.get("grossMargins")),
                     "returnOnEquity": None if pd.isna(r.get("returnOnEquity")) else float(r.get("returnOnEquity")),
+                    "returnOnAssets": None if pd.isna(r.get("returnOnAssets")) else float(r.get("returnOnAssets")),
+                    "revenueGrowth": None if pd.isna(r.get("revenueGrowth")) else float(r.get("revenueGrowth")),
+                    "earningsGrowth": None if pd.isna(r.get("earningsGrowth")) else float(r.get("earningsGrowth")),
+                    "totalDebt": None if pd.isna(r.get("totalDebt")) else float(r.get("totalDebt")),
+                    "debtToEquity": None if pd.isna(r.get("debtToEquity")) else float(r.get("debtToEquity")),
+                    "currentRatio": None if pd.isna(r.get("currentRatio")) else float(r.get("currentRatio")),
+                    "quickRatio": None if pd.isna(r.get("quickRatio")) else float(r.get("quickRatio")),
                     "dividendYield": None if pd.isna(r.get("dividendYield")) else float(r.get("dividendYield")),
+                    "payoutRatio": None if pd.isna(r.get("payoutRatio")) else float(r.get("payoutRatio")),
+                    "fiveYearAvgDividendYield": None if pd.isna(r.get("fiveYearAvgDividendYield")) else float(r.get("fiveYearAvgDividendYield")),
                     "beta": None if pd.isna(r.get("beta")) else float(r.get("beta")),
+                    "fiftyTwoWeekLow": None if pd.isna(r.get("fiftyTwoWeekLow")) else float(r.get("fiftyTwoWeekLow")),
+                    "fiftyTwoWeekHigh": None if pd.isna(r.get("fiftyTwoWeekHigh")) else float(r.get("fiftyTwoWeekHigh")),
                 }
             })
 

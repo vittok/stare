@@ -112,6 +112,174 @@ def _yield_note(dividend_yield: float | None) -> str:
     return "modest dividend yield"
 
 
+def _label(value: str, detail: str) -> dict[str, str]:
+    return {"label": value, "detail": detail}
+
+
+def _decision_snapshot_for_stock(stock: dict[str, Any]) -> dict[str, Any]:
+    fundamentals = stock.get("fundamentals") or {}
+    recommendation = stock.get("recommendation") or {}
+    pe = _num(fundamentals.get("trailingPE") or fundamentals.get("forwardPE"))
+    pb = _num(fundamentals.get("priceToBook"))
+    peg = _num(fundamentals.get("pegRatio"))
+    dividend_yield = _num(fundamentals.get("dividendYield"))
+    payout_ratio = _num(fundamentals.get("payoutRatio"))
+    roe = _num(fundamentals.get("returnOnEquity"))
+    profit_margin = _num(fundamentals.get("profitMargins"))
+    revenue_growth = _num(fundamentals.get("revenueGrowth"))
+    earnings_growth = _num(fundamentals.get("earningsGrowth"))
+    beta = _num(fundamentals.get("beta"))
+    debt_to_equity = _num(fundamentals.get("debtToEquity"))
+    current_ratio = _num(fundamentals.get("currentRatio"))
+    weekly_return = _num(stock.get("weekly_return"))
+
+    valuation_points = 0
+    valuation_notes = []
+    if pe is not None:
+        if pe <= 0:
+            valuation_points -= 2
+            valuation_notes.append("negative or unavailable earnings")
+        elif pe < 15:
+            valuation_points += 2
+            valuation_notes.append("low P/E")
+        elif pe <= 35:
+            valuation_points += 1
+            valuation_notes.append("moderate P/E")
+        elif pe > 50:
+            valuation_points -= 2
+            valuation_notes.append("very high P/E")
+        else:
+            valuation_points -= 1
+            valuation_notes.append("elevated P/E")
+    if pb is not None:
+        if 0 < pb < 2:
+            valuation_points += 1
+            valuation_notes.append("low P/B")
+        elif pb > 12:
+            valuation_points -= 1
+            valuation_notes.append("high P/B")
+    if peg is not None:
+        if 0 < peg < 1:
+            valuation_points += 2
+            valuation_notes.append("PEG below 1")
+        elif peg > 2:
+            valuation_points -= 1
+            valuation_notes.append("high PEG")
+
+    if valuation_points >= 2:
+        valuation = _label("Attractive", "; ".join(valuation_notes[:3]) or "valuation ratios look supportive")
+    elif valuation_points <= -2:
+        valuation = _label("Expensive", "; ".join(valuation_notes[:3]) or "valuation ratios look stretched")
+    else:
+        valuation = _label("Fair", "; ".join(valuation_notes[:3]) or "valuation inputs are mixed or limited")
+
+    quality_points = 0
+    quality_notes = []
+    if roe is not None:
+        if roe >= 0.18:
+            quality_points += 2
+            quality_notes.append("strong ROE")
+        elif roe <= 0:
+            quality_points -= 2
+            quality_notes.append("weak ROE")
+    if profit_margin is not None:
+        if profit_margin >= 0.15:
+            quality_points += 1
+            quality_notes.append("solid profit margin")
+        elif profit_margin < 0:
+            quality_points -= 2
+            quality_notes.append("negative profit margin")
+    if revenue_growth is not None:
+        if revenue_growth >= 0.08:
+            quality_points += 1
+            quality_notes.append("revenue growing")
+        elif revenue_growth < -0.05:
+            quality_points -= 1
+            quality_notes.append("revenue shrinking")
+    if earnings_growth is not None:
+        if earnings_growth >= 0.08:
+            quality_points += 1
+            quality_notes.append("earnings growing")
+        elif earnings_growth < -0.05:
+            quality_points -= 1
+            quality_notes.append("earnings shrinking")
+
+    if quality_points >= 3:
+        quality = _label("Strong", "; ".join(quality_notes[:3]) or "quality metrics look strong")
+    elif quality_points <= -2:
+        quality = _label("Weak", "; ".join(quality_notes[:3]) or "quality metrics look weak")
+    else:
+        quality = _label("Mixed", "; ".join(quality_notes[:3]) or "quality metrics are mixed or limited")
+
+    risk_points = 0
+    risk_notes = []
+    if beta is not None:
+        if beta >= 1.5:
+            risk_points += 2
+            risk_notes.append("high beta")
+        elif beta <= 0.8:
+            risk_points -= 1
+            risk_notes.append("lower beta")
+    if debt_to_equity is not None:
+        if debt_to_equity > 150:
+            risk_points += 2
+            risk_notes.append("high debt-to-equity")
+        elif 0 <= debt_to_equity < 50:
+            risk_points -= 1
+            risk_notes.append("lower debt-to-equity")
+    if current_ratio is not None:
+        if current_ratio < 1:
+            risk_points += 1
+            risk_notes.append("current ratio below 1")
+        elif current_ratio >= 1.5:
+            risk_points -= 1
+            risk_notes.append("healthy current ratio")
+
+    if risk_points >= 3:
+        risk = _label("High", "; ".join(risk_notes[:3]) or "risk inputs are elevated")
+    elif risk_points <= -2:
+        risk = _label("Low", "; ".join(risk_notes[:3]) or "risk inputs look contained")
+    else:
+        risk = _label("Medium", "; ".join(risk_notes[:3]) or "risk inputs are mixed or limited")
+
+    if weekly_return is None:
+        momentum = _label("Neutral", "weekly momentum is unavailable")
+    elif weekly_return >= 0.03:
+        momentum = _label("Positive", f"weekly return {_fmt_pct(weekly_return)}")
+    elif weekly_return <= -0.05:
+        momentum = _label("Negative", f"weekly return {_fmt_pct(weekly_return)}")
+    else:
+        momentum = _label("Neutral", f"weekly return {_fmt_pct(weekly_return)}")
+
+    income_notes = []
+    if dividend_yield is not None:
+        income_notes.append(f"dividend yield {_fmt_yield(dividend_yield)}")
+    if payout_ratio is not None:
+        income_notes.append(f"payout ratio {_fmt_pct(payout_ratio)}")
+    if dividend_yield is None or dividend_yield == 0:
+        income = _label("None", "no dividend yield reported")
+    elif payout_ratio is not None and payout_ratio > 0.85:
+        income = _label("Watch", "; ".join(income_notes[:2]))
+    elif dividend_yield >= 2:
+        income = _label("Supportive", "; ".join(income_notes[:2]))
+    else:
+        income = _label("Modest", "; ".join(income_notes[:2]))
+
+    return {
+        "valuation": valuation,
+        "quality": quality,
+        "risk": risk,
+        "momentum": momentum,
+        "income": income,
+        "summary": (
+            f"Valuation {valuation['label']}; Quality {quality['label']}; "
+            f"Risk {risk['label']}; Momentum {momentum['label']}; Income {income['label']}. "
+            f"Overall model signal: {recommendation.get('action', 'Hold')} "
+            f"({recommendation.get('confidence', 'n/a')} confidence)."
+        ),
+    }
+
+
 def _market_sentiment_note(sector: dict[str, Any]) -> str:
     direction = sector.get("direction") or "Neutral"
     strength = _num(sector.get("strength")) or 0
@@ -234,6 +402,7 @@ def _summary_for_stock(sector: dict[str, Any], stock: dict[str, Any]) -> str:
         f"Fundamentals snapshot: P/B {_fmt_num(pb)}, P/E {_fmt_num(pe)}, "
         f"PEG {_fmt_num(peg)}, dividend yield {_fmt_yield(dividend_yield)}. "
         f"Read-through: {_valuation_note(pb, pe, peg)} with {_yield_note(dividend_yield)}. "
+        f"Decision snapshot: {(stock.get('decision_snapshot') or {}).get('summary', 'n/a')} "
         f"Signal rationale: {recommendation.get('rationale', 'n/a')}."
     )
 
@@ -254,6 +423,7 @@ def enrich_dashboard_data(data: dict[str, Any]) -> dict[str, Any]:
             if ticker and fundamentals.get("pegRatio") is None:
                 fundamentals["pegRatio"] = peg_fallbacks.get(ticker)
             stock["recommendation"] = _recommendation_for_stock(sector, stock)
+            stock["decision_snapshot"] = _decision_snapshot_for_stock(stock)
             stock["daily_summary"] = _summary_for_stock(sector, stock)
 
         selected = []
