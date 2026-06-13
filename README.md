@@ -355,13 +355,13 @@ On each scheduled market refresh, it:
 7. Pulls `origin/main` again before committing generated artifacts
 8. Commits updated artifacts back to the repository
 9. Deploys `docs/` to GitHub Pages
-10. Sends the updated report by email to `vittok@hotmail.com`
+10. Sends the updated report by SMTP after every successful scheduled or manual refresh
 
 Fundamentals are refreshed weekly after the Monday market close to reduce load.
 
-### Scheduled Email Report
+### SMTP Update Notifications
 
-The scheduled workflow sends an HTML email report after GitHub Pages deployment. The email body is generated from the freshly embedded `stare_app.html` data and includes:
+The workflow sends an HTML email notification after GitHub Pages deployment for both scheduled and manually triggered refreshes. The email body is generated from the freshly embedded `stare_app.html` data and includes:
 
 - Last refresh timestamp
 - Link to the published S.T.A.R.E dashboard
@@ -376,10 +376,14 @@ GitHub Actions does not include email credentials by default, so the repository 
 - `SMTP_USERNAME` - SMTP account username
 - `SMTP_PASSWORD` - SMTP password or app password
 - `SMTP_FROM` - sender email address; optional if the username is also the sender
+- `STARE_EMAIL_TO` - one or more recipients separated by commas or semicolons
+- `SMTP_AUTH` - optional; defaults to `true`; set to `false` only for a trusted relay that does not require authentication
 - `SMTP_STARTTLS` - optional; defaults to `true`
 - `SMTP_SSL` - optional; defaults to `false`
 
-If the required SMTP secrets are missing, the workflow logs a warning and skips only the email step.
+For Microsoft 365/Outlook SMTP, typical settings are host `smtp.office365.com`, port `587`, STARTTLS enabled, and SSL disabled. Use an app password or SMTP credential permitted by the account policy; do not commit credentials to the repository.
+
+If `SMTP_HOST` or both sender fields (`SMTP_FROM` and `SMTP_USERNAME`) are missing, the workflow logs a warning and skips only the email step. Authentication failures fail the email step so a broken notification configuration is visible in GitHub Actions.
 
 The workflow can also be triggered manually from the GitHub Actions tab.
 

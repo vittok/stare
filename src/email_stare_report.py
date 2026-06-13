@@ -26,6 +26,18 @@ def _env(name: str, default: str = "") -> str:
     return value.strip()
 
 
+def _env_bool(name: str, default: bool) -> bool:
+    value = _env(name)
+    if not value:
+        return default
+    return value.lower() in {"1", "true", "yes", "on"}
+
+
+def _recipients(value: str) -> list[str]:
+    recipients = [item.strip() for item in value.replace(";", ",").split(",")]
+    return [item for item in recipients if item]
+
+
 def _num(value: Any) -> float | None:
     try:
         if value is None or value == "":
@@ -235,52 +247,60 @@ def _build_text_email(data: dict[str, Any]) -> str:
 
 def send_email() -> None:
     smtp_host = _env("SMTP_HOST")
-    smtp_port = int(_env("SMTP_PORT", "587"))
+    try:
+        smtp_port = int(_env("SMTP_PORT", "587"))
+    except ValueError as exc:
+        raise RuntimeError("SMTP_PORT must be a valid integer") from exc
     smtp_username = _env("SMTP_USERNAME")
     smtp_password = _env("SMTP_PASSWORD")
     smtp_from = _env("SMTP_FROM", smtp_username)
-    recipient = _env("STARE_EMAIL_TO", "vittok@hotmail.com")
+    recipients = _recipients(_env("STARE_EMAIL_TO", "vittok@hotmail.com"))
+    require_auth = _env_bool("SMTP_AUTH", True)
 
-    missing = [
-        name
-        for name, value in {
-            "SMTP_HOST": smtp_host,
-            "SMTP_USERNAME": smtp_username,
-            "SMTP_PASSWORD": smtp_password,
-            "SMTP_FROM": smtp_from,
-        }.items()
-        if not value
-    ]
+    required = {"SMTP_HOST": smtp_host, "SMTP_FROM": smtp_from}
+    if require_auth:
+        required.update(
+            {
+                "SMTP_USERNAME": smtp_username,
+                "SMTP_PASSWORD": smtp_password,
+            }
+        )
+    missing = [name for name, value in required.items() if not value]
     if missing:
         raise RuntimeError(f"Missing required email environment variables: {', '.join(missing)}")
+    if not recipients:
+        raise RuntimeError("STARE_EMAIL_TO must contain at least one recipient")
 
     data = _load_app_data()
     refresh = data.get("last_refresh") or {}
     subject_date = refresh.get("display") or refresh.get("iso_utc") or "latest refresh"
+    refresh_label = _env("STARE_REFRESH_LABEL", "app update")
 
     msg = EmailMessage()
-    msg["Subject"] = f"S.T.A.R.E Daily Report - {subject_date}"
+    msg["Subject"] = f"S.T.A.R.E Update ({refresh_label}) - {subject_date}"
     msg["From"] = smtp_from
-    msg["To"] = recipient
+    msg["To"] = ", ".join(recipients)
     msg.set_content(_build_text_email(data))
     msg.add_alternative(_build_html_email(data), subtype="html")
 
-    use_ssl = _env("SMTP_SSL", "false").lower() == "true"
-    use_starttls = _env("SMTP_STARTTLS", "true").lower() != "false"
+    use_ssl = _env_bool("SMTP_SSL", False)
+    use_starttls = _env_bool("SMTP_STARTTLS", True)
     context = ssl.create_default_context()
 
     if use_ssl:
         with smtplib.SMTP_SSL(smtp_host, smtp_port, context=context) as server:
-            server.login(smtp_username, smtp_password)
+            if require_auth:
+                server.login(smtp_username, smtp_password)
             server.send_message(msg)
     else:
         with smtplib.SMTP(smtp_host, smtp_port) as server:
             if use_starttls:
                 server.starttls(context=context)
-            server.login(smtp_username, smtp_password)
+            if require_auth:
+                server.login(smtp_username, smtp_password)
             server.send_message(msg)
 
-    print(f"Sent STARE report email to {recipient}")
+    print(f"Sent STARE report email to {', '.join(recipients)}")
 
 
 if __name__ == "__main__":
