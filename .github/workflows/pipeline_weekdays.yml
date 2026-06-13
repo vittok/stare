@@ -166,20 +166,20 @@ jobs:
       - name: Send app update email
         if: ${{ steps.market-window.outputs.should_run == 'true' }}
         env:
-          SMTP_HOST: ${{ secrets.SMTP_HOST }}
-          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_HOST: smtp-relay.brevo.com
+          SMTP_PORT: "587"
           SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
           SMTP_FROM: ${{ secrets.SMTP_FROM }}
-          SMTP_AUTH: ${{ secrets.SMTP_AUTH }}
-          SMTP_STARTTLS: ${{ secrets.SMTP_STARTTLS }}
-          SMTP_SSL: ${{ secrets.SMTP_SSL }}
-          STARE_EMAIL_TO: ${{ secrets.STARE_EMAIL_TO }}
+          SMTP_AUTH: "true"
+          SMTP_STARTTLS: "true"
+          SMTP_SSL: "false"
+          STARE_EMAIL_TO: vittok@hotmail.com
           STARE_APP_URL: https://vittok.github.io/stare/
           STARE_REFRESH_LABEL: ${{ steps.market-window.outputs.label }}
         run: |
-          if [ -z "$SMTP_HOST" ] || { [ -z "$SMTP_FROM" ] && [ -z "$SMTP_USERNAME" ]; }; then
-            echo "::warning::Skipping email report because SMTP_HOST and a sender (SMTP_FROM or SMTP_USERNAME) are not configured as repository secrets."
+          if [ -z "$SMTP_USERNAME" ] || [ -z "$SMTP_PASSWORD" ] || [ -z "$SMTP_FROM" ]; then
+            echo "::warning::Skipping Brevo email because SMTP_USERNAME, SMTP_PASSWORD, or SMTP_FROM is not configured as a repository secret."
             exit 0
           fi
 

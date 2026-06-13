@@ -369,21 +369,28 @@ The workflow sends an HTML email notification after GitHub Pages deployment for 
 - Top active stock summaries
 - Updated stock report with ticker, price, signal, confidence, weekly return, and dollar volume
 
-GitHub Actions does not include email credentials by default, so the repository must define SMTP secrets before email delivery can work:
+The production workflow is configured for Brevo's SMTP relay:
 
-- `SMTP_HOST` - SMTP server host
-- `SMTP_PORT` - SMTP server port, usually `587`
-- `SMTP_USERNAME` - SMTP account username
-- `SMTP_PASSWORD` - SMTP password or app password
-- `SMTP_FROM` - sender email address; optional if the username is also the sender
-- `STARE_EMAIL_TO` - one or more recipients separated by commas or semicolons
-- `SMTP_AUTH` - optional; defaults to `true`; set to `false` only for a trusted relay that does not require authentication
-- `SMTP_STARTTLS` - optional; defaults to `true`
-- `SMTP_SSL` - optional; defaults to `false`
+- Host: `smtp-relay.brevo.com`
+- Port: `587`
+- Encryption: STARTTLS
+- Recipient: `vittok@hotmail.com`
 
-For Microsoft 365/Outlook SMTP, typical settings are host `smtp.office365.com`, port `587`, STARTTLS enabled, and SSL disabled. Use an app password or SMTP credential permitted by the account policy; do not commit credentials to the repository.
+Create a free Brevo account, verify the sender address or domain, and create an SMTP key under Brevo's transactional SMTP settings. Then add these GitHub repository secrets:
 
-If `SMTP_HOST` or both sender fields (`SMTP_FROM` and `SMTP_USERNAME`) are missing, the workflow logs a warning and skips only the email step. Authentication failures fail the email step so a broken notification configuration is visible in GitHub Actions.
+- `SMTP_USERNAME` - the SMTP login shown by Brevo
+- `SMTP_PASSWORD` - the generated Brevo SMTP key, not the Brevo account password
+- `SMTP_FROM` - a sender address verified in Brevo
+
+They can be added from **GitHub → Settings → Secrets and variables → Actions**, or with:
+
+```bash
+gh secret set SMTP_USERNAME --repo vittok/stare
+gh secret set SMTP_PASSWORD --repo vittok/stare
+gh secret set SMTP_FROM --repo vittok/stare
+```
+
+Do not commit SMTP credentials to the repository. If any of these three secrets is missing, the workflow logs a warning and skips only the email step. Authentication or sender-verification failures fail the email step so a broken notification configuration is visible in GitHub Actions.
 
 The workflow can also be triggered manually from the GitHub Actions tab.
 
