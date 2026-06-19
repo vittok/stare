@@ -111,7 +111,6 @@ COP,COP,ConocoPhillips,Energy,Oil & Gas Exploration & Production
 COR,COR,Cencora,Health Care,Health Care Distributors
 COST,COST,Costco,Consumer Staples,Consumer Staples Merchandise Retail
 CPAY,CPAY,Corpay,Financials,Transaction & Payment Processing Services
-CPB,CPB,Campbell's Company (The),Consumer Staples,Packaged Foods & Meats
 CPRT,CPRT,Copart,Industrials,Diversified Support Services
 CPT,CPT,Camden Property Trust,Real Estate,Multi-Family Residential REITs
 CRH,CRH,CRH plc,Materials,Construction Materials
@@ -193,6 +192,7 @@ FIS,FIS,Fidelity National Information Services,Financials,Transaction & Payment 
 FISV,FISV,Fiserv,Financials,Transaction & Payment Processing Services
 FITB,FITB,Fifth Third Bancorp,Financials,Regional Banks
 FIX,FIX,Comfort Systems USA,Industrials,Construction & Engineering
+FLEX,FLEX,Flex Ltd.,Information Technology,Electronic Manufacturing Services
 FOX,FOX,Fox Corporation (Class B),Communication Services,Broadcasting
 FOXA,FOXA,Fox Corporation (Class A),Communication Services,Broadcasting
 FRT,FRT,Federal Realty Investment Trust,Real Estate,Retail REITs
@@ -316,6 +316,7 @@ MPWR,MPWR,Monolithic Power Systems,Information Technology,Semiconductors
 MRK,MRK,Merck & Co.,Health Care,Pharmaceuticals
 MRNA,MRNA,Moderna,Health Care,Biotechnology
 MRSH,MRSH,Marsh McLennan,Financials,Insurance Brokers
+MRVL,MRVL,Marvell Technology,Information Technology,Semiconductors
 MS,MS,Morgan Stanley,Financials,Investment Banking & Brokerage
 MSCI,MSCI,MSCI Inc.,Financials,Financial Exchanges & Data
 MSFT,MSFT,Microsoft,Information Technology,Systems Software
@@ -372,7 +373,6 @@ PNC,PNC,PNC Financial Services,Financials,Diversified Banks
 PNR,PNR,Pentair,Industrials,Industrial Machinery & Supplies & Components
 PNW,PNW,Pinnacle West Capital,Utilities,Multi-Utilities
 PODD,PODD,Insulet Corporation,Health Care,Health Care Equipment
-POOL,POOL,Pool Corporation,Consumer Discretionary,Distributors
 PPG,PPG,PPG Industries,Materials,Specialty Chemicals
 PPL,PPL,PPL Corporation,Utilities,Electric Utilities
 PRU,PRU,Prudential Financial,Financials,Life & Health Insurance
