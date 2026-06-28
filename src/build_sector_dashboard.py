@@ -18,6 +18,9 @@ CREATE TABLE IF NOT EXISTS sector_dashboard_top10 (
   direction TEXT,
   strength INTEGER,
   raw_score REAL,
+  volume_date TEXT,
+  dollar_vol_latest REAL,
+  latest_volume REAL,
   dollar_vol_week REAL,
   weekly_return REAL,
   vol_ratio REAL,
@@ -73,6 +76,9 @@ def init_schema(engine):
             "closeChange": "ALTER TABLE sector_dashboard_top10 ADD COLUMN closeChange REAL",
             "closeChangePct": "ALTER TABLE sector_dashboard_top10 ADD COLUMN closeChangePct REAL",
             "closeDirection": "ALTER TABLE sector_dashboard_top10 ADD COLUMN closeDirection TEXT",
+            "volume_date": "ALTER TABLE sector_dashboard_top10 ADD COLUMN volume_date TEXT",
+            "dollar_vol_latest": "ALTER TABLE sector_dashboard_top10 ADD COLUMN dollar_vol_latest REAL",
+            "latest_volume": "ALTER TABLE sector_dashboard_top10 ADD COLUMN latest_volume REAL",
             "pegRatio": "ALTER TABLE sector_dashboard_top10 ADD COLUMN pegRatio REAL",
         }
         for col, stmt in migrations.items():
@@ -104,7 +110,8 @@ def load_sector_sentiment(engine, week_ending: str) -> pd.DataFrame:
 def load_sector_top_active(engine, week_ending: str) -> pd.DataFrame:
     return pd.read_sql(
         text("""
-            SELECT sector, week_ending, rank, ticker, dollar_vol_week, weekly_return, vol_ratio
+            SELECT sector, week_ending, rank, ticker, volume_date, dollar_vol_latest, latest_volume,
+                   dollar_vol_week, weekly_return, vol_ratio
             FROM sector_top_active
             WHERE week_ending = :week_ending
             ORDER BY sector, rank
@@ -172,6 +179,7 @@ def build_flat_dashboard(
     cols = [
         "sector", "week_ending", "rank", "ticker",
         "direction", "strength", "raw_score",
+        "volume_date", "dollar_vol_latest", "latest_volume",
         "dollar_vol_week", "weekly_return", "vol_ratio",
         "currentPrice", "priceDate", "previousClose", "previousCloseDate",
         "closeChange", "closeChangePct", "closeDirection",
@@ -192,7 +200,8 @@ def build_flat_dashboard(
 
     # Ensure numeric types where possible
     num_cols = [
-        "raw_score", "dollar_vol_week", "weekly_return", "vol_ratio",
+        "raw_score", "dollar_vol_latest", "latest_volume",
+        "dollar_vol_week", "weekly_return", "vol_ratio",
         "currentPrice", "previousClose", "closeChange", "closeChangePct",
         "marketCap", "trailingPE", "forwardPE", "priceToBook", "pegRatio",
         "profitMargins", "operatingMargins", "grossMargins",
@@ -227,6 +236,9 @@ def build_nested_json(sentiment: pd.DataFrame, flat_top10: pd.DataFrame) -> Dict
             sector_block["top10_active"].append({
                 "rank": int(r["rank"]),
                 "ticker": r["ticker"],
+                "volume_date": None if pd.isna(r.get("volume_date")) else r.get("volume_date"),
+                "dollar_vol_latest": None if pd.isna(r.get("dollar_vol_latest")) else float(r.get("dollar_vol_latest")),
+                "latest_volume": None if pd.isna(r.get("latest_volume")) else float(r.get("latest_volume")),
                 "weekly_return": None if pd.isna(r["weekly_return"]) else float(r["weekly_return"]),
                 "dollar_vol_week": None if pd.isna(r["dollar_vol_week"]) else float(r["dollar_vol_week"]),
                 "vol_ratio": None if pd.isna(r["vol_ratio"]) else float(r["vol_ratio"]),
@@ -300,6 +312,7 @@ def upsert_sql_dashboard(engine, flat: pd.DataFrame) -> None:
             INSERT INTO sector_dashboard_top10 (
               sector, week_ending, rank, ticker,
               direction, strength, raw_score,
+              volume_date, dollar_vol_latest, latest_volume,
               dollar_vol_week, weekly_return, vol_ratio,
               currentPrice, priceDate,
               previousClose, previousCloseDate, closeChange, closeChangePct, closeDirection,
@@ -310,6 +323,7 @@ def upsert_sql_dashboard(engine, flat: pd.DataFrame) -> None:
             ) VALUES (
               :sector, :week_ending, :rank, :ticker,
               :direction, :strength, :raw_score,
+              :volume_date, :dollar_vol_latest, :latest_volume,
               :dollar_vol_week, :weekly_return, :vol_ratio,
               :currentPrice, :priceDate,
               :previousClose, :previousCloseDate, :closeChange, :closeChangePct, :closeDirection,

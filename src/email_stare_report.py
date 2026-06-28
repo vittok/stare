@@ -100,6 +100,9 @@ def _flatten_rows(data: dict[str, Any]) -> list[dict[str, Any]]:
                     "close_direction": stock.get("closeDirection"),
                     "signal": recommendation.get("action", "Hold"),
                     "confidence": recommendation.get("confidence"),
+                    "volume_date": stock.get("volume_date"),
+                    "dollar_vol_latest": stock.get("dollar_vol_latest"),
+                    "latest_volume": stock.get("latest_volume"),
                     "weekly_return": stock.get("weekly_return"),
                     "dollar_vol_week": stock.get("dollar_vol_week"),
                     "name": fundamentals.get("shortName") or fundamentals.get("industry") or "",
@@ -134,7 +137,7 @@ def _sector_table(data: dict[str, Any]) -> str:
 def _stock_table(rows: list[dict[str, Any]]) -> str:
     sorted_rows = sorted(
         rows,
-        key=lambda r: (_num(r.get("dollar_vol_week")) or 0),
+        key=lambda r: (_num(r.get("dollar_vol_latest")) or 0),
         reverse=True,
     )
     body = "\n".join(
@@ -148,7 +151,7 @@ def _stock_table(rows: list[dict[str, Any]]) -> str:
         f"<td>{html.escape(str(r.get('signal') or ''))}</td>"
         f"<td style=\"text-align:right\">{html.escape(str(r.get('confidence') or 'n/a'))}</td>"
         f"<td style=\"text-align:right\">{_fmt_pct(r.get('weekly_return'))}</td>"
-        f"<td style=\"text-align:right\">{_fmt_big(r.get('dollar_vol_week'))}</td>"
+        f"<td style=\"text-align:right\">{_fmt_big(r.get('dollar_vol_latest'))}</td>"
         "</tr>"
         for r in sorted_rows
     )
@@ -156,23 +159,43 @@ def _stock_table(rows: list[dict[str, Any]]) -> str:
         "<table>"
         "<thead><tr><th>Sector</th><th>Ticker</th><th>Name</th><th>Price</th>"
         "<th>Previous Close</th><th>Close Direction</th><th>Signal</th><th>Confidence</th>"
-        "<th>Weekly</th><th>Dollar Volume</th></tr></thead>"
+        "<th>Weekly</th><th>Latest Day Dollar Volume</th></tr></thead>"
         f"<tbody>{body}</tbody></table>"
     )
 
 
-def _top_summaries(rows: list[dict[str, Any]], limit: int = 12) -> str:
-    sorted_rows = sorted(
-        rows,
-        key=lambda r: (_num(r.get("dollar_vol_week")) or 0),
+def _sector_pick_summaries(data: dict[str, Any]) -> str:
+    sectors = sorted(
+        data.get("sectors", []),
+        key=lambda s: (_num(s.get("strength")) or 0),
         reverse=True,
-    )[:limit]
-    items = "\n".join(
-        f"<li><strong>{html.escape(str(r.get('ticker') or ''))}</strong>: "
-        f"{html.escape(str(r.get('summary') or 'No generated summary.'))}</li>"
-        for r in sorted_rows
     )
-    return f"<ol>{items}</ol>"
+    sections = []
+    for sector in sectors:
+        picks = sector.get("top3_explanations") or []
+        if not picks:
+            picks = [
+                {
+                    "rank": stock.get("rank"),
+                    "ticker": stock.get("ticker"),
+                    "summary": stock.get("daily_summary"),
+                }
+                for stock in (sector.get("top10_active") or [])[:3]
+            ]
+        if not picks:
+            continue
+        items = "\n".join(
+            f"<li><strong>{html.escape(str(pick.get('ticker') or ''))}</strong>: "
+            f"{html.escape(str(pick.get('summary') or 'No generated summary.'))}</li>"
+            for pick in picks[:3]
+        )
+        sections.append(
+            f"<h3>{html.escape(str(sector.get('sector') or 'Sector'))} "
+            f"({html.escape(str(sector.get('direction') or 'Neutral'))}, "
+            f"strength {html.escape(str(sector.get('strength') or 'n/a'))})</h3>"
+            f"<ol>{items}</ol>"
+        )
+    return "\n".join(sections) or "<p>No generated sector pick summaries are available.</p>"
 
 
 def _build_html_email(data: dict[str, Any]) -> str:
@@ -205,8 +228,8 @@ def _build_html_email(data: dict[str, Any]) -> str:
     <h2>Sector Overview</h2>
     {_sector_table(data)}
 
-    <h2>Top Active Stock Summaries</h2>
-    {_top_summaries(rows)}
+    <h2>Sector Pick Summaries</h2>
+    {_sector_pick_summaries(data)}
 
     <h2>Updated Stock Report</h2>
     {_stock_table(rows)}
@@ -232,8 +255,25 @@ def _build_text_email(data: dict[str, Any]) -> str:
     ]
     for sector in sorted(data.get("sectors", []), key=lambda s: (_num(s.get("strength")) or 0), reverse=True):
         lines.append(f"- {sector.get('sector')}: {sector.get('direction')} strength {sector.get('strength')}")
-    lines.extend(["", "Top active stocks:"])
-    for row in sorted(rows, key=lambda r: (_num(r.get("dollar_vol_week")) or 0), reverse=True)[:20]:
+    lines.extend(["", "Sector pick summaries:"])
+    for sector in sorted(data.get("sectors", []), key=lambda s: (_num(s.get("strength")) or 0), reverse=True):
+        picks = sector.get("top3_explanations") or []
+        if not picks:
+            picks = [
+                {
+                    "ticker": stock.get("ticker"),
+                    "summary": stock.get("daily_summary"),
+                }
+                for stock in (sector.get("top10_active") or [])[:3]
+            ]
+        if not picks:
+            continue
+        lines.append(f"- {sector.get('sector')}: {sector.get('direction')} strength {sector.get('strength')}")
+        for pick in picks[:3]:
+            lines.append(f"  - {pick.get('ticker')}: {pick.get('summary') or 'No generated summary.'}")
+
+    lines.extend(["", "Global latest-day liquidity table preview:"])
+    for row in sorted(rows, key=lambda r: (_num(r.get("dollar_vol_latest")) or 0), reverse=True)[:20]:
         lines.append(
             f"- {row.get('ticker')} {row.get('signal')} "
             f"{_fmt_price(row.get('price'))}, previous close {_fmt_price(row.get('previous_close'))} "

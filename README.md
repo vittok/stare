@@ -16,7 +16,7 @@ The project turns raw market data into a publishable dashboard with:
 
 - Sector sentiment direction: Bullish, Bearish, or Neutral
 - Sector sentiment strength from 0 to 100
-- Top active stocks per sector by weekly dollar volume
+- Top active stocks per sector by latest trading-day dollar volume
 - Latest available close price for every displayed stock
 - Weekly stock returns
 - Volume activity versus recent baseline
@@ -74,7 +74,7 @@ Pipeline steps:
    Converts the latest available weekly stock behavior into sector-level sentiment.
 
 5. `src/rank_sector_top_active.py`
-   Ranks the most active stocks inside each sector by weekly dollar volume for the latest available `week_ending`.
+   Ranks the most active stocks inside each sector by latest available trading-day dollar volume for the current `week_ending`.
 
 6. `src/build_sector_dashboard.py`
    Joins sector sentiment, top active stocks, recent return data, latest available close prices, and fundamentals into dashboard JSON/CSV outputs.
@@ -116,7 +116,7 @@ flowchart TD
     K --> L["Direction and strength"]
 
     I --> M["Rank top active stocks per sector"]
-    M --> N["Top 10 by weekly dollar volume"]
+    M --> N["Top 10 by latest-day dollar volume"]
 
     H --> O["Build dashboard dataset"]
     L --> O
@@ -249,9 +249,13 @@ strength = min(100, abs(raw_score) * 100)
 
 ### Top Active Stocks
 
-For each sector, stocks are ranked by `dollar_vol_week`.
+For each sector, stocks are ranked by `dollar_vol_latest`, which is calculated from the most recent available trading session:
 
-This identifies the names with the largest amount of money traded during the weekly window. It helps separate broad sector direction from the individual stocks that are carrying the most market activity.
+```text
+dollar_vol_latest = latest_close * latest_day_volume
+```
+
+The source date is stored as `volume_date`, and the share volume is stored as `latest_volume`. This identifies the names carrying the most current market activity instead of letting older high-volume days dominate the picks. Weekly return, weekly dollar volume, and volume ratio remain available as trend and confirmation context.
 
 ### Displayed Stock Prices
 
@@ -367,7 +371,7 @@ The workflow sends an HTML email notification after GitHub Pages deployment for 
 - Link to the published S.T.A.R.E dashboard
 - Sector overview table
 - Top active stock summaries
-- Updated stock report with ticker, price, signal, confidence, weekly return, and dollar volume
+- Updated stock report with ticker, price, signal, confidence, weekly return, and latest-day dollar volume
 
 The production workflow is configured for Brevo's SMTP relay:
 

@@ -90,7 +90,7 @@ def render_html(data: Dict[str, Any], title: str) -> str:
                   <td class="num">{_safe(r.get("rank"))}</td>
                   <td class="ticker">{_safe(r.get("ticker"))}</td>
                   <td class="num">{_fmt_pct(r.get("weekly_return"))}</td>
-                  <td class="num">{_fmt_big(r.get("dollar_vol_week"))}</td>
+                  <td class="num">{_fmt_big(r.get("dollar_vol_latest") or r.get("dollar_vol_week"))}</td>
                   <td class="num">{_fmt_num(r.get("vol_ratio"), 2)}</td>
 
                   <td class="name">{_safe(f.get("shortName"))}</td>
@@ -133,7 +133,7 @@ def render_html(data: Dict[str, Any], title: str) -> str:
                       <th>#</th>
                       <th>Ticker</th>
                       <th>Weekly Return</th>
-                      <th>$ Vol (Week)</th>
+                      <th>$ Vol (Latest Day)</th>
                       <th>Vol Ratio</th>
 
                       <th>Name</th>
