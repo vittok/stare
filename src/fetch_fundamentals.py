@@ -96,6 +96,7 @@ def normalize_info(info: Dict[str, Any]) -> Dict[str, Any]:
         "sector": _str(info.get("sector")),
         "industry": _str(info.get("industry")),
         "country": _str(info.get("country")),
+        "longBusinessSummary": _str(info.get("longBusinessSummary")),
 
         # valuation/size
         "marketCap": _num(info.get("marketCap")),

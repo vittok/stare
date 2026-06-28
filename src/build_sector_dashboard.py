@@ -124,8 +124,11 @@ def load_sector_top_active(engine, week_ending: str) -> pd.DataFrame:
 def load_fundamentals_latest(engine) -> pd.DataFrame:
     df = pd.read_sql(
         text("""
-            SELECT ticker, asof_utc, normalized_json
-            FROM fundamentals_latest
+            SELECT fl.ticker, fl.asof_utc, fl.normalized_json, fs.info_json
+            FROM fundamentals_latest fl
+            LEFT JOIN fundamentals_snapshot fs
+              ON fl.ticker = fs.ticker
+             AND fl.asof_utc = fs.asof_utc
         """),
         engine,
     )
@@ -145,7 +148,14 @@ def expand_fundamentals_json(fund_df: pd.DataFrame) -> pd.DataFrame:
             return {}
 
     expanded = fund_df["normalized_json"].apply(loads_safe).apply(pd.Series)
+    raw_expanded = fund_df["info_json"].apply(loads_safe).apply(pd.Series) if "info_json" in fund_df else pd.DataFrame()
+    if "longBusinessSummary" not in expanded.columns:
+        expanded["longBusinessSummary"] = None
+    if "longBusinessSummary" in raw_expanded.columns:
+        expanded["longBusinessSummary"] = expanded["longBusinessSummary"].fillna(raw_expanded["longBusinessSummary"])
     out = pd.concat([fund_df.drop(columns=["normalized_json"]), expanded], axis=1)
+    if "info_json" in out.columns:
+        out.drop(columns=["info_json"], inplace=True)
     out.rename(columns={"symbol": "symbol_from_info"}, inplace=True)
     return out
 
@@ -191,6 +201,7 @@ def build_flat_dashboard(
         "dividendYield", "payoutRatio", "fiveYearAvgDividendYield",
         "beta", "fiftyTwoWeekLow", "fiftyTwoWeekHigh",
         "shortName", "industry", "currency", "exchange",
+        "longBusinessSummary",
         "asof_utc", "return_7d",
     ]
     for c in cols:
@@ -254,6 +265,7 @@ def build_nested_json(sentiment: pd.DataFrame, flat_top10: pd.DataFrame) -> Dict
                     "industry": r.get("industry"),
                     "exchange": r.get("exchange"),
                     "currency": r.get("currency"),
+                    "longBusinessSummary": None if pd.isna(r.get("longBusinessSummary")) else r.get("longBusinessSummary"),
                     "marketCap": None if pd.isna(r.get("marketCap")) else float(r.get("marketCap")),
                     "trailingPE": None if pd.isna(r.get("trailingPE")) else float(r.get("trailingPE")),
                     "forwardPE": None if pd.isna(r.get("forwardPE")) else float(r.get("forwardPE")),
@@ -285,7 +297,7 @@ def build_nested_json(sentiment: pd.DataFrame, flat_top10: pd.DataFrame) -> Dict
     latest_price_date = max(price_dates) if price_dates else None
 
     return {
-        "generated_from": "stare pipeline",
+        "generated_from": "market update",
         "market_data": {
             "latest_price_date": latest_price_date,
         },

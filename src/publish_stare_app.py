@@ -395,7 +395,7 @@ def _summary_for_stock(sector: dict[str, Any], stock: dict[str, Any]) -> str:
     dividend_yield = _num(fundamentals.get("dividendYield"))
 
     return (
-        f"{ticker} ({name}) is a top active {sector.get('sector')} stock for this run. "
+        f"{ticker} ({name}) is a top active {sector.get('sector')} stock for this update. "
         f"Last close: {_fmt_num(stock.get('currentPrice'))}. "
         f"Model signal: {recommendation.get('action', 'Hold')} "
         f"({recommendation.get('confidence', 'n/a')} confidence). "
