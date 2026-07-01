@@ -120,7 +120,10 @@ jobs:
           PY
           then
             python src/fetch_fundamentals.py
+            STARE_UNIVERSE_CSV=data/universe_global.csv STARE_FUNDAMENTALS_REPORT=reports/fundamentals_global_latest.csv python src/fetch_fundamentals.py
             python src/build_sector_dashboard.py
+            python src/rank_region_top_active.py
+            python src/build_region_dashboard.py
             python src/build_sector_dashboard_html.py
             python src/publish_stare_app.py
           else
@@ -137,7 +140,7 @@ jobs:
           git pull --ff-only origin main
 
           # Stage the artifacts you want committed
-          git add data/stocks.db data/universe_sp500.csv reports/ docs/ stare_app.html || true
+          git add data/stocks.db data/universe_sp500.csv data/universe_global.csv reports/ docs/ stare_app.html || true
 
           # If nothing changed, don't fail
           if git diff --cached --quiet; then

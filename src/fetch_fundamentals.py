@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -32,11 +33,11 @@ CREATE TABLE IF NOT EXISTS fundamentals_latest (
 @dataclass
 class FundamentalsConfig:
     db_path: Path = Path("data/stocks.db")
-    universe_csv: Path = Path("data/universe_sp500.csv")
+    universe_csv: Path = Path(os.environ.get("STARE_UNIVERSE_CSV", "data/universe_sp500.csv"))
     sleep_seconds: float = 0.4
     max_retries: int = 4
     write_report_csv: bool = True
-    report_path: Path = Path("reports/fundamentals_sp500_latest.csv")
+    report_path: Path = Path(os.environ.get("STARE_FUNDAMENTALS_REPORT", "reports/fundamentals_sp500_latest.csv"))
 
 
 def utc_now_iso() -> str:

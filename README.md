@@ -1,6 +1,6 @@
 # Sector & Stock Trend Analysis Engine (S.T.A.R.E)
 
-Sector & Stock Trend Analysis Engine (S.T.A.R.E) is an automated analytics pipeline and single-file HTML dashboard for monitoring S&P 500 sector momentum, active stocks, and basic company fundamentals.
+Sector & Stock Trend Analysis Engine (S.T.A.R.E) is an automated analytics pipeline and single-file HTML dashboard for monitoring S&P 500 sector momentum, regional market activity, active stocks, and basic company fundamentals.
 
 It collects public market data, stores it in SQLite, calculates weekly stock and sector signals, and publishes a static GitHub Pages application that can be accessed from anywhere.
 
@@ -10,13 +10,15 @@ Author: Viktor Kvapil
 
 S.T.A.R.E answers a practical market-monitoring question:
 
-Which S&P 500 sectors are showing the strongest short-term trend, and which stocks are driving that activity?
+Which S&P 500 sectors and major global regions are showing the strongest short-term trend, and which stocks are driving that activity?
 
 The project turns raw market data into a publishable dashboard with:
 
 - Sector sentiment direction: Bullish, Bearish, or Neutral
 - Sector sentiment strength from 0 to 100
 - Top active stocks per sector by latest trading-day dollar volume
+- NA, APAC, EMEA, and LAC regional views across selected large local markets
+- Top active stocks per region by latest trading-day traded value
 - Latest available close price for every displayed stock
 - Weekly stock returns
 - Volume activity versus recent baseline
@@ -46,10 +48,11 @@ During publishing, the embedded data is sanitized into strict browser-safe JSON.
 STARE uses public data sources:
 
 - S&P 500 universe: Wikipedia list of S&P 500 companies
+- Regional universe: S&P 500 folded into NA, plus curated APAC, EMEA, and LAC market lists covering selected large exchanges and liquid local symbols
 - Historical prices and volumes: Yahoo Finance through `yfinance`
 - Fundamentals: Yahoo Finance through `yfinance`
 
-The universe file is written to `data/universe_sp500.csv`. Market data and computed results are stored in `data/stocks.db`.
+Universe files are written to `data/universe_sp500.csv` and `data/universe_global.csv`. Market data and computed results are stored in `data/stocks.db`.
 
 ## Pipeline Overview
 
@@ -61,11 +64,11 @@ python src/run_pipeline.py
 
 Pipeline steps:
 
-1. `src/universe_sp500.py`
-   Fetches the current S&P 500 company list, normalizes ticker symbols for Yahoo Finance, and stores sector and sub-industry metadata.
+1. `src/universe_sp500.py` and `src/universe_global.py`
+   Fetch the current S&P 500 company list and generate the curated APAC, EMEA, and LAC market universe. S&P 500 sectors are folded into the parent NA region during app publishing. Symbols are normalized for Yahoo Finance.
 
 2. `src/fetch_prices.py`
-   Downloads recent daily OHLCV price data in chunks and upserts it into SQLite.
+   Downloads recent daily OHLCV price data in chunks and upserts it into SQLite for both the S&P 500 and global regional universes.
 
 3. `src/compute_weekly_stats.py`
    Calculates latest 5-session stock-level metrics.
@@ -76,14 +79,17 @@ Pipeline steps:
 5. `src/rank_sector_top_active.py`
    Ranks the most active stocks inside each sector by latest available trading-day dollar volume for the current `week_ending`.
 
-6. `src/build_sector_dashboard.py`
+6. `src/rank_region_top_active.py`
+   Selects the top regional markets by latest traded value and ranks active stocks inside APAC, EMEA, and LAC. It uses each ticker's latest available weekly row so different local market calendars do not exclude valid data.
+
+7. `src/build_sector_dashboard.py` and `src/build_region_dashboard.py`
    Joins sector sentiment, top active stocks, recent return data, latest available close prices, and fundamentals into dashboard JSON/CSV outputs.
 
-7. `src/build_sector_dashboard_html.py`
+8. `src/build_sector_dashboard_html.py`
    Builds the legacy HTML report.
 
-8. `src/publish_stare_app.py`
-   Embeds fresh dashboard data, refresh metadata, generated top-3 stock summaries, and Buy/Hold/Sell model signals into the standalone HTML app and publishes it to `docs/index.html`.
+9. `src/publish_stare_app.py`
+   Embeds fresh sector and regional dashboard data, refresh metadata, generated top-3 stock summaries, and Buy/Hold/Sell model signals into the standalone HTML app and publishes it to `docs/index.html`.
 
 ## Application Workflow
 

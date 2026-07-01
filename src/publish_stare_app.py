@@ -13,7 +13,9 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 APP_HTML = ROOT / "stare_app.html"
 REPORT_JSON = ROOT / "reports" / "sector_dashboard.json"
+REGION_REPORT_JSON = ROOT / "reports" / "region_dashboard.json"
 REPORT_CSV = ROOT / "reports" / "sector_dashboard_top10.csv"
+REGION_REPORT_CSV = ROOT / "reports" / "region_dashboard_top_active.csv"
 FUNDAMENTALS_CSV = ROOT / "reports" / "fundamentals_sp500_latest.csv"
 LOGO = ROOT / "Logo.png"
 DOCS = ROOT / "docs"
@@ -283,7 +285,8 @@ def _decision_snapshot_for_stock(stock: dict[str, Any]) -> dict[str, Any]:
 def _market_sentiment_note(sector: dict[str, Any]) -> str:
     direction = sector.get("direction") or "Neutral"
     strength = _num(sector.get("strength")) or 0
-    return f"{direction.lower()} sector sentiment with strength {strength:.0f}"
+    group = "region" if sector.get("region") else "sector"
+    return f"{direction.lower()} {group} sentiment with strength {strength:.0f}"
 
 
 def _recommendation_for_stock(sector: dict[str, Any], stock: dict[str, Any]) -> dict[str, Any]:
@@ -389,13 +392,19 @@ def _summary_for_stock(sector: dict[str, Any], stock: dict[str, Any]) -> str:
     recommendation = stock.get("recommendation") or {}
     ticker = stock.get("ticker") or "Ticker"
     name = _text(fundamentals.get("shortName")) or _text(fundamentals.get("industry")) or ticker
+    group_name = sector.get("sector") or sector.get("region") or sector.get("market") or "selected"
+    group_kind = "regional" if sector.get("region") else "sector"
+    market_note = ""
+    if stock.get("market") or stock.get("country"):
+        market_note = f" Market: {stock.get('market') or 'n/a'} ({stock.get('country') or 'n/a'})."
     pb = _num(fundamentals.get("priceToBook"))
     pe = _num(fundamentals.get("trailingPE") or fundamentals.get("forwardPE"))
     peg = _num(fundamentals.get("pegRatio"))
     dividend_yield = _num(fundamentals.get("dividendYield"))
 
     return (
-        f"{ticker} ({name}) is a top active {sector.get('sector')} stock for this update. "
+        f"{ticker} ({name}) is a top active {group_name} {group_kind} stock for this update."
+        f"{market_note} "
         f"Last close: {_fmt_num(stock.get('currentPrice'))}. "
         f"Model signal: {recommendation.get('action', 'Hold')} "
         f"({recommendation.get('confidence', 'n/a')} confidence). "
@@ -407,6 +416,69 @@ def _summary_for_stock(sector: dict[str, Any], stock: dict[str, Any]) -> str:
     )
 
 
+def _north_america_region_from_sectors(sectors: list[dict[str, Any]]) -> dict[str, Any] | None:
+    if not sectors:
+        return None
+
+    raw_scores = [_num(s.get("raw_score")) for s in sectors]
+    raw_scores = [s for s in raw_scores if s is not None]
+    raw_score = sum(raw_scores) / len(raw_scores) if raw_scores else 0.0
+    if abs(raw_score) < 0.05:
+        direction = "Neutral"
+    elif raw_score > 0:
+        direction = "Bullish"
+    else:
+        direction = "Bearish"
+
+    stocks = []
+    for sector in sectors:
+        for stock in sector.get("top10_active", []):
+            item = json.loads(json.dumps(stock))
+            item["region"] = "NA"
+            item["market"] = "S&P 500"
+            item["country"] = "United States"
+            item["source_sector"] = sector.get("sector")
+            stocks.append(item)
+
+    stocks.sort(key=lambda s: _num(s.get("dollar_vol_latest")) or 0.0, reverse=True)
+    top10 = []
+    for rank, stock in enumerate(stocks[:10], start=1):
+        stock["rank"] = rank
+        top10.append(stock)
+
+    weeks = sorted({str(s.get("week_ending")) for s in sectors if s.get("week_ending")})
+    latest_price_dates = sorted(
+        {
+            str(stock.get("priceDate"))
+            for stock in stocks
+            if stock.get("priceDate")
+        }
+    )
+    return {
+        "region": "NA",
+        "sector": "NA",
+        "week_ending": weeks[-1] if weeks else None,
+        "direction": direction,
+        "strength": int(min(100, abs(raw_score) * 100)),
+        "raw_score": raw_score,
+        "diagnostics": {
+            "n_stocks": len(stocks),
+            "top_markets": ["S&P 500"],
+            "latest_price_date": latest_price_dates[-1] if latest_price_dates else None,
+            "source": "S&P 500 sector dashboard folded into North America",
+        },
+        "markets": [
+            {
+                "market": "S&P 500",
+                "country": "United States",
+                "total_dollar_vol_latest": sum(_num(s.get("dollar_vol_latest")) or 0.0 for s in stocks),
+                "top10_active": top10,
+            }
+        ],
+        "top10_active": top10,
+    }
+
+
 def enrich_dashboard_data(data: dict[str, Any]) -> dict[str, Any]:
     now = datetime.now(timezone.utc)
     data["last_refresh"] = {
@@ -416,7 +488,7 @@ def enrich_dashboard_data(data: dict[str, Any]) -> dict[str, Any]:
     }
 
     peg_fallbacks = _load_peg_fallbacks()
-    for sector in data.get("sectors", []):
+    for sector in [*data.get("sectors", []), *data.get("regions", [])]:
         for stock in sector.get("top10_active", []):
             fundamentals = stock.setdefault("fundamentals", {})
             ticker = stock.get("ticker")
@@ -452,6 +524,17 @@ def enrich_dashboard_data(data: dict[str, Any]) -> dict[str, Any]:
 
 def load_compact_dashboard_json() -> str:
     data = json.loads(REPORT_JSON.read_text(encoding="utf-8"))
+    if REGION_REPORT_JSON.exists():
+        region_data = json.loads(REGION_REPORT_JSON.read_text(encoding="utf-8"))
+        data["regions"] = region_data.get("regions", [])
+        sector_date = (data.get("market_data") or {}).get("latest_price_date")
+        region_date = (region_data.get("market_data") or {}).get("latest_price_date")
+        if region_date and (not sector_date or region_date > sector_date):
+            data.setdefault("market_data", {})["latest_price_date"] = region_date
+    na_region = _north_america_region_from_sectors(data.get("sectors", []))
+    if na_region:
+        regions = [r for r in data.get("regions", []) if r.get("region") != "NA"]
+        data["regions"] = [na_region, *regions]
     data = enrich_dashboard_data(data)
     return json.dumps(
         _json_safe(data),
@@ -485,6 +568,10 @@ def publish() -> None:
     copy2(REPORT_JSON, DOCS / "sector_dashboard.json")
     if REPORT_CSV.exists():
         copy2(REPORT_CSV, DOCS / "sector_dashboard_top10.csv")
+    if REGION_REPORT_JSON.exists():
+        copy2(REGION_REPORT_JSON, DOCS / "region_dashboard.json")
+    if REGION_REPORT_CSV.exists():
+        copy2(REGION_REPORT_CSV, DOCS / "region_dashboard_top_active.csv")
     if LOGO.exists():
         copy2(LOGO, DOCS / LOGO.name)
     (DOCS / ".nojekyll").write_text("", encoding="utf-8")

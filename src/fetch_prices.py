@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import time
 from dataclasses import dataclass
+import os
 from pathlib import Path
 from typing import List, Tuple
 
@@ -13,7 +14,7 @@ from store_sqlite import SQLiteStore
 
 @dataclass
 class FetchPricesConfig:
-    universe_csv: Path = Path("data/universe_sp500.csv")
+    universe_csv: Path = Path(os.environ.get("STARE_UNIVERSE_CSV", "data/universe_sp500.csv"))
     db_path: Path = Path("data/stocks.db")
     period: str = "3mo"
     interval: str = "1d"
@@ -174,4 +175,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

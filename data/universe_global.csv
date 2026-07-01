@@ -1,0 +1,73 @@
+ticker_yahoo,ticker_original,security,sector,sub_industry,region,market,country
+7203.T,7203.T,Toyota Motor,Consumer Cyclical,Japan,APAC,Japan,Japan
+6758.T,6758.T,Sony Group,Technology,Japan,APAC,Japan,Japan
+8306.T,8306.T,Mitsubishi UFJ Financial Group,Financial Services,Japan,APAC,Japan,Japan
+9984.T,9984.T,SoftBank Group,Communication Services,Japan,APAC,Japan,Japan
+6861.T,6861.T,Keyence,Technology,Japan,APAC,Japan,Japan
+8035.T,8035.T,Tokyo Electron,Technology,Japan,APAC,Japan,Japan
+9432.T,9432.T,Nippon Telegraph and Telephone,Communication Services,Japan,APAC,Japan,Japan
+7974.T,7974.T,Nintendo,Communication Services,Japan,APAC,Japan,Japan
+RELIANCE.NS,RELIANCE.NS,Reliance Industries,Energy,India,APAC,India,India
+TCS.NS,TCS.NS,Tata Consultancy Services,Technology,India,APAC,India,India
+HDFCBANK.NS,HDFCBANK.NS,HDFC Bank,Financial Services,India,APAC,India,India
+ICICIBANK.NS,ICICIBANK.NS,ICICI Bank,Financial Services,India,APAC,India,India
+INFY.NS,INFY.NS,Infosys,Technology,India,APAC,India,India
+BHARTIARTL.NS,BHARTIARTL.NS,Bharti Airtel,Communication Services,India,APAC,India,India
+SBIN.NS,SBIN.NS,State Bank of India,Financial Services,India,APAC,India,India
+LT.NS,LT.NS,Larsen & Toubro,Industrials,India,APAC,India,India
+0700.HK,0700.HK,Tencent Holdings,Communication Services,Hong Kong,APAC,Hong Kong,Hong Kong
+9988.HK,9988.HK,Alibaba Group,Consumer Cyclical,Hong Kong,APAC,Hong Kong,Hong Kong
+0005.HK,0005.HK,HSBC Holdings,Financial Services,Hong Kong,APAC,Hong Kong,Hong Kong
+1299.HK,1299.HK,AIA Group,Financial Services,Hong Kong,APAC,Hong Kong,Hong Kong
+0939.HK,0939.HK,China Construction Bank,Financial Services,Hong Kong,APAC,Hong Kong,Hong Kong
+0941.HK,0941.HK,China Mobile,Communication Services,Hong Kong,APAC,Hong Kong,Hong Kong
+0388.HK,0388.HK,Hong Kong Exchanges and Clearing,Financial Services,Hong Kong,APAC,Hong Kong,Hong Kong
+3690.HK,3690.HK,Meituan,Consumer Cyclical,Hong Kong,APAC,Hong Kong,Hong Kong
+AZN.L,AZN.L,AstraZeneca,Healthcare,United Kingdom,EMEA,United Kingdom,United Kingdom
+SHEL.L,SHEL.L,Shell,Energy,United Kingdom,EMEA,United Kingdom,United Kingdom
+HSBA.L,HSBA.L,HSBC Holdings,Financial Services,United Kingdom,EMEA,United Kingdom,United Kingdom
+ULVR.L,ULVR.L,Unilever,Consumer Defensive,United Kingdom,EMEA,United Kingdom,United Kingdom
+BP.L,BP.L,BP,Energy,United Kingdom,EMEA,United Kingdom,United Kingdom
+GSK.L,GSK.L,GSK,Healthcare,United Kingdom,EMEA,United Kingdom,United Kingdom
+RIO.L,RIO.L,Rio Tinto,Basic Materials,United Kingdom,EMEA,United Kingdom,United Kingdom
+LSEG.L,LSEG.L,London Stock Exchange Group,Financial Services,United Kingdom,EMEA,United Kingdom,United Kingdom
+SAP.DE,SAP.DE,SAP,Technology,Germany,EMEA,Germany,Germany
+SIE.DE,SIE.DE,Siemens,Industrials,Germany,EMEA,Germany,Germany
+DTE.DE,DTE.DE,Deutsche Telekom,Communication Services,Germany,EMEA,Germany,Germany
+ALV.DE,ALV.DE,Allianz,Financial Services,Germany,EMEA,Germany,Germany
+MBG.DE,MBG.DE,Mercedes-Benz Group,Consumer Cyclical,Germany,EMEA,Germany,Germany
+BMW.DE,BMW.DE,BMW,Consumer Cyclical,Germany,EMEA,Germany,Germany
+BAS.DE,BAS.DE,BASF,Basic Materials,Germany,EMEA,Germany,Germany
+IFX.DE,IFX.DE,Infineon Technologies,Technology,Germany,EMEA,Germany,Germany
+MC.PA,MC.PA,LVMH,Consumer Cyclical,France,EMEA,France,France
+OR.PA,OR.PA,L'Oreal,Consumer Defensive,France,EMEA,France,France
+RMS.PA,RMS.PA,Hermes International,Consumer Cyclical,France,EMEA,France,France
+TTE.PA,TTE.PA,TotalEnergies,Energy,France,EMEA,France,France
+SAN.PA,SAN.PA,Sanofi,Healthcare,France,EMEA,France,France
+AIR.PA,AIR.PA,Airbus,Industrials,France,EMEA,France,France
+SU.PA,SU.PA,Schneider Electric,Industrials,France,EMEA,France,France
+BNP.PA,BNP.PA,BNP Paribas,Financial Services,France,EMEA,France,France
+PETR4.SA,PETR4.SA,Petrobras PN,Energy,Brazil,LAC,Brazil,Brazil
+VALE3.SA,VALE3.SA,Vale,Basic Materials,Brazil,LAC,Brazil,Brazil
+ITUB4.SA,ITUB4.SA,Itau Unibanco PN,Financial Services,Brazil,LAC,Brazil,Brazil
+BBDC4.SA,BBDC4.SA,Banco Bradesco PN,Financial Services,Brazil,LAC,Brazil,Brazil
+ABEV3.SA,ABEV3.SA,Ambev,Consumer Defensive,Brazil,LAC,Brazil,Brazil
+BBAS3.SA,BBAS3.SA,Banco do Brasil,Financial Services,Brazil,LAC,Brazil,Brazil
+WEGE3.SA,WEGE3.SA,WEG,Industrials,Brazil,LAC,Brazil,Brazil
+B3SA3.SA,B3SA3.SA,B3,Financial Services,Brazil,LAC,Brazil,Brazil
+AMXB.MX,AMXB.MX,America Movil,Communication Services,Mexico,LAC,Mexico,Mexico
+WALMEX.MX,WALMEX.MX,Wal-Mart de Mexico,Consumer Defensive,Mexico,LAC,Mexico,Mexico
+GMEXICOB.MX,GMEXICOB.MX,Grupo Mexico,Basic Materials,Mexico,LAC,Mexico,Mexico
+FEMSAUBD.MX,FEMSAUBD.MX,Fomento Economico Mexicano,Consumer Defensive,Mexico,LAC,Mexico,Mexico
+GFNORTEO.MX,GFNORTEO.MX,Grupo Financiero Banorte,Financial Services,Mexico,LAC,Mexico,Mexico
+CEMEXCPO.MX,CEMEXCPO.MX,Cemex,Basic Materials,Mexico,LAC,Mexico,Mexico
+BIMBOA.MX,BIMBOA.MX,Grupo Bimbo,Consumer Defensive,Mexico,LAC,Mexico,Mexico
+KOFUBL.MX,KOFUBL.MX,Coca-Cola FEMSA,Consumer Defensive,Mexico,LAC,Mexico,Mexico
+SQM-B.SN,SQM-B.SN,Sociedad Quimica y Minera de Chile,Basic Materials,Chile,LAC,Chile,Chile
+CHILE.SN,CHILE.SN,Banco de Chile,Financial Services,Chile,LAC,Chile,Chile
+BSANTANDER.SN,BSANTANDER.SN,Banco Santander Chile,Financial Services,Chile,LAC,Chile,Chile
+COPEC.SN,COPEC.SN,Empresas Copec,Energy,Chile,LAC,Chile,Chile
+FALABELLA.SN,FALABELLA.SN,Falabella,Consumer Cyclical,Chile,LAC,Chile,Chile
+CENCOSUD.SN,CENCOSUD.SN,Cencosud,Consumer Defensive,Chile,LAC,Chile,Chile
+ENELCHILE.SN,ENELCHILE.SN,Enel Chile,Utilities,Chile,LAC,Chile,Chile
+CMPC.SN,CMPC.SN,CMPC,Basic Materials,Chile,LAC,Chile,Chile
