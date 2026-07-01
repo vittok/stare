@@ -1,8 +1,13 @@
 # Sector & Stock Trend Analysis Engine (S.T.A.R.E)
 
-Sector & Stock Trend Analysis Engine (S.T.A.R.E) is an automated analytics pipeline and single-file HTML dashboard for monitoring S&P 500 sector momentum, regional market activity, active stocks, and basic company fundamentals.
+Sector & Stock Trend Analysis Engine (S.T.A.R.E) is an automated analytics system for monitoring S&P 500 sector momentum, regional market activity, active stocks, and basic company fundamentals.
 
-It collects public market data, stores it in SQLite, calculates weekly stock and sector signals, and publishes a static GitHub Pages application that can be accessed from anywhere.
+The repository now supports two delivery paths:
+
+- **GitHub Pages demo:** the original single-file static HTML dashboard refreshed by GitHub Actions.
+- **Standalone portal foundation:** a Next.js + FastAPI + Supabase/Postgres path for Google authentication, user preferences, historical snapshots, and future personalization.
+
+Both paths use the same market data pipeline and the same shared Buy/Hold/Sell signal logic.
 
 Author: Viktor Kvapil
 
@@ -30,6 +35,8 @@ The output is intended for screening, monitoring, and research. It is not financ
 
 ## Published App
 
+The GitHub Pages version remains the public demo and fallback.
+
 The publishable app is generated as:
 
 - `stare_app.html` - standalone root-level HTML app
@@ -43,6 +50,40 @@ The app embeds the latest dashboard JSON directly into the HTML file, so it can 
 
 During publishing, the embedded data is sanitized into strict browser-safe JSON. Missing or non-finite values such as `NaN`, `Infinity`, and `-Infinity` are converted to `null` so the app can reliably parse and render the data in any browser.
 
+## Standalone Portal
+
+The standalone portal is being built alongside the static app. It is intended to become the authenticated product experience while GitHub Pages remains a public demo.
+
+Current standalone stack:
+
+- Frontend: Next.js in `apps/web`
+- API: FastAPI in `apps/api`
+- Auth and database: Supabase project `STARE`
+- Database: Supabase Postgres
+- Historical import bridge: `src/export_reports_to_postgres.py`
+
+The Supabase schema is defined in `supabase/migrations/001_initial_portal_schema.sql`.
+
+Core standalone tables:
+
+- `update_runs` - one row per market update/import
+- `sector_snapshots` - sector-level signal history
+- `region_snapshots` - APAC, EMEA, LAC, and NA region history
+- `stock_snapshots` - per-ticker prices, volume, fundamentals, and activity data
+- `stock_recommendations` - Buy/Hold/Sell action, score, confidence, rationale, decision snapshot, and daily summary
+- `user_profiles` - authenticated user profile data
+- `user_preferences` - saved theme, default filters, visible columns, watchlist, and notification preferences
+
+The first Supabase imports have been verified with populated historical data and recommendation rows. The importer reads the current JSON artifacts and writes them to Postgres:
+
+```bash
+PYTHONPATH=.python_deps:src python src/export_reports_to_postgres.py --run-label "portal seed with shared recommendations"
+```
+
+The local backend uses Supabase's Session Pooler connection string through `DATABASE_URL`. Keep that value in `.env` or deployment secrets only; do not commit it.
+
+Local portal setup is documented in `apps/README.md`. The project task tracker is `STANDALONE_PORTAL_TASKS.md`.
+
 ## Data Sources
 
 STARE uses public data sources:
@@ -54,7 +95,7 @@ STARE uses public data sources:
 
 Universe files are written to `data/universe_sp500.csv` and `data/universe_global.csv`. Market data and computed results are stored in `data/stocks.db`.
 
-## Pipeline Overview
+## Shared Pipeline Overview
 
 The main pipeline is run with:
 
@@ -88,8 +129,14 @@ Pipeline steps:
 8. `src/build_sector_dashboard_html.py`
    Builds the legacy HTML report.
 
-9. `src/publish_stare_app.py`
-   Embeds fresh sector and regional dashboard data, refresh metadata, generated top-3 stock summaries, and Buy/Hold/Sell model signals into the standalone HTML app and publishes it to `docs/index.html`.
+9. `src/stare_signals.py`
+   Provides the shared deterministic Buy/Hold/Sell signal, confidence score, rationale, decision snapshot, and daily stock summary logic.
+
+10. `src/publish_stare_app.py`
+    Embeds fresh sector and regional dashboard data, refresh metadata, generated top-3 stock summaries, and shared Buy/Hold/Sell model signals into the standalone HTML app and publishes it to `docs/index.html`.
+
+11. `src/export_reports_to_postgres.py`
+    Imports the current JSON artifacts into Supabase/Postgres for the standalone portal, including stock recommendation rows generated from the same shared signal module.
 
 ## Application Workflow
 
@@ -128,10 +175,14 @@ flowchart TD
     L --> O
     N --> O
     O --> P["Add latest close price"]
-    P --> Q["Generate Buy, Hold, or Sell signal"]
-    Q --> R["Generate stock summaries"]
+    P --> Q["Shared signal module: src/stare_signals.py"]
+    Q --> Q1["Generate Buy, Hold, or Sell signal"]
+    Q --> Q2["Generate decision snapshot"]
+    Q --> Q3["Generate stock summary"]
 
-    R --> S["Write report artifacts"]
+    Q1 --> R["Write report artifacts"]
+    Q2 --> R
+    Q3 --> R
     S --> S1["reports/sector_dashboard.json"]
     S --> S2["reports/sector_dashboard_top10.csv"]
     S --> S3["reports/sector_dashboard.html"]
@@ -146,6 +197,11 @@ flowchart TD
     W --> X["Public S.T.A.R.E web app"]
     W --> Y["Build scheduled email report"]
     Y --> Z["Send email to Viktor"]
+
+    R --> AA["Import artifacts to Supabase"]
+    AA --> AB[("Supabase Postgres")]
+    AB --> AC["FastAPI latest-report endpoint"]
+    AC --> AD["Next.js standalone portal"]
 ```
 
 ## What Gets Calculated
@@ -298,7 +354,7 @@ Fundamentals are used to add business context to the active stock rankings.
 
 ### Daily Stock Summaries
 
-During each publish step, S.T.A.R.E selects the top 3 active stocks in each sector and generates short explanatory summaries from the fundamentals available in the dashboard data.
+During each publish or portal import step, S.T.A.R.E generates short explanatory summaries from the fundamentals available in the dashboard data.
 
 The summaries focus on:
 
@@ -307,11 +363,11 @@ The summaries focus on:
 - Price/earnings-to-growth (PEG), when available
 - Dividend yield
 
-These summaries are embedded into the HTML and shown when hovering over or clicking ticker symbols in the app table.
+These summaries are embedded into the static HTML and persisted into `stock_recommendations.daily_summary` for the standalone portal.
 
 ### Buy, Hold, or Sell Signals
 
-During publishing, S.T.A.R.E also generates a deterministic model signal for every displayed stock:
+S.T.A.R.E generates a deterministic model signal for every displayed stock:
 
 - `Buy`
 - `Hold`
@@ -326,7 +382,9 @@ The signal combines sector market sentiment with stock-level weekly momentum and
 
 Bullish sector sentiment, positive weekly return, lower valuation ratios, reasonable PEG, and higher dividend yield add support to the score. Bearish sector sentiment, negative weekly return, elevated valuation ratios, and weak or missing growth/value support reduce the score.
 
-The output includes a recommendation action, confidence score, and short rationale. These signals are research-oriented model outputs for screening and monitoring only; they are not personalized financial advice.
+The output includes a recommendation action, numeric score, confidence score, short rationale, decision snapshot, and daily summary. The calculation lives in `src/stare_signals.py` so the static app and standalone portal persist the same signal.
+
+These signals are research-oriented model outputs for screening and monitoring only; they are not personalized financial advice.
 
 ## Value Added
 
@@ -343,7 +401,9 @@ Raw stock tables are noisy. STARE adds value by organizing the data into a repea
 
 The dashboard is especially useful as a daily pre-market or morning scan: it points attention toward sectors with broad momentum and toward stocks where activity is highest.
 
-## Automation
+## GitHub Actions Static Publishing
+
+This section covers only the GitHub Pages demo/static publishing path.
 
 The GitHub Actions workflow in `.github/workflows/pipeline_weekdays.yml` refreshes around the regular US market open and close:
 
@@ -404,34 +464,84 @@ Do not commit SMTP credentials to the repository. If any of these three secrets 
 
 The workflow can also be triggered manually from the GitHub Actions tab.
 
+## Standalone Portal Operations
+
+The standalone portal path is separate from GitHub Actions static publishing.
+
+Current status:
+
+- Supabase initial schema has been applied.
+- The local `DATABASE_URL` uses the Supabase Session Pooler because the direct DB host can require IPv6.
+- Existing report artifacts have been imported into Supabase.
+- A later import verified `stock_recommendations` has one recommendation row for each imported stock snapshot.
+- The FastAPI latest-report path reads the latest update, region snapshots, sector snapshots, top stocks, and recommendation fields.
+
+Planned standalone operations:
+
+- Host `apps/web` as the Next.js frontend.
+- Host `apps/api` as the FastAPI backend.
+- Store `DATABASE_URL` and future service secrets in deployment secrets.
+- Move scheduled market open and market close updates into a standalone scheduled job.
+- Keep GitHub Pages available as the public demo/fallback while the portal matures.
+
+Important security notes:
+
+- Do not expose `DATABASE_URL` or service-role keys to the browser.
+- Rotate setup-time secrets before production launch.
+- Keep Supabase Row Level Security enabled for user profile and preference tables.
+
 ## Repository Structure
 
 ```text
 .
+├── apps/
+│   ├── api/
+│   │   ├── app/
+│   │   └── requirements.txt
+│   └── web/
+│       ├── app/
+│       ├── components/
+│       └── package.json
 ├── data/
 │   ├── stocks.db
+│   ├── universe_global.csv
 │   └── universe_sp500.csv
 ├── docs/
 │   ├── index.html
+│   ├── region_dashboard.json
+│   ├── region_dashboard_top_active.csv
 │   ├── sector_dashboard.json
 │   └── sector_dashboard_top10.csv
 ├── reports/
+│   ├── fundamentals_sp500_latest.csv
+│   ├── region_dashboard.json
+│   ├── region_dashboard_top_active.csv
 │   ├── sector_dashboard.html
 │   ├── sector_dashboard.json
-│   ├── sector_dashboard_top10.csv
-│   └── fundamentals_sp500_latest.csv
+│   └── sector_dashboard_top10.csv
+├── supabase/
+│   └── migrations/
+│       └── 001_initial_portal_schema.sql
 ├── src/
+│   ├── build_region_dashboard.py
 │   ├── build_sector_dashboard.py
 │   ├── build_sector_dashboard_html.py
 │   ├── compute_sector_sentiment.py
 │   ├── compute_weekly_stats.py
+│   ├── export_reports_to_postgres.py
 │   ├── fetch_fundamentals.py
 │   ├── fetch_prices.py
 │   ├── publish_stare_app.py
+│   ├── rank_region_top_active.py
 │   ├── rank_sector_top_active.py
 │   ├── run_pipeline.py
+│   ├── stare_signals.py
 │   ├── store_sqlite.py
+│   ├── universe_global.py
 │   └── universe_sp500.py
+├── DATA_SCHEMA.md
+├── DEV_GUIDE.md
+├── STANDALONE_PORTAL_TASKS.md
 ├── stare_app.html
 ├── requirements.txt
 └── README.md
@@ -439,15 +549,26 @@ The workflow can also be triggered manually from the GitHub Actions tab.
 
 ## Database Tables
 
-Core SQLite tables:
+Core SQLite tables for the GitHub Actions/static app pipeline:
 
 - `prices`
 - `weekly_stats`
 - `sector_sentiment`
 - `sector_top_active`
+- `region_top_active`
 - `fundamentals_snapshot`
 - `fundamentals_latest`
 - `sector_dashboard_top10`
+
+Core Supabase/Postgres tables for the standalone portal:
+
+- `update_runs`
+- `sector_snapshots`
+- `region_snapshots`
+- `stock_snapshots`
+- `stock_recommendations`
+- `user_profiles`
+- `user_preferences`
 
 See `DATA_SCHEMA.md` for a compact schema summary.
 
