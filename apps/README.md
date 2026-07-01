@@ -71,3 +71,5 @@ This imports:
 - `PUT /api/me/preferences`
 
 Preference endpoints currently use an `x-user-id` header as a temporary development bridge until full Supabase JWT validation is wired into FastAPI.
+
+See `../PORTAL_DEPLOYMENT.md` for production domain, OAuth callback, Session Pooler, and secret-rotation notes.

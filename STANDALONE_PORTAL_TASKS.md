@@ -17,7 +17,8 @@ Supabase project:
 - [x] Confirm frontend framework: Next.js.
 - [x] Confirm backend style: FastAPI service.
 - [x] Confirm database: Supabase Postgres.
-- [ ] Define production domain name and DNS plan.
+- [x] Define production domain and DNS plan: start with hosted UAT URL, then attach a custom `stare.<domain>` CNAME after acceptance.
+- [ ] Select the final custom production domain.
 - [x] Decide whether GitHub Pages remains as a public demo or is retired: keep GitHub Pages as public demo/fallback.
 
 ## Phase 2 - Supabase Setup
@@ -36,7 +37,7 @@ Supabase project:
 - [ ] Configure Supabase Auth redirect URLs:
   - [x] `http://localhost:3000/auth/callback`
   - [ ] production portal callback URL when selected
-- [ ] Create database roles and row-level security policy approach.
+- [x] Create database roles and row-level security policy approach: user tables use Supabase Auth RLS; market data is backend-served through FastAPI.
 - [x] Store Supabase URL and publishable key in `.env.example`.
 - [x] Add backend-only `DATABASE_URL` locally in ignored `.env`.
 - [ ] Add backend-only `DATABASE_URL` in deployment secrets.
@@ -44,6 +45,7 @@ Supabase project:
 - [x] Replace local/deployment `DATABASE_URL` with Supabase Session Pooler connection string if the host cannot reach the direct IPv6 database endpoint.
 - [ ] Rotate the initial database password before production launch because it was shared during setup.
 - [ ] Rotate the Google OAuth client secret before production launch because it was shared during setup.
+- [x] Document standalone deployment, auth, DNS, and secret handling in `PORTAL_DEPLOYMENT.md`.
 
 ## Phase 3 - Database Schema
 

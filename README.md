@@ -82,7 +82,7 @@ PYTHONPATH=.python_deps:src python src/export_reports_to_postgres.py --run-label
 
 The local backend uses Supabase's Session Pooler connection string through `DATABASE_URL`. Keep that value in `.env` or deployment secrets only; do not commit it.
 
-Local portal setup is documented in `apps/README.md`. The project task tracker is `STANDALONE_PORTAL_TASKS.md`.
+Local portal setup is documented in `apps/README.md`. Production auth, DNS, deployment secrets, and secret rotation notes are tracked in `PORTAL_DEPLOYMENT.md`. The project task tracker is `STANDALONE_PORTAL_TASKS.md`.
 
 ## Data Sources
 

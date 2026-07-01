@@ -66,6 +66,8 @@ PYTHONPATH=.python_deps:src python src/export_reports_to_postgres.py --run-label
 
 The API expects `DATABASE_URL` to point to the Supabase Session Pooler connection string. Store it only in `.env` or deployment secrets.
 
+Production DNS, OAuth callback, and secret-rotation notes are in `PORTAL_DEPLOYMENT.md`.
+
 ## Databases
 
 Static pipeline database:
