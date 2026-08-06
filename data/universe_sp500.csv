@@ -150,7 +150,6 @@ DUK,DUK,Duke Energy,Utilities,Electric Utilities
 DVA,DVA,DaVita,Health Care,Health Care Services
 DVN,DVN,Devon Energy,Energy,Oil & Gas Exploration & Production
 DXCM,DXCM,Dexcom,Health Care,Health Care Equipment
-EA,EA,Electronic Arts,Communication Services,Interactive Home Entertainment
 EBAY,EBAY,eBay Inc.,Consumer Discretionary,Broadline Retail
 ECHO,ECHO,EchoStar,Communication Services,Wireless Telecommunication Services
 ECL,ECL,Ecolab,Materials,Specialty Chemicals
@@ -186,6 +185,7 @@ FDS,FDS,FactSet,Financials,Financial Exchanges & Data
 FDX,FDX,FedEx,Industrials,Air Freight & Logistics
 FDXF,FDXF,FedEx Freight,Industrials,Cargo Ground Transportation
 FE,FE,FirstEnergy,Utilities,Electric Utilities
+FERG,FERG,Ferguson Enterprises,Industrials,Building Products
 FFIV,FFIV,"F5, Inc.",Information Technology,Communications Equipment
 FICO,FICO,Fair Isaac,Information Technology,Application Software
 FIS,FIS,Fidelity National Information Services,Financials,Transaction & Payment Processing Services
