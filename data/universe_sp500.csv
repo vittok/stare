@@ -38,7 +38,7 @@ APA,APA,APA Corporation,Energy,Oil & Gas Exploration & Production
 APD,APD,Air Products,Materials,Industrial Gases
 APH,APH,Amphenol,Information Technology,Electronic Components
 APO,APO,Apollo Global Management,Financials,Asset Management & Custody Banks
-APP,APP,AppLovin,Information Technology,Application Software
+APP,APP,AppLovin,Communication Services,Advertising
 APTV,APTV,Aptiv,Consumer Discretionary,Automotive Parts & Equipment
 ARE,ARE,Alexandria Real Estate Equities,Real Estate,Office REITs
 ARES,ARES,Ares Management,Financials,Asset Management & Custody Banks
@@ -128,7 +128,7 @@ CVX,CVX,Chevron Corporation,Energy,Integrated Oil & Gas
 D,D,Dominion Energy,Utilities,Multi-Utilities
 DAL,DAL,Delta Air Lines,Industrials,Passenger Airlines
 DASH,DASH,DoorDash,Consumer Discretionary,Specialized Consumer Services
-DD,DD,DuPont,Materials,Specialty Chemicals
+DD,DD,DuPont,Industrials,Industrial Conglomerates
 DDOG,DDOG,Datadog,Information Technology,Application Software
 DE,DE,Deere & Company,Industrials,Agricultural & Farm Machinery
 DECK,DECK,Deckers Brands,Consumer Discretionary,Footwear
