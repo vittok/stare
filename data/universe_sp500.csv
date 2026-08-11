@@ -319,7 +319,7 @@ MRNA,MRNA,Moderna,Health Care,Biotechnology
 MRSH,MRSH,Marsh McLennan,Financials,Insurance Brokers
 MRVL,MRVL,Marvell Technology,Information Technology,Semiconductors
 MS,MS,Morgan Stanley,Financials,Investment Banking & Brokerage
-MSCI,MSCI,MSCI Inc.,Financials,Financial Exchanges & Data
+MSCI,MSCI,MSCI,Financials,Financial Exchanges & Data
 MSFT,MSFT,Microsoft,Information Technology,Systems Software
 MSI,MSI,Motorola Solutions,Information Technology,Communications Equipment
 MTB,MTB,M&T Bank,Financials,Regional Banks
@@ -351,7 +351,7 @@ OKE,OKE,Oneok,Energy,Oil & Gas Storage & Transportation
 OMC,OMC,Omnicom Group,Communication Services,Advertising
 ON,ON,ON Semiconductor,Information Technology,Semiconductors
 ORCL,ORCL,Oracle Corporation,Information Technology,Application Software
-ORLY,ORLY,O’Reilly Automotive,Consumer Discretionary,Automotive Retail
+ORLY,ORLY,O'Reilly Automotive,Consumer Discretionary,Automotive Retail
 OTIS,OTIS,Otis Worldwide,Industrials,Industrial Machinery & Supplies & Components
 OXY,OXY,Occidental Petroleum,Energy,Oil & Gas Exploration & Production
 PANW,PANW,Palo Alto Networks,Information Technology,Systems Software
@@ -391,7 +391,7 @@ REGN,REGN,Regeneron Pharmaceuticals,Health Care,Biotechnology
 RF,RF,Regions Financial Corporation,Financials,Regional Banks
 RJF,RJF,Raymond James Financial,Financials,Investment Banking & Brokerage
 RL,RL,Ralph Lauren Corporation,Consumer Discretionary,"Apparel, Accessories & Luxury Goods"
-RMD,RMD,ResMed,Health Care,Health Care Equipment
+RMD,RMD,ResMed|,Health Care,Health Care Equipment
 ROK,ROK,Rockwell Automation,Industrials,Electrical Components & Equipment
 ROL,ROL,"Rollins, Inc.",Industrials,Environmental & Facilities Services
 ROP,ROP,Roper Technologies,Information Technology,Electronic Equipment & Instruments
