@@ -43,7 +43,6 @@ APTV,APTV,Aptiv,Consumer Discretionary,Automotive Parts & Equipment
 ARE,ARE,Alexandria Real Estate Equities,Real Estate,Office REITs
 ARES,ARES,Ares Management,Financials,Asset Management & Custody Banks
 ATO,ATO,Atmos Energy,Utilities,Gas Utilities
-AVB,AVB,AvalonBay Communities,Real Estate,Multi-Family Residential REITs
 AVGO,AVGO,Broadcom,Information Technology,Semiconductors
 AVY,AVY,Avery Dennison,Materials,Paper & Plastic Packaging Products & Materials
 AWK,AWK,American Water Works,Utilities,Water Utilities
@@ -163,7 +162,6 @@ EME,EME,Emcor,Industrials,Construction & Engineering
 EMR,EMR,Emerson Electric,Industrials,Electrical Components & Equipment
 EOG,EOG,EOG Resources,Energy,Oil & Gas Exploration & Production
 EQIX,EQIX,Equinix,Real Estate,Data Center REITs
-EQR,EQR,Equity Residential,Real Estate,Multi-Family Residential REITs
 EQT,EQT,EQT Corporation,Energy,Oil & Gas Exploration & Production
 ERIE,ERIE,Erie Indemnity,Financials,Insurance Brokers
 ES,ES,Eversource Energy,Utilities,Electric Utilities
@@ -386,6 +384,7 @@ PYPL,PYPL,PayPal,Financials,Transaction & Payment Processing Services
 Q,Q,Qnity Electronics,Information Technology,Semiconductor Materials & Equipment
 QCOM,QCOM,Qualcomm,Information Technology,Semiconductors
 RCL,RCL,Royal Caribbean Group,Consumer Discretionary,"Hotels, Resorts & Cruise Lines"
+RDDT,RDDT,Reddit,Communication Services,
 REG,REG,Regency Centers,Real Estate,Retail REITs
 REGN,REGN,Regeneron Pharmaceuticals,Health Care,Biotechnology
 RF,RF,Regions Financial Corporation,Financials,Regional Banks
@@ -469,6 +468,7 @@ VICI,VICI,Vici Properties,Real Estate,Hotel & Resort REITs
 VLO,VLO,Valero Energy,Energy,Oil & Gas Refining & Marketing
 VLTO,VLTO,Veralto,Industrials,Environmental & Facilities Services
 VMC,VMC,Vulcan Materials Company,Materials,Construction Materials
+VMRK,VMRK,Vivmark Residential,Real Estate,Multi-Family Residential REITs
 VRSK,VRSK,Verisk Analytics,Industrials,Research & Consulting Services
 VRSN,VRSN,Verisign,Information Technology,Internet Services & Infrastructure
 VRT,VRT,Vertiv,Industrials,Electrical Components & Equipment
