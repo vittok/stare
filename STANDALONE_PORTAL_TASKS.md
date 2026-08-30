@@ -30,7 +30,7 @@ Supabase project:
 - [x] Create Google Cloud OAuth client for STARE.
 - [ ] Add authorized JavaScript origins in Google OAuth client:
   - [x] `http://localhost:3000`
-  - [ ] Render UAT portal URL: `https://stare-portal.onrender.com`
+  - [x] Render UAT portal URL: `https://stare-portal.onrender.com`
   - [ ] production custom portal URL when selected
 - [ ] Add authorized redirect URI in Google OAuth client:
   - [x] `https://bprknqcgtezsgfjuztqs.supabase.co/auth/v1/callback`
@@ -38,13 +38,14 @@ Supabase project:
 - [x] Enable Google authentication provider in Supabase.
 - [ ] Configure Supabase Auth redirect URLs:
   - [x] `http://localhost:3000/auth/callback`
-  - [ ] Render UAT callback URL: `https://stare-portal.onrender.com/auth/callback`
+  - [x] Render UAT callback URL: `https://stare-portal.onrender.com/auth/callback`
+  - [x] Confirm Supabase Site URL: `https://stare-portal.onrender.com`
   - [ ] production custom portal callback URL when selected
 - [x] Create database roles and row-level security policy approach: user tables use Supabase Auth RLS; market data is backend-served through FastAPI.
 - [x] Store Supabase URL and publishable key in `.env.example`.
 - [x] Add backend-only `DATABASE_URL` locally in ignored `.env`.
-- [ ] Add backend-only `DATABASE_URL` in deployment secrets.
-- [ ] Add `CORS_ORIGINS=https://stare-portal.onrender.com` to API deployment secrets.
+- [x] Add backend-only `DATABASE_URL` in deployment secrets.
+- [x] Add `CORS_ORIGINS=https://stare-portal.onrender.com` to API deployment secrets.
 - [x] Confirm direct `DATABASE_URL` format. Standard format is `postgresql://postgres:<password>@db.<project-ref>.supabase.co:5432/postgres`; encode special password characters if needed.
 - [x] Replace local/deployment `DATABASE_URL` with Supabase Session Pooler connection string if the host cannot reach the direct IPv6 database endpoint.
 - [ ] Rotate the initial database password before production launch because it was shared during setup.
