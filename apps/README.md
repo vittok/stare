@@ -73,3 +73,17 @@ This imports:
 Preference endpoints currently use an `x-user-id` header as a temporary development bridge until full Supabase JWT validation is wired into FastAPI.
 
 See `../PORTAL_DEPLOYMENT.md` for production domain, OAuth callback, Session Pooler, and secret-rotation notes.
+
+## Render UAT
+
+The repository includes `../render.yaml` for Render Blueprint deployment:
+
+- `stare-api` runs FastAPI from `apps/api`.
+- `stare-portal` runs Next.js from `apps/web`.
+
+Set these environment variables in Render:
+
+- `stare-api`: `DATABASE_URL`, `CORS_ORIGINS`
+- `stare-portal`: `FASTAPI_URL`, `NEXT_PUBLIC_APP_URL`
+
+`NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` are included in the blueprint because they are browser-safe project configuration.

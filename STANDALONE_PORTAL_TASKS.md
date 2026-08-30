@@ -19,6 +19,7 @@ Supabase project:
 - [x] Confirm database: Supabase Postgres.
 - [x] Define production domain and DNS plan: start with hosted UAT URL, then attach a custom `stare.<domain>` CNAME after acceptance.
 - [ ] Select the final custom production domain.
+- [x] Defer domain purchase until Render UAT is accepted.
 - [x] Decide whether GitHub Pages remains as a public demo or is retired: keep GitHub Pages as public demo/fallback.
 
 ## Phase 2 - Supabase Setup
@@ -41,11 +42,13 @@ Supabase project:
 - [x] Store Supabase URL and publishable key in `.env.example`.
 - [x] Add backend-only `DATABASE_URL` locally in ignored `.env`.
 - [ ] Add backend-only `DATABASE_URL` in deployment secrets.
+- [ ] Add `CORS_ORIGINS` to API deployment secrets after Render portal URL is known.
 - [x] Confirm direct `DATABASE_URL` format. Standard format is `postgresql://postgres:<password>@db.<project-ref>.supabase.co:5432/postgres`; encode special password characters if needed.
 - [x] Replace local/deployment `DATABASE_URL` with Supabase Session Pooler connection string if the host cannot reach the direct IPv6 database endpoint.
 - [ ] Rotate the initial database password before production launch because it was shared during setup.
 - [ ] Rotate the Google OAuth client secret before production launch because it was shared during setup.
 - [x] Document standalone deployment, auth, DNS, and secret handling in `PORTAL_DEPLOYMENT.md`.
+- [x] Add Render blueprint for UAT services in `render.yaml`.
 
 ## Phase 3 - Database Schema
 
@@ -103,6 +106,11 @@ Supabase project:
 
 ## Phase 7 - Scheduled Updates
 
+- [ ] Create Render Blueprint from `render.yaml`.
+- [ ] Deploy `stare-api` UAT service.
+- [ ] Deploy `stare-portal` UAT service.
+- [ ] Add Render UAT portal URL to Google OAuth authorized origins.
+- [ ] Add Render UAT callback URL to Supabase Auth redirect URLs.
 - [ ] Create Render scheduled job for market open refresh.
 - [ ] Create Render scheduled job for market close refresh.
 - [ ] Move SMTP notification into the standalone job flow.

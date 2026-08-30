@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: stare-api
+    runtime: python
+    rootDir: apps/api
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+
+  - type: web
+    name: stare-portal
+    runtime: node
+    rootDir: apps/web
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm run start -- -H 0.0.0.0 -p $PORT
+    envVars:
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        value: https://bprknqcgtezsgfjuztqs.supabase.co
+      - key: NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+        value: sb_publishable_7DuSM4ZLMMX9rLnBva0LfA_yDRi4eE7
+      - key: NEXT_PUBLIC_APP_URL
+        sync: false
+      - key: FASTAPI_URL
+        sync: false

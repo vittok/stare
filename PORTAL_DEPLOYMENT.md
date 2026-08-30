@@ -22,6 +22,34 @@ After the production URL is known, update:
 - Render environment variables
 - Any user-facing links in documentation or notification templates
 
+## Render UAT Deployment
+
+The repository includes a Render blueprint in `render.yaml` with two free-tier services:
+
+- `stare-api` - FastAPI backend from `apps/api`
+- `stare-portal` - Next.js frontend from `apps/web`
+
+Create the first UAT deployment from Render's dashboard:
+
+1. Connect Render to the `vittok/stare` GitHub repository.
+2. Create a new Blueprint from `render.yaml`.
+3. Add the backend-only `DATABASE_URL` secret to `stare-api`.
+4. Deploy `stare-api` first and copy its generated HTTPS URL.
+5. Set `FASTAPI_URL` on `stare-portal` to the generated API URL.
+6. Deploy `stare-portal` and copy its generated HTTPS URL.
+7. Set `NEXT_PUBLIC_APP_URL` on `stare-portal` to the generated portal URL.
+8. Set `CORS_ORIGINS` on `stare-api` to the generated portal URL.
+9. Redeploy both services after environment variables are finalized.
+
+Render UAT URLs will look similar to:
+
+```text
+https://stare-api.onrender.com
+https://stare-portal.onrender.com
+```
+
+Use the actual generated URLs from Render; they may include suffixes.
+
 ## Supabase Auth Configuration
 
 Already configured for local development:
@@ -35,9 +63,11 @@ Already configured for local development:
 Add after hosting URL is selected:
 
 - Google OAuth authorized JavaScript origin:
-  - `https://<production-portal-host>`
+  - `https://<render-portal-host>`
 - Supabase Auth redirect URL:
-  - `https://<production-portal-host>/auth/callback`
+  - `https://<render-portal-host>/auth/callback`
+
+When a final custom domain is attached later, add that custom origin and callback too.
 
 ## Supabase Database Access
 
@@ -73,6 +103,7 @@ Market snapshot tables are currently accessed through FastAPI rather than direct
 For the FastAPI service:
 
 - `DATABASE_URL`
+- `CORS_ORIGINS`
 
 For the Next.js frontend:
 
