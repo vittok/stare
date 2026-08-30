@@ -103,37 +103,37 @@ export async function getLatestReport(): Promise<LatestReport | null> {
 }
 
 export async function getUserPreferences(
-  userId: string | undefined
+  accessToken: string | undefined
 ): Promise<UserPreferences> {
-  if (!userId) {
+  if (!accessToken) {
     return defaultPreferences;
   }
 
   const apiUrl = getApiUrl();
   if (!apiUrl) {
-    return { ...defaultPreferences, user_id: userId };
+    return defaultPreferences;
   }
 
   try {
     const response = await fetch(`${apiUrl}/api/me/preferences`, {
       cache: "no-store",
       headers: {
-        "x-user-id": userId
+        authorization: `Bearer ${accessToken}`
       }
     });
 
     if (!response.ok) {
-      return { ...defaultPreferences, user_id: userId };
+      return defaultPreferences;
     }
 
     return response.json();
   } catch {
-    return { ...defaultPreferences, user_id: userId };
+    return defaultPreferences;
   }
 }
 
 export async function putUserPreferences(
-  userId: string,
+  accessToken: string,
   preferences: UserPreferences
 ): Promise<UserPreferences> {
   const apiUrl = getApiUrl();
@@ -145,7 +145,7 @@ export async function putUserPreferences(
     method: "PUT",
     headers: {
       "content-type": "application/json",
-      "x-user-id": userId
+      authorization: `Bearer ${accessToken}`
     },
     body: JSON.stringify(preferences)
   });

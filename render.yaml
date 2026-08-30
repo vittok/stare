@@ -12,6 +12,10 @@ services:
         sync: false
       - key: CORS_ORIGINS
         sync: false
+      - key: SUPABASE_URL
+        value: https://bprknqcgtezsgfjuztqs.supabase.co
+      - key: SUPABASE_PUBLISHABLE_KEY
+        value: sb_publishable_7DuSM4ZLMMX9rLnBva0LfA_yDRi4eE7
 
   - type: web
     name: stare-portal

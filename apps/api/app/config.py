@@ -7,6 +7,8 @@ class Settings(BaseSettings):
     database_url: str | None = None
     app_name: str = "S.T.A.R.E API"
     cors_origins: str = "http://localhost:3000"
+    supabase_url: str | None = None
+    supabase_publishable_key: str | None = None
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 

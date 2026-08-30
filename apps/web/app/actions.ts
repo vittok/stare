@@ -15,14 +15,17 @@ export async function savePreferences(
   const {
     data: { user }
   } = await supabase.auth.getUser();
+  const {
+    data: { session }
+  } = await supabase.auth.getSession();
 
-  if (!user) {
+  if (!user || !session) {
     return { ok: false, error: "Sign in to save preferences." };
   }
 
   try {
-    const current = await getUserPreferences(user.id);
-    const saved = await putUserPreferences(user.id, {
+    const current = await getUserPreferences(session.access_token);
+    const saved = await putUserPreferences(session.access_token, {
       ...current,
       ...preferences,
       user_id: user.id,

@@ -8,8 +8,11 @@ export default async function Home() {
   const {
     data: { user }
   } = await supabase.auth.getUser();
+  const {
+    data: { session }
+  } = await supabase.auth.getSession();
   const latestReport = await getLatestReport();
-  const preferences = await getUserPreferences(user?.id);
+  const preferences = await getUserPreferences(session?.access_token);
 
   return (
     <main className="page">

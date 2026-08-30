@@ -28,15 +28,15 @@ Supabase project:
 - [x] Select Supabase free tier for initial build.
 - [x] Create Supabase project: STARE.
 - [x] Create Google Cloud OAuth client for STARE.
-- [ ] Add authorized JavaScript origins in Google OAuth client:
+- [x] Add authorized JavaScript origins in Google OAuth client:
   - [x] `http://localhost:3000`
   - [x] Render UAT portal URL: `https://stare-portal.onrender.com`
   - [ ] production custom portal URL when selected
-- [ ] Add authorized redirect URI in Google OAuth client:
+- [x] Add authorized redirect URI in Google OAuth client:
   - [x] `https://bprknqcgtezsgfjuztqs.supabase.co/auth/v1/callback`
 - [x] Copy Google OAuth Client ID and Client Secret into Supabase Auth provider settings.
 - [x] Enable Google authentication provider in Supabase.
-- [ ] Configure Supabase Auth redirect URLs:
+- [x] Configure Supabase Auth redirect URLs:
   - [x] `http://localhost:3000/auth/callback`
   - [x] Render UAT callback URL: `https://stare-portal.onrender.com/auth/callback`
   - [x] Confirm Supabase Site URL: `https://stare-portal.onrender.com`
@@ -91,12 +91,13 @@ Supabase project:
 - [x] Add first user preference read/write endpoints.
 - [x] Implement Google login/logout shell.
 - [x] Add local Supabase auth callback route.
-- [ ] Add authenticated route protection.
-- [ ] Rebuild current dashboard views from database queries.
-- [ ] Add default overview: All Regions, NA, NA/Sectors, LAC, EMEA, APAC.
+- [x] Protect personalized API operations with validated Supabase access tokens;
+  keep the market dashboard publicly readable during UAT.
+- [x] Rebuild the first dashboard views from database queries.
+- [x] Add region overview and filtering from the database-backed report.
 - [ ] Add saved user preferences for theme, default region, default sector, and visible columns.
-- [ ] Add watchlist support.
-- [ ] Add responsive layout matching current minimal sharp-corner design.
+- [x] Add saved watchlist support.
+- [x] Add responsive layout matching current minimal sharp-corner design.
 
 ## Phase 6 - Historical Views
 
@@ -112,8 +113,9 @@ Supabase project:
 - [x] Create Render Blueprint from `render.yaml`.
 - [x] Deploy `stare-api` UAT service: `https://stare-api.onrender.com`.
 - [x] Deploy `stare-portal` UAT service: `https://stare-portal.onrender.com`.
-- [ ] Add Render UAT portal URL to Google OAuth authorized origins.
-- [ ] Add Render UAT callback URL to Supabase Auth redirect URLs.
+- [x] Add Render UAT portal URL to Google OAuth authorized origins.
+- [x] Add Render UAT callback URL to Supabase Auth redirect URLs.
+- [x] Import each GitHub-scheduled UAT update into Supabase as a temporary bridge.
 - [ ] Create Render scheduled job for market open refresh.
 - [ ] Create Render scheduled job for market close refresh.
 - [ ] Move SMTP notification into the standalone job flow.
@@ -123,9 +125,9 @@ Supabase project:
 
 ## Phase 8 - Security and Operations
 
-- [ ] Store all secrets in Render/Supabase secret managers.
-- [ ] Ensure service-role Supabase key is never exposed to the browser.
-- [ ] Enable row-level security for user preference tables.
+- [x] Store current deployment secrets in Render, Supabase, or GitHub secret managers.
+- [x] Ensure service-role Supabase key is never exposed to the browser.
+- [x] Enable row-level security for user preference and market snapshot tables.
 - [ ] Add basic request logging.
 - [ ] Add database backup/export plan.
 - [ ] Add monitoring for update duration and data freshness.
@@ -135,9 +137,9 @@ Supabase project:
 
 - [ ] Import recent historical JSON/CSV artifacts into Supabase.
 - [ ] Validate database values against current static HTML output.
-- [ ] Run standalone portal in parallel with GitHub Pages.
-- [ ] Test Google login with at least one real user account.
-- [ ] Test saved preferences across browser sessions.
+- [x] Run standalone portal in parallel with GitHub Pages.
+- [x] Test Google login with at least one real user account.
+- [x] Test saved preferences across browser sessions.
 - [ ] Test scheduled update writes and historical charts.
 - [ ] Switch public URL to standalone app.
 - [x] Keep GitHub Pages static app as fallback until standalone portal is stable.

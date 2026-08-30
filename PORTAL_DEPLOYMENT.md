@@ -44,7 +44,9 @@ Create the first UAT deployment from Render's dashboard:
 6. Deploy `stare-portal` and copy its generated HTTPS URL.
 7. Set `NEXT_PUBLIC_APP_URL` on `stare-portal` to `https://stare-portal.onrender.com`.
 8. Set `CORS_ORIGINS` on `stare-api` to `https://stare-portal.onrender.com`.
-9. Redeploy both services after environment variables are finalized.
+9. Set `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` on `stare-api` so it can
+   validate user access tokens.
+10. Redeploy both services after environment variables are finalized.
 
 Render UAT URLs will look similar to:
 
@@ -96,6 +98,10 @@ Never expose it to the browser or commit it to the repository.
 Current approach:
 
 - Next.js uses Supabase Auth for Google sign-in.
+- Next.js forwards the signed Supabase access token only from server-side code
+  when reading or saving preferences.
+- FastAPI validates the token with Supabase Auth and derives the user ID from
+  the validated response; it does not trust a caller-provided user ID.
 - FastAPI reads market data from Postgres through backend-only credentials.
 - Browser code never receives `DATABASE_URL` or service-role credentials.
 - `user_profiles` and `user_preferences` have Row Level Security enabled.
@@ -109,6 +115,8 @@ For the FastAPI service:
 
 - `DATABASE_URL`
 - `CORS_ORIGINS`
+- `SUPABASE_URL`
+- `SUPABASE_PUBLISHABLE_KEY`
 
 For the Next.js frontend:
 
@@ -121,6 +129,11 @@ Future backend-only secrets may include:
 
 - `SUPABASE_SERVICE_ROLE_KEY`
 - SMTP credentials if notifications move from GitHub Actions to the standalone update job
+
+During UAT, the existing GitHub market refresh also imports each completed
+report into Supabase when the repository secret `DATABASE_URL` is configured.
+This keeps the portal current until the refresh is moved to a standalone
+scheduled service.
 
 ## Secret Rotation Before Production
 

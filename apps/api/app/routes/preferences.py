@@ -1,11 +1,12 @@
 import json
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Header, HTTPException
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
+from ..auth import require_user_id
 from ..db import get_db
 
 router = APIRouter(prefix="/api/me", tags=["preferences"])
@@ -21,19 +22,9 @@ class PreferencesPayload(BaseModel):
     notification_settings: dict = Field(default_factory=dict)
 
 
-def _require_user_id(x_user_id: str | None = Header(default=None)) -> UUID:
-    if not x_user_id:
-        raise HTTPException(status_code=401, detail="Missing x-user-id header")
-
-    try:
-        return UUID(x_user_id)
-    except ValueError as exc:
-        raise HTTPException(status_code=400, detail="x-user-id must be a UUID") from exc
-
-
 @router.get("/preferences")
 def get_preferences(
-    user_id: UUID = Depends(_require_user_id),
+    user_id: UUID = Depends(require_user_id),
     db: Session = Depends(get_db),
 ) -> dict:
     row = db.execute(
@@ -59,7 +50,7 @@ def get_preferences(
 @router.put("/preferences")
 def update_preferences(
     payload: PreferencesPayload,
-    user_id: UUID = Depends(_require_user_id),
+    user_id: UUID = Depends(require_user_id),
     db: Session = Depends(get_db),
 ) -> dict:
     row = db.execute(
