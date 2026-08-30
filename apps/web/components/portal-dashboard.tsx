@@ -95,6 +95,9 @@ export function PortalDashboard({ report, preferences, signedIn }: Props) {
   const [columnMenuOpen, setColumnMenuOpen] = useState(false);
   const [status, setStatus] = useState("");
   const [popover, setPopover] = useState<Popover>(null);
+  const [currentReport, setCurrentReport] = useState(report);
+  const [reportMessage, setReportMessage] = useState("Connecting to the market data service...");
+  const [reportRetry, setReportRetry] = useState(0);
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
@@ -107,10 +110,40 @@ export function PortalDashboard({ report, preferences, signedIn }: Props) {
     const close = (event: KeyboardEvent) => event.key === "Escape" && setPopover(null);
     document.addEventListener("keydown", close); return () => document.removeEventListener("keydown", close);
   }, []);
+  useEffect(() => {
+    if (currentReport?.update) return;
 
-  const allStocks = report?.top_stocks || [];
-  const regions = report?.regions || [];
-  const sectors = report?.sectors || [];
+    let cancelled = false;
+    let retryTimer: ReturnType<typeof setTimeout> | undefined;
+    let attempt = 0;
+
+    async function loadReport() {
+      attempt += 1;
+      setReportMessage(attempt === 1
+        ? "Connecting to the market data service..."
+        : "The data service is waking up. This can take about a minute on the free hosting tier.");
+
+      try {
+        const response = await fetch("/api/report", { cache: "no-store" });
+        if (!response.ok) throw new Error(`Report request returned ${response.status}.`);
+        const nextReport = await response.json() as LatestReport;
+        if (!nextReport.update) throw new Error("Report response has no completed update.");
+        if (!cancelled) setCurrentReport(nextReport);
+      } catch {
+        if (!cancelled) retryTimer = setTimeout(loadReport, 5_000);
+      }
+    }
+
+    void loadReport();
+    return () => {
+      cancelled = true;
+      if (retryTimer) clearTimeout(retryTimer);
+    };
+  }, [currentReport?.update, reportRetry]);
+
+  const allStocks = currentReport?.top_stocks || [];
+  const regions = currentReport?.regions || [];
+  const sectors = currentReport?.sectors || [];
   const regionalTopRows = useMemo(() => {
     const rows: StockSnapshot[] = [];
     for (const region of ["NA", "LAC", "EMEA", "APAC"]) {
@@ -184,7 +217,7 @@ export function PortalDashboard({ report, preferences, signedIn }: Props) {
   function sortBy(key: string) { if (sortKey === key) setSortDirection((current) => current === "asc" ? "desc" : "asc"); else { setSortKey(key); setSortDirection("asc"); } }
   function resetOverview() { setRegionMode("Sectors"); setDirection("All"); setSelectedGroup(null); setSelectedMarket(null); setSearch(""); persist({ default_region: "Sectors", default_sector: null, default_market: null }); }
 
-  if (!report?.update) return <section className="empty-state"><h1>Report data is not available yet</h1><p>The portal is connected, but no completed market update has been returned.</p></section>;
+  if (!currentReport?.update) return <section className="empty-state report-loading" aria-live="polite"><p className="eyebrow">Market data</p><h1>Loading the latest report</h1><p>{reportMessage}</p><button className="button secondary" onClick={() => setReportRetry((value) => value + 1)} type="button">Retry now</button></section>;
 
   return <div className="portal-layout" onClick={() => popover?.pinned && setPopover(null)}>
     <aside className="sidebar" onClick={(event) => event.stopPropagation()}>
@@ -204,7 +237,7 @@ export function PortalDashboard({ report, preferences, signedIn }: Props) {
       <section className="section-block picks-section"><div className="section-heading"><div><p className="eyebrow">Last trading day</p><h2>Top Active Stocks <ExplainButton className="help-button" label="?" title="Top Active Stocks" content={HELP.topPicks} onShow={showPopover} onHide={hidePopover} onPin={pinPopover} /></h2></div><span>{topPicks.length} picks</span></div><div className="picks-grid">{topPicks.map((stock) => <article className="stock-card" key={`pick-${stock.region}-${stock.market}-${stock.ticker}`}><div className="stock-card-top"><div><strong>{stock.ticker}</strong><span>{stockName(stock)}</span></div><b className={classFor(stock.action)}>{formatPercent(stock.weekly_return)}</b></div><div className="stock-card-price">{formatPrice(stock, stock.current_price)}</div><div className="stock-card-metrics"><span>Signal <b className={classFor(stock.action)}>{stock.action || "Hold"}</b></span><span>Valuation <b>{stock.decision_snapshot?.valuation?.label || "n/a"}</b></span><span>Risk <b>{stock.decision_snapshot?.risk?.label || "n/a"}</b></span></div></article>)}</div></section></div>
       <section className="section-block table-section"><div className="section-heading table-heading"><div><p className="eyebrow">Complete snapshot</p><h2>{displayedRows.length} stocks</h2></div><div className="table-tools"><span className="save-status">{isPending ? "Saving..." : status}</span><button aria-pressed={watchlistOnly} className={watchlistOnly ? "button secondary active" : "button secondary"} onClick={() => setWatchlistOnly((active) => !active)} type="button">Watchlist ({watchlist.length})</button><div className="column-menu-wrap"><button className="button secondary" onClick={() => setColumnMenuOpen((open) => !open)} type="button">Columns</button>{columnMenuOpen ? <div className="column-menu">{DEFAULT_COLUMNS.map((column) => <label key={column}><input checked={visibleColumns.includes(column)} onChange={() => toggleColumn(column)} type="checkbox" /> {COLUMNS[column]}</label>)}</div> : null}</div></div></div>
       <div className="table-wrap"><table><thead><tr>{DEFAULT_COLUMNS.filter((column) => visibleColumns.includes(column)).map((column) => <th className={NUMERIC_COLUMNS.has(column) ? "num" : ""} key={column}>{!["watch", "decision"].includes(column) ? <button className="sort-button" onClick={() => sortBy(column)} type="button">{COLUMNS[column]} <span aria-hidden="true">{sortKey === column ? sortDirection === "asc" ? "↑" : "↓" : "↕"}</span></button> : COLUMNS[column]}</th>)}</tr></thead><tbody>{displayedRows.map((stock) => <StockRow key={`${stock.region}-${stock.market}-${stock.sector}-${stock.ticker}`} stock={stock} columns={visibleColumns} watched={watchlist.includes(stock.ticker)} onWatch={toggleWatchlist} onShow={showPopover} onHide={hidePopover} onPin={pinPopover} />)}</tbody></table></div></section>
-      <footer className="data-footer"><span>Updated {formatTimestamp(report.update.completed_at)} · Market data {report.update.latest_price_date || report.update.market_data_date || "n/a"}</span><span>Source: Yahoo Finance market and fundamental data. Signals are deterministic research outputs and may be incomplete or delayed.</span><span>Created by vittok. GitHub Pages remains available as the static fallback.</span></footer>
+      <footer className="data-footer"><span>Updated {formatTimestamp(currentReport.update.completed_at)} · Market data {currentReport.update.latest_price_date || currentReport.update.market_data_date || "n/a"}</span><span>Source: Yahoo Finance market and fundamental data. Signals are deterministic research outputs and may be incomplete or delayed.</span><span>Created by vittok. GitHub Pages remains available as the static fallback.</span></footer>
     </div>
     {popover ? <aside className="summary-popover" onClick={(event) => event.stopPropagation()}><div><strong>{popover.title}</strong><button aria-label="Close explanation" onClick={() => setPopover(null)} type="button">×</button></div><p>{popover.content}</p></aside> : null}
   </div>;

@@ -307,6 +307,9 @@ tbody tr:hover { background: var(--surface-2); }
 .summary-popover button { background: transparent; border: 0; color: var(--ink); cursor: pointer; font-size: 22px; line-height: 1; padding: 0; }
 .summary-popover p { color: var(--muted); font-size: 13px; line-height: 1.65; margin: 12px 0 0; }
 .empty-state { margin: 70px auto; max-width: 720px; padding: 30px; }
+.report-loading { border-left: 3px solid var(--blue); }
+.report-loading h1 { font-size: 36px; margin: 0 0 14px; }
+.report-loading > p:not(.eyebrow) { color: var(--muted); line-height: 1.6; margin: 0 0 22px; }
 
 @media (max-width: 1200px) {
   :root { --sidebar-width: 244px; }

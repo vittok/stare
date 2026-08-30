@@ -138,6 +138,8 @@ const defaultPreferences: UserPreferences = {
   notification_settings: {}
 };
 
+const REPORT_REQUEST_TIMEOUT_MS = 8_000;
+
 function getApiUrl() {
   const apiUrl = process.env.FASTAPI_URL;
   if (!apiUrl) {
@@ -155,15 +157,18 @@ export async function getLatestReport(): Promise<LatestReport | null> {
 
   try {
     const response = await fetch(`${apiUrl}/api/latest-report`, {
-      cache: "no-store"
+      cache: "no-store",
+      signal: AbortSignal.timeout(REPORT_REQUEST_TIMEOUT_MS)
     });
 
     if (!response.ok) {
+      console.error(`Latest report request returned ${response.status}.`);
       return null;
     }
 
     return response.json();
-  } catch {
+  } catch (error) {
+    console.error("Latest report request failed.", error);
     return null;
   }
 }
