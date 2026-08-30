@@ -81,9 +81,14 @@ The repository includes `../render.yaml` for Render Blueprint deployment:
 - `stare-api` runs FastAPI from `apps/api`.
 - `stare-portal` runs Next.js from `apps/web`.
 
+Current UAT URLs:
+
+- API: `https://stare-api.onrender.com`
+- Portal: `https://stare-portal.onrender.com`
+
 Set these environment variables in Render:
 
-- `stare-api`: `DATABASE_URL`, `CORS_ORIGINS`
-- `stare-portal`: `FASTAPI_URL`, `NEXT_PUBLIC_APP_URL`
+- `stare-api`: `DATABASE_URL`, `CORS_ORIGINS=https://stare-portal.onrender.com`
+- `stare-portal`: `FASTAPI_URL=https://stare-api.onrender.com`, `NEXT_PUBLIC_APP_URL=https://stare-portal.onrender.com`
 
 `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` are included in the blueprint because they are browser-safe project configuration.

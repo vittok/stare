@@ -29,16 +29,21 @@ The repository includes a Render blueprint in `render.yaml` with two free-tier s
 - `stare-api` - FastAPI backend from `apps/api`
 - `stare-portal` - Next.js frontend from `apps/web`
 
+Current UAT services:
+
+- API: `https://stare-api.onrender.com`
+- Portal: `https://stare-portal.onrender.com`
+
 Create the first UAT deployment from Render's dashboard:
 
 1. Connect Render to the `vittok/stare` GitHub repository.
 2. Create a new Blueprint from `render.yaml`.
 3. Add the backend-only `DATABASE_URL` secret to `stare-api`.
 4. Deploy `stare-api` first and copy its generated HTTPS URL.
-5. Set `FASTAPI_URL` on `stare-portal` to the generated API URL.
+5. Set `FASTAPI_URL` on `stare-portal` to `https://stare-api.onrender.com`.
 6. Deploy `stare-portal` and copy its generated HTTPS URL.
-7. Set `NEXT_PUBLIC_APP_URL` on `stare-portal` to the generated portal URL.
-8. Set `CORS_ORIGINS` on `stare-api` to the generated portal URL.
+7. Set `NEXT_PUBLIC_APP_URL` on `stare-portal` to `https://stare-portal.onrender.com`.
+8. Set `CORS_ORIGINS` on `stare-api` to `https://stare-portal.onrender.com`.
 9. Redeploy both services after environment variables are finalized.
 
 Render UAT URLs will look similar to:
@@ -63,9 +68,9 @@ Already configured for local development:
 Add after hosting URL is selected:
 
 - Google OAuth authorized JavaScript origin:
-  - `https://<render-portal-host>`
+  - `https://stare-portal.onrender.com`
 - Supabase Auth redirect URL:
-  - `https://<render-portal-host>/auth/callback`
+  - `https://stare-portal.onrender.com/auth/callback`
 
 When a final custom domain is attached later, add that custom origin and callback too.
 

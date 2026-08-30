@@ -24,3 +24,8 @@ app.include_router(preferences_router)
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
+
+
+@app.get("/")
+def root() -> dict[str, str]:
+    return {"service": settings.app_name, "status": "ok"}
