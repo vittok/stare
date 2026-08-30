@@ -2,6 +2,8 @@ __pycache__/
 *.pyc
 .venv/
 .python_deps/
+node_modules/
+.next/
 .vscode/
 .idea/
 .env
