@@ -93,9 +93,13 @@ Supabase project:
 - [x] Add local Supabase auth callback route.
 - [x] Protect personalized API operations with validated Supabase access tokens;
   keep the market dashboard publicly readable during UAT.
-- [x] Rebuild the first dashboard views from database queries.
-- [x] Add region overview and filtering from the database-backed report.
-- [ ] Add saved user preferences for theme, default region, default sector, and visible columns.
+- [x] Rebuild the complete static dashboard experience from database queries.
+- [x] Add All Regions, NA, NA/Sectors, LAC, EMEA, and APAC navigation.
+- [x] Add direction, search, sector, country/market, and watchlist filters.
+- [x] Add heatmap, strength chart, KPIs, top picks, sortable stock table,
+  fundamentals, decision snapshots, explanations, print, and update metadata.
+- [x] Add saved user preferences for theme, default region, default sector,
+  default market, visible columns, and watchlist.
 - [x] Add saved watchlist support.
 - [x] Add responsive layout matching current minimal sharp-corner design.
 
@@ -136,7 +140,7 @@ Supabase project:
 ## Phase 9 - Migration and Cutover
 
 - [ ] Import recent historical JSON/CSV artifacts into Supabase.
-- [ ] Validate database values against current static HTML output.
+- [x] Validate latest database values and row coverage against the static HTML output.
 - [x] Run standalone portal in parallel with GitHub Pages.
 - [x] Test Google login with at least one real user account.
 - [x] Test saved preferences across browser sessions.
@@ -146,7 +150,7 @@ Supabase project:
 
 ## Open Questions
 
-- [ ] Should unauthenticated users see a public read-only dashboard?
+- [x] Keep the dashboard publicly readable during UAT; require sign-in for saved personalization.
 - [ ] Should users be able to create custom watchlists only, or also custom scoring weights?
 - [ ] Should historical data be stored for every tracked ticker or only displayed top picks?
 - [ ] How long should daily snapshots be retained?

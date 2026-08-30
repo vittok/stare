@@ -52,7 +52,9 @@ During publishing, the embedded data is sanitized into strict browser-safe JSON.
 
 ## Standalone Portal
 
-The standalone portal is being built alongside the static app. It is intended to become the authenticated product experience while GitHub Pages remains a public demo.
+The standalone portal runs alongside the static app and now reproduces its
+complete current dashboard experience. GitHub Pages remains published as the
+public demo and fallback during UAT.
 
 Current standalone stack:
 
@@ -81,6 +83,12 @@ PYTHONPATH=.python_deps:src python src/export_reports_to_postgres.py --run-label
 ```
 
 The local backend uses Supabase's Session Pooler connection string through `DATABASE_URL`. Keep that value in `.env` or deployment secrets only; do not commit it.
+
+The portal includes All Regions, NA, NA/Sectors, LAC, EMEA, and APAC views;
+country/market and sector navigation; direction and text filters; KPIs;
+heatmap and strength comparisons; top active picks; sortable price, activity,
+fundamental, recommendation, and decision data; company explanations; theme;
+print; watchlists; visible-column preferences; and exact update/source context.
 
 Local portal setup is documented in `apps/README.md`. Production auth, DNS, deployment secrets, and secret rotation notes are tracked in `PORTAL_DEPLOYMENT.md`. The project task tracker is `STANDALONE_PORTAL_TASKS.md`.
 
@@ -474,15 +482,22 @@ Current status:
 - The local `DATABASE_URL` uses the Supabase Session Pooler because the direct DB host can require IPv6.
 - Existing report artifacts have been imported into Supabase.
 - A later import verified `stock_recommendations` has one recommendation row for each imported stock snapshot.
-- The FastAPI latest-report path reads the latest update, region snapshots, sector snapshots, top stocks, and recommendation fields.
+- The FastAPI latest-report path returns the complete current snapshot and
+  derives NA region direction from S&P 500 sector snapshots using the same
+  calculation as the static publisher.
+- The Next.js portal has current static-app feature parity plus authenticated
+  watchlist, theme, filter, and visible-column personalization.
 
-Planned standalone operations:
+Current standalone operations:
 
-- Host `apps/web` as the Next.js frontend.
-- Host `apps/api` as the FastAPI backend.
+- Host `apps/web` as the Next.js frontend on Render.
+- Host `apps/api` as the FastAPI backend on Render.
 - Store `DATABASE_URL` and future service secrets in deployment secrets.
-- Move scheduled market open and market close updates into a standalone scheduled job.
+- Import each GitHub-scheduled market update into Supabase during UAT.
 - Keep GitHub Pages available as the public demo/fallback while the portal matures.
+
+The remaining operational migration is moving market-open and market-close
+execution from the temporary GitHub bridge into a standalone scheduled job.
 
 Important security notes:
 

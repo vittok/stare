@@ -2,6 +2,7 @@ import { AuthButton } from "../components/auth-button";
 import { PortalDashboard } from "../components/portal-dashboard";
 import { getLatestReport, getUserPreferences } from "../lib/portal-api";
 import { createClient } from "../lib/supabase/server";
+import Image from "next/image";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -17,16 +18,16 @@ export default async function Home() {
   return (
     <main className="page">
       <header className="topbar">
-        <div className="shell topbar-inner">
+        <div className="topbar-inner">
           <div className="brand">
-            <div className="brand-mark">S.T.</div>
-            <span>Sector & Stock Trend Analysis Engine</span>
+            <Image alt="S.T.A.R.E logo" className="brand-logo" height={52} priority src="/Logo.png" width={52} />
+            <span>Sector & Stock Trend Analysis Engine <b>(S.T.A.R.E)</b></span>
           </div>
           <AuthButton signedIn={Boolean(user)} />
         </div>
       </header>
 
-      <div className="shell app-shell">
+      <div className="app-shell">
         <PortalDashboard
           preferences={preferences}
           report={latestReport}
@@ -34,12 +35,6 @@ export default async function Home() {
         />
       </div>
 
-      <footer className="footer">
-        <div className="shell">
-          Created by vittok. GitHub Pages remains the demo until this portal is
-          production-ready.
-        </div>
-      </footer>
     </main>
   );
 }

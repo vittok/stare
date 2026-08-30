@@ -1,8 +1,8 @@
 # S.T.A.R.E Standalone Portal
 
-This folder contains the first standalone portal scaffold for S.T.A.R.E.
+This folder contains the standalone S.T.A.R.E portal.
 
-- `web/` is the Next.js frontend for Google sign-in, personalization, and the future dashboard.
+- `web/` is the Next.js frontend for the market dashboard, Google sign-in, and personalization.
 - `api/` is the FastAPI service for database-backed report and preference endpoints.
 
 The existing GitHub Pages app remains the public demo/fallback while this portal is built.
@@ -12,9 +12,14 @@ The existing GitHub Pages app remains the public demo/fallback while this portal
 - Supabase schema has been applied with `supabase/migrations/001_initial_portal_schema.sql`.
 - Existing report artifacts have been imported into Supabase/Postgres.
 - `stock_recommendations` is populated from the shared `src/stare_signals.py` logic.
-- FastAPI has a database-backed latest-report endpoint.
-- Next.js has a database-backed dashboard, Google sign-in, saved region and
-  watchlist preferences, and a Supabase callback route.
+- FastAPI returns the complete latest report: regions, sectors, diagnostics,
+  prices, activity, fundamentals, recommendations, and decision snapshots.
+- Next.js provides feature parity with the static app: region/sector/country
+  navigation, search and direction filters, heatmap, strength chart, top
+  active picks, sortable fundamentals table, explanations, theme, print, and
+  update/source metadata.
+- Signed-in users can save theme, default filters, visible columns, and a
+  watchlist. The read-only market dashboard remains public during UAT.
 - FastAPI validates each preference request against the caller's Supabase
   access token before selecting or updating user data.
 

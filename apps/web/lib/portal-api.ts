@@ -14,6 +14,7 @@ export type RegionSnapshot = {
   direction?: string | null;
   strength?: number | null;
   raw_score?: number | string | null;
+  diagnostics?: Record<string, unknown>;
 };
 
 export type SectorSnapshot = {
@@ -22,6 +23,51 @@ export type SectorSnapshot = {
   direction?: string | null;
   strength?: number | null;
   raw_score?: number | string | null;
+  diagnostics?: Record<string, unknown>;
+};
+
+export type DecisionItem = {
+  label?: string | null;
+  detail?: string | null;
+};
+
+export type DecisionSnapshot = {
+  valuation?: DecisionItem;
+  quality?: DecisionItem;
+  risk?: DecisionItem;
+  momentum?: DecisionItem;
+  income?: DecisionItem;
+  summary?: string | null;
+};
+
+export type StockFundamentals = {
+  shortName?: string | null;
+  industry?: string | null;
+  exchange?: string | null;
+  currency?: string | null;
+  longBusinessSummary?: string | null;
+  marketCap?: number | string | null;
+  trailingPE?: number | string | null;
+  forwardPE?: number | string | null;
+  priceToBook?: number | string | null;
+  pegRatio?: number | string | null;
+  profitMargins?: number | string | null;
+  operatingMargins?: number | string | null;
+  grossMargins?: number | string | null;
+  returnOnEquity?: number | string | null;
+  returnOnAssets?: number | string | null;
+  revenueGrowth?: number | string | null;
+  earningsGrowth?: number | string | null;
+  totalDebt?: number | string | null;
+  debtToEquity?: number | string | null;
+  currentRatio?: number | string | null;
+  quickRatio?: number | string | null;
+  dividendYield?: number | string | null;
+  payoutRatio?: number | string | null;
+  fiveYearAvgDividendYield?: number | string | null;
+  beta?: number | string | null;
+  fiftyTwoWeekLow?: number | string | null;
+  fiftyTwoWeekHigh?: number | string | null;
 };
 
 export type StockSnapshot = {
@@ -32,16 +78,36 @@ export type StockSnapshot = {
   country?: string | null;
   sector?: string | null;
   rank?: number | null;
+  volume_date?: string | null;
+  price_date?: string | null;
   current_price?: number | string | null;
   previous_close?: number | string | null;
+  previous_close_date?: string | null;
+  close_change?: number | string | null;
   close_change_pct?: number | string | null;
+  close_direction?: string | null;
   daily_trading_percentile?: number | string | null;
   weekly_return?: number | string | null;
+  dollar_vol_latest?: number | string | null;
+  latest_volume?: number | string | null;
+  dollar_vol_week?: number | string | null;
+  vol_ratio?: number | string | null;
+  market_cap?: number | string | null;
+  trailing_pe?: number | string | null;
+  forward_pe?: number | string | null;
+  price_to_book?: number | string | null;
+  peg_ratio?: number | string | null;
+  dividend_yield?: number | string | null;
+  currency?: string | null;
+  exchange?: string | null;
+  industry?: string | null;
+  fundamentals?: StockFundamentals;
   action?: "Buy" | "Hold" | "Sell" | null;
   score?: number | string | null;
   confidence?: number | null;
   rationale?: string | null;
   daily_summary?: string | null;
+  decision_snapshot?: DecisionSnapshot;
 };
 
 export type LatestReport = {

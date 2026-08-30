@@ -48,7 +48,8 @@ ticker | asof_utc | normalized_json
 
 ## Supabase/Postgres Portal Tables
 
-Defined in `supabase/migrations/001_initial_portal_schema.sql`.
+Defined in `supabase/migrations/001_initial_portal_schema.sql` and hardened by
+`supabase/migrations/002_portal_security_hardening.sql`.
 
 ## update_runs
 id | run_label | triggered_by | status | started_at | completed_at | market_data_date | latest_price_date | source_commit | diagnostics | created_at
