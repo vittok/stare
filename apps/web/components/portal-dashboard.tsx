@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, useTransition } from "react";
+import type { FocusEvent, MouseEvent } from "react";
 import { savePreferences } from "../app/actions";
 import { AuthButton } from "./auth-button";
 import type { DecisionSnapshot, LatestReport, RegionSnapshot, SectorSnapshot, StockSnapshot, UserPreferences } from "../lib/portal-api";
@@ -11,7 +12,8 @@ type RegionMode = "All" | "NA" | "Sectors" | "LAC" | "EMEA" | "APAC";
 type Direction = "All" | "Bullish" | "Bearish" | "Neutral";
 type Group = RegionSnapshot | SectorSnapshot;
 type DisplayStock = StockSnapshot & { daily_percentile: number | null };
-type Popover = { title: string; content: string; pinned: boolean } | null;
+type Popover = { title: string; content: string; pinned: boolean; x: number; y: number } | null;
+type PopoverHandler = (title: string, content: string, x: number, y: number) => void;
 
 const REGION_ORDER: RegionMode[] = ["All", "NA", "Sectors", "LAC", "EMEA", "APAC"];
 const REGION_LABELS: Record<RegionMode, string> = { All: "All Regions", NA: "NA", Sectors: "NA/Sectors", LAC: "LAC", EMEA: "EMEA", APAC: "APAC" };
@@ -76,8 +78,20 @@ function formatTimestamp(value?: string | null) {
   return Number.isNaN(date.valueOf()) ? value : `${date.toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short", timeZone: "UTC" })} UTC`;
 }
 
-function ExplainButton({ className, label, title, content, onShow, onHide, onPin }: { className: string; label: string; title: string; content: string; onShow: (title: string, content: string) => void; onHide: () => void; onPin: (title: string, content: string) => void }) {
-  return <button className={className} onBlur={onHide} onClick={(event) => { event.stopPropagation(); onPin(title, content); }} onFocus={() => onShow(title, content)} onMouseEnter={() => onShow(title, content)} onMouseLeave={onHide} type="button">{label}</button>;
+function ExplainButton({ className, label, title, content, onShow, onHide, onPin }: { className: string; label: string; title: string; content: string; onShow: PopoverHandler; onHide: () => void; onPin: PopoverHandler }) {
+  function pointerPosition(event: MouseEvent<HTMLButtonElement>) {
+    const bounds = event.currentTarget.getBoundingClientRect();
+    return event.clientX || event.clientY
+      ? { x: event.clientX, y: event.clientY }
+      : { x: bounds.right, y: bounds.bottom };
+  }
+
+  function focusPosition(event: FocusEvent<HTMLButtonElement>) {
+    const bounds = event.currentTarget.getBoundingClientRect();
+    return { x: bounds.right, y: bounds.top };
+  }
+
+  return <button className={className} onBlur={onHide} onClick={(event) => { event.stopPropagation(); const point = pointerPosition(event); onPin(title, content, point.x, point.y); }} onFocus={(event) => { const point = focusPosition(event); onShow(title, content, point.x, point.y); }} onMouseEnter={(event) => { const point = pointerPosition(event); onShow(title, content, point.x, point.y); }} onMouseLeave={onHide} onMouseMove={(event) => { const point = pointerPosition(event); onShow(title, content, point.x, point.y); }} type="button">{label}</button>;
 }
 
 export function PortalDashboard({ report, preferences, signedIn, user }: Props) {
@@ -202,9 +216,22 @@ export function PortalDashboard({ report, preferences, signedIn, user }: Props) 
   const bearish = groups.filter((group) => group.direction === "Bearish").length;
   const averageStrength = groups.length ? groups.reduce((sum, group) => sum + (group.strength || 0), 0) / groups.length : 0;
 
-  function showPopover(title: string, content: string) { setPopover((current) => current?.pinned ? current : { title, content, pinned: false }); }
+  function positionPopover(x: number, y: number) {
+    const margin = 12;
+    const gap = 18;
+    const width = Math.min(560, window.innerWidth - margin * 2);
+    const height = Math.min(460, window.innerHeight - margin * 2);
+    const left = x + gap + width > window.innerWidth
+      ? Math.max(margin, x - width - gap)
+      : x + gap;
+    const top = y + gap + height > window.innerHeight
+      ? Math.max(margin, y - height - gap)
+      : y + gap;
+    return { x: left, y: top };
+  }
+  function showPopover(title: string, content: string, x: number, y: number) { setPopover((current) => current?.pinned ? current : { title, content, pinned: false, ...positionPopover(x, y) }); }
   function hidePopover() { setPopover((current) => current?.pinned ? current : null); }
-  function pinPopover(title: string, content: string) { setPopover((current) => current?.pinned && current.title === title ? null : { title, content, pinned: true }); }
+  function pinPopover(title: string, content: string, x: number, y: number) { setPopover((current) => current?.pinned && current.title === title ? null : { title, content, pinned: true, ...positionPopover(x, y) }); }
   function persist(overrides: Partial<UserPreferences>) {
     const next = { ...preferenceState, watchlist, visible_columns: visibleColumns, ...overrides };
     setPreferenceState(next); if (!signedIn) return; setStatus("");
@@ -242,7 +269,7 @@ export function PortalDashboard({ report, preferences, signedIn, user }: Props) 
       <div className="table-wrap"><table><thead><tr>{DEFAULT_COLUMNS.filter((column) => visibleColumns.includes(column)).map((column) => <th className={NUMERIC_COLUMNS.has(column) ? "num" : ""} key={column}>{!["watch", "decision"].includes(column) ? <button className="sort-button" onClick={() => sortBy(column)} type="button">{COLUMNS[column]} <span aria-hidden="true">{sortKey === column ? sortDirection === "asc" ? "↑" : "↓" : "↕"}</span></button> : COLUMNS[column]}</th>)}</tr></thead><tbody>{displayedRows.map((stock) => <StockRow key={`${stock.region}-${stock.market}-${stock.sector}-${stock.ticker}`} stock={stock} columns={visibleColumns} watched={watchlist.includes(stock.ticker)} onWatch={toggleWatchlist} onShow={showPopover} onHide={hidePopover} onPin={pinPopover} />)}</tbody></table></div></section>
       <footer className="data-footer"><span>Updated {formatTimestamp(currentReport.update.completed_at)} · Market data {currentReport.update.latest_price_date || currentReport.update.market_data_date || "n/a"}</span><span>Source: Yahoo Finance market and fundamental data. Signals are deterministic research outputs and may be incomplete or delayed.</span><span>Created by vittok. GitHub Pages remains available as the static fallback.</span></footer>
     </div>
-    {popover ? <aside className="summary-popover" onClick={(event) => event.stopPropagation()}><div><strong>{popover.title}</strong><button aria-label="Close explanation" onClick={() => setPopover(null)} type="button">×</button></div><p>{popover.content}</p></aside> : null}
+    {popover ? <aside className={`summary-popover ${popover.pinned ? "pinned" : "hovering"}`} onClick={(event) => event.stopPropagation()} style={{ left: popover.x, top: popover.y }}><div><strong>{popover.title}</strong>{popover.pinned ? <button aria-label="Close explanation" onClick={() => setPopover(null)} type="button">×</button> : null}</div><p>{popover.content}</p></aside> : null}
   </div>;
 }
 
@@ -250,10 +277,10 @@ function sortValue(stock: DisplayStock, key: string): string | number | null {
   const values: Record<string, string | number | null | undefined> = { group: stock.sector || stock.region, rank: stock.rank, ticker: stock.ticker, name: stockName(stock), current_price: toNumber(stock.current_price), previous_close: toNumber(stock.previous_close), action: stock.action, decision: stock.decision_snapshot?.summary, weekly_return: toNumber(stock.weekly_return), daily_percentile: stock.daily_percentile, dollar_vol_latest: toNumber(stock.dollar_vol_latest), market_cap: toNumber(stockValue(stock, "marketCap", stock.market_cap)), trailing_pe: toNumber(stockValue(stock, "trailingPE", stock.trailing_pe)), price_to_book: toNumber(stockValue(stock, "priceToBook", stock.price_to_book)), peg_ratio: toNumber(stockValue(stock, "pegRatio", stock.peg_ratio)), dividend_yield: toNumber(stockValue(stock, "dividendYield", stock.dividend_yield)) };
   return values[key] ?? null;
 }
-function SignalExplanation({ title, text, content, onShow, onHide, onPin }: { title: string; text: string; content: string; onShow: (title: string, content: string) => void; onHide: () => void; onPin: (title: string, content: string) => void }) { return <div><h2>{title} <ExplainButton className="help-button" label="?" title={title} content={content} onShow={onShow} onHide={onHide} onPin={onPin} /></h2><p>{text}</p></div>; }
+function SignalExplanation({ title, text, content, onShow, onHide, onPin }: { title: string; text: string; content: string; onShow: PopoverHandler; onHide: () => void; onPin: PopoverHandler }) { return <div><h2>{title} <ExplainButton className="help-button" label="?" title={title} content={content} onShow={onShow} onHide={onHide} onPin={onPin} /></h2><p>{text}</p></div>; }
 function Metric({ label, value }: { label: string; value: string }) { return <div><span>{label}</span><strong>{value}</strong></div>; }
 
-function StockRow({ stock, columns, watched, onWatch, onShow, onHide, onPin }: { stock: DisplayStock; columns: string[]; watched: boolean; onWatch: (ticker: string) => void; onShow: (title: string, content: string) => void; onHide: () => void; onPin: (title: string, content: string) => void }) {
+function StockRow({ stock, columns, watched, onWatch, onShow, onHide, onPin }: { stock: DisplayStock; columns: string[]; watched: boolean; onWatch: (ticker: string) => void; onShow: PopoverHandler; onHide: () => void; onPin: PopoverHandler }) {
   const snapshot = stock.decision_snapshot;
   const closeDirection = stock.close_direction === "up" ? "positive" : stock.close_direction === "down" ? "negative" : "neutral";
   const values: Record<string, React.ReactNode> = {

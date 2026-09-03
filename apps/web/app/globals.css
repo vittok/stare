@@ -408,11 +408,10 @@ tbody tr:hover { background: var(--surface-2); }
   overflow-y: auto;
   padding: 18px;
   position: fixed;
-  right: 24px;
-  top: 94px;
-  width: calc(100% - 48px);
+  width: min(560px, calc(100% - 24px));
   z-index: 80;
 }
+.summary-popover.hovering { pointer-events: none; }
 .summary-popover > div { align-items: flex-start; display: flex; gap: 20px; justify-content: space-between; }
 .summary-popover strong { font-size: 16px; }
 .summary-popover button { background: transparent; border: 0; color: var(--ink); cursor: pointer; font-size: 22px; line-height: 1; padding: 0; }
@@ -476,7 +475,6 @@ tbody tr:hover { background: var(--surface-2); }
   .section-heading { align-items: start; }
   .table-heading { align-items: stretch; flex-direction: column; }
   .table-tools { justify-content: space-between; }
-  .summary-popover { bottom: 10px; left: 10px; max-height: 55vh; right: 10px; top: auto; width: auto; }
   .login-overlay { padding: 14px; }
   .login-dialog { padding: 24px; }
   .login-dialog-brand img { height: 58px; width: 58px; }
@@ -488,6 +486,10 @@ tbody tr:hover { background: var(--surface-2); }
   .help-content { padding: 2px 20px; }
   .help-content section { padding: 18px 0; }
   .help-notice { padding: 18px 20px; }
+}
+
+@media (hover: none) {
+  .summary-popover { bottom: 10px; left: 10px !important; max-height: 55vh; right: 10px; top: auto !important; width: auto; }
 }
 
 @media (prefers-reduced-motion: reduce) {
