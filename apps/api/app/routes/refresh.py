@@ -1,4 +1,5 @@
 import asyncio
+import re
 import time
 from typing import Any
 from urllib.parse import quote
@@ -51,6 +52,31 @@ def _authorize_refresh(user: AuthenticatedUser) -> tuple[Any, dict[str, str]]:
     return settings, _github_headers(settings.github_actions_token)
 
 
+def _display_step_name(name: str) -> str:
+    labels = {
+        "Check market refresh window": "Checking update schedule",
+        "Checkout": "Preparing update workspace",
+        "Sync latest main before calculation": "Loading the latest application version",
+        "Set up Python": "Preparing calculation tools",
+        "Install dependencies": "Preparing data tools",
+        "Run pipeline and publish app": "Calculating market data and signals",
+        "Run fundamentals (Monday close only)": "Updating company fundamentals",
+        "Import update into portal database": "Saving the report to the portal",
+        "Commit & push updated data/reports/site": "Saving updated reports",
+        "Configure GitHub Pages": "Preparing the static report",
+        "Upload Pages artifact": "Uploading the static report",
+        "Deploy GitHub Pages": "Publishing the static report",
+        "Send app update email": "Sending the update notification",
+        "Set up job": "Preparing the update",
+        "Complete job": "Finalizing the update",
+    }
+    if name in labels:
+        return labels[name]
+
+    update_name = re.sub(r"\bpipeline\b", "update", name, flags=re.IGNORECASE)
+    return re.sub(r"\brun\b", "update", update_name, flags=re.IGNORECASE)
+
+
 def _run_progress(run: dict[str, Any], jobs: list[dict[str, Any]]) -> dict[str, Any]:
     run_status = run.get("status", "queued")
     conclusion = run.get("conclusion")
@@ -74,7 +100,7 @@ def _run_progress(run: dict[str, Any], jobs: list[dict[str, Any]]) -> dict[str, 
     else:
         progress = max(5, min(95, round(completed_steps / len(steps) * 100))) if steps else 5
         state = "in_progress" if run_status == "in_progress" else "queued"
-        stage = current_step.get("name", "Waiting for an update worker") if current_step else "Waiting for an update worker"
+        stage = _display_step_name(current_step.get("name", "")) if current_step else "Waiting for an update worker"
         message = f"{stage} ({completed_steps} of {len(steps)} steps complete)." if steps else "The update is queued and waiting to start."
 
     return {
