@@ -266,9 +266,17 @@ button { border-radius: 0; }
 .lede { color: var(--muted); font-size: 17px; line-height: 1.5; margin: 0; }
 .disclaimer { color: var(--muted); font-size: 12px; margin: 8px 0 0; }
 .workspace-actions { display: flex; flex-shrink: 0; gap: 8px; }
-.workspace-action-area { align-items: flex-end; display: grid; gap: 8px; justify-items: end; max-width: 520px; }
+.workspace-action-area { align-items: flex-end; display: grid; gap: 10px; justify-items: end; max-width: 520px; min-width: min(100%, 360px); }
 .workspace-actions .button:disabled { cursor: wait; opacity: .62; }
-.refresh-status { color: var(--muted); font-size: 11px; line-height: 1.4; margin: 0; text-align: right; }
+.refresh-progress-panel { display: grid; gap: 6px; width: 100%; }
+.refresh-progress-meta { align-items: baseline; display: flex; gap: 16px; justify-content: space-between; }
+.refresh-progress-meta span { color: var(--ink); font-size: 11px; font-weight: 800; overflow-wrap: anywhere; }
+.refresh-progress-meta strong { color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.refresh-progress-track { background: var(--line); height: 6px; overflow: hidden; width: 100%; }
+.refresh-progress-track span { background: var(--blue); display: block; height: 100%; min-width: 0; transition: width .35s ease; }
+.refresh-progress-panel.complete .refresh-progress-track span { background: var(--green); }
+.refresh-progress-panel.error .refresh-progress-track span { background: var(--red); }
+.refresh-status { color: var(--muted); font-size: 11px; line-height: 1.4; margin: 0; text-align: left; }
 .refresh-status.complete { color: var(--green); }
 .refresh-status.error { color: var(--red); }
 

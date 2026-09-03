@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState, useTransition } from "react";
 import type { FocusEvent, MouseEvent } from "react";
-import { savePreferences, startMarketRefresh } from "../app/actions";
+import { getMarketRefreshProgress, savePreferences, startMarketRefresh } from "../app/actions";
 import { AuthButton } from "./auth-button";
 import { StockDetailDialog } from "./stock-detail-dialog";
 import type { DecisionSnapshot, LatestReport, RegionSnapshot, SectorSnapshot, StockSnapshot, UserPreferences } from "../lib/portal-api";
@@ -118,6 +118,10 @@ export function PortalDashboard({ report, preferences, signedIn, user }: Props) 
   const [refreshBaseline, setRefreshBaseline] = useState<string | null>(null);
   const [refreshState, setRefreshState] = useState<"idle" | "requesting" | "queued" | "complete" | "error">("idle");
   const [refreshMessage, setRefreshMessage] = useState("");
+  const [refreshStage, setRefreshStage] = useState("");
+  const [refreshProgress, setRefreshProgress] = useState(0);
+  const [refreshRunId, setRefreshRunId] = useState<number | undefined>();
+  const [refreshBaselineRunId, setRefreshBaselineRunId] = useState<number | undefined>();
   const [selectedStock, setSelectedStock] = useState<StockSnapshot | null>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -179,6 +183,8 @@ export function PortalDashboard({ report, preferences, signedIn, user }: Props) 
             if (!cancelled) {
               setCurrentReport(nextReport);
               setRefreshState("complete");
+              setRefreshProgress(100);
+              setRefreshStage("Report ready");
               setRefreshMessage(`Update complete. Market data date: ${nextReport.update.latest_price_date || nextReport.update.market_data_date || "n/a"}.`);
               setRefreshBaseline(null);
             }
@@ -193,6 +199,7 @@ export function PortalDashboard({ report, preferences, signedIn, user }: Props) 
         timer = setTimeout(checkForUpdatedReport, 15_000);
       } else if (!cancelled) {
         setRefreshState("error");
+        setRefreshStage("Report confirmation timed out");
         setRefreshMessage("The update is taking longer than expected. Reload later to see the newest completed report.");
         setRefreshBaseline(null);
       }
@@ -204,6 +211,50 @@ export function PortalDashboard({ report, preferences, signedIn, user }: Props) 
       if (timer) clearTimeout(timer);
     };
   }, [refreshBaseline]);
+  useEffect(() => {
+    if (refreshState !== "queued") return;
+
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let failures = 0;
+
+    async function checkWorkflowProgress() {
+      const result = await getMarketRefreshProgress(refreshBaselineRunId, refreshRunId);
+      if (cancelled) return;
+
+      if (!result.ok) {
+        failures += 1;
+        if (failures >= 4) {
+          setRefreshState("error");
+          setRefreshStage("Progress unavailable");
+          setRefreshMessage(result.error);
+          setRefreshBaseline(null);
+          return;
+        }
+      } else {
+        failures = 0;
+        setRefreshProgress(Math.max(0, Math.min(100, result.progress.progress)));
+        setRefreshStage(result.progress.stage);
+        setRefreshMessage(result.progress.message);
+        if (!refreshRunId && result.progress.workflow_run_id) setRefreshRunId(result.progress.workflow_run_id);
+
+        if (result.progress.status === "failed") {
+          setRefreshState("error");
+          setRefreshBaseline(null);
+          return;
+        }
+        if (result.progress.status === "success") return;
+      }
+
+      timer = setTimeout(checkWorkflowProgress, 7_500);
+    }
+
+    void checkWorkflowProgress();
+    return () => {
+      cancelled = true;
+      if (timer) clearTimeout(timer);
+    };
+  }, [refreshBaselineRunId, refreshRunId, refreshState]);
 
   const allStocks = currentReport?.top_stocks || [];
   const regions = currentReport?.regions || [];
@@ -301,15 +352,25 @@ export function PortalDashboard({ report, preferences, signedIn, user }: Props) 
   async function refreshData() {
     if (refreshState === "requesting" || refreshState === "queued") return;
     setRefreshState("requesting");
+    setRefreshProgress(1);
+    setRefreshStage("Submitting update request");
+    setRefreshRunId(undefined);
+    setRefreshBaselineRunId(undefined);
     setRefreshMessage("Requesting a fresh market update...");
     const result = await startMarketRefresh();
     if (!result.ok) {
       setRefreshState("error");
+      setRefreshProgress(0);
+      setRefreshStage("Update could not start");
       setRefreshMessage(result.error);
       return;
     }
 
     setRefreshState("queued");
+    setRefreshProgress(result.workflowRunId ? 5 : 2);
+    setRefreshStage(result.workflowRunId ? "Reading update progress" : "Waiting for GitHub Actions");
+    setRefreshRunId(result.workflowRunId);
+    setRefreshBaselineRunId(result.baselineRunId);
     setRefreshMessage(result.message);
     setRefreshBaseline(currentReport?.update?.id || currentReport?.update?.completed_at || "initial-report");
   }
@@ -327,7 +388,7 @@ export function PortalDashboard({ report, preferences, signedIn, user }: Props) 
     </aside>
 
     <div className="workspace">
-      <section className="workspace-header"><div><p className="eyebrow">{REGION_LABELS[regionMode]}</p><h1>Sector & Stock Trend Analysis Engine</h1><p className="lede">{regionMode === "Sectors" ? "North American sector strength and active S&P 500 names." : regionMode === "All" ? "Top active stocks and market direction across all covered regions." : `${regionMode} market direction, countries, and top active stocks.`}</p><p className="disclaimer">Deterministic research signals, not personalized financial advice.</p></div><div className="workspace-action-area"><div className="workspace-actions"><button className="button secondary" onClick={resetOverview} type="button">Overview</button><button className="button secondary" disabled={refreshState === "requesting" || refreshState === "queued"} onClick={refreshData} type="button">{refreshState === "requesting" ? "Requesting..." : refreshState === "queued" ? "Updating..." : "Refresh data"}</button><button aria-pressed={theme === "dark"} className="button secondary" onClick={toggleTheme} type="button">{theme === "dark" ? "Light" : "Dark"}</button><button className="button secondary" onClick={() => window.print()} type="button">Print</button></div>{refreshMessage ? <p className={`refresh-status ${refreshState}`} aria-live="polite">{refreshMessage}</p> : null}</div></section>
+      <section className="workspace-header"><div><p className="eyebrow">{REGION_LABELS[regionMode]}</p><h1>Sector & Stock Trend Analysis Engine</h1><p className="lede">{regionMode === "Sectors" ? "North American sector strength and active S&P 500 names." : regionMode === "All" ? "Top active stocks and market direction across all covered regions." : `${regionMode} market direction, countries, and top active stocks.`}</p><p className="disclaimer">Deterministic research signals, not personalized financial advice.</p></div><div className="workspace-action-area"><div className="workspace-actions"><button className="button secondary" onClick={resetOverview} type="button">Overview</button><button className="button secondary" disabled={refreshState === "requesting" || refreshState === "queued"} onClick={refreshData} type="button">{refreshState === "requesting" ? "Requesting..." : refreshState === "queued" ? "Updating..." : "Refresh data"}</button><button aria-pressed={theme === "dark"} className="button secondary" onClick={toggleTheme} type="button">{theme === "dark" ? "Light" : "Dark"}</button><button className="button secondary" onClick={() => window.print()} type="button">Print</button></div>{refreshState !== "idle" ? <div className={`refresh-progress-panel ${refreshState}`}><div className="refresh-progress-meta"><span>{refreshStage}</span><strong>{refreshProgress}%</strong></div><div aria-label={refreshStage} aria-valuemax={100} aria-valuemin={0} aria-valuenow={refreshProgress} className="refresh-progress-track" role="progressbar"><span style={{ width: `${refreshProgress}%` }} /></div>{refreshMessage ? <p className={`refresh-status ${refreshState}`} aria-live="polite">{refreshMessage}</p> : null}</div> : null}</div></section>
       <section className="signal-strip"><SignalExplanation title="Fundamentals Snapshot" text="P/E · P/B · PEG · dividend yield" content={HELP.fundamentals} onShow={showPopover} onHide={hidePopover} onPin={pinPopover} /><SignalExplanation title="Sector Strength" text="Breadth · returns · trading activity" content={HELP.strength} onShow={showPopover} onHide={hidePopover} onPin={pinPopover} /><SignalExplanation title="Buy / Hold / Sell" text="Valuation · momentum · market context" content={HELP.recommendation} onShow={showPopover} onHide={hidePopover} onPin={pinPopover} /></section>
       <section className="kpi-strip" aria-label="Dashboard KPIs"><Metric label={regionMode === "Sectors" ? "Sectors" : "Regions"} value={groups.length.toString()} /><Metric label="Bullish / Bearish" value={`${bullish} / ${bearish}`} /><Metric label="Avg Strength" value={averageStrength.toFixed(1)} /><Metric label="Tracked Names" value={new Set(displayedRows.map((stock) => stock.ticker)).size.toString()} /></section>
       <section className="section-block"><div className="section-heading"><div><p className="eyebrow">Market map</p><h2>{regionMode === "Sectors" ? "Sector Heatmap" : "Region Heatmap"}</h2></div><span>{groups.length} groups</span></div><div className="heatmap">{groups.map((group) => <button className={`heat-cell ${classFor(group.direction)}`} key={groupName(group)} onClick={() => regionMode === "Sectors" && chooseGroup(groupName(group))} type="button"><strong>{groupName(group)}</strong><span>{group.strength ?? 0}</span><small>{group.direction || "Neutral"}</small></button>)}</div></section>

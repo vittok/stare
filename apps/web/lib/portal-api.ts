@@ -132,6 +132,18 @@ export type MarketRefreshResponse = {
   status: "queued" | "already_running";
   message: string;
   workflow_run_url?: string;
+  workflow_run_id?: number;
+  baseline_run_id?: number;
+};
+
+export type MarketRefreshStatus = {
+  status: "waiting" | "queued" | "in_progress" | "success" | "failed";
+  progress: number;
+  stage: string;
+  message: string;
+  workflow_run_id?: number;
+  workflow_run_url?: string;
+  conclusion?: string | null;
 };
 
 const defaultPreferences: UserPreferences = {
@@ -256,6 +268,37 @@ export async function triggerMarketRefresh(accessToken: string): Promise<MarketR
   return {
     status: payload.status || "queued",
     message: payload.message || "The market update has been queued.",
-    workflow_run_url: payload.workflow_run_url
+    workflow_run_url: payload.workflow_run_url,
+    workflow_run_id: payload.workflow_run_id,
+    baseline_run_id: payload.baseline_run_id
+  };
+}
+
+export async function getMarketRefreshStatus(
+  accessToken: string,
+  baselineRunId?: number,
+  workflowRunId?: number
+): Promise<MarketRefreshStatus> {
+  const apiUrl = getApiUrl();
+  if (!apiUrl) throw new Error("The market update service is not configured.");
+
+  const query = new URLSearchParams();
+  if (baselineRunId) query.set("baseline_run_id", baselineRunId.toString());
+  if (workflowRunId) query.set("workflow_run_id", workflowRunId.toString());
+  const response = await fetch(`${apiUrl}/api/refresh/status?${query}`, {
+    cache: "no-store",
+    headers: { authorization: `Bearer ${accessToken}` }
+  });
+  const payload = await response.json().catch(() => ({})) as Partial<MarketRefreshStatus> & { detail?: string };
+
+  if (!response.ok) throw new Error(payload.detail || "Market update progress is unavailable.");
+  return {
+    status: payload.status || "waiting",
+    progress: payload.progress ?? 0,
+    stage: payload.stage || "Preparing market update",
+    message: payload.message || "Checking market update progress.",
+    workflow_run_id: payload.workflow_run_id,
+    workflow_run_url: payload.workflow_run_url,
+    conclusion: payload.conclusion
   };
 }

@@ -103,6 +103,7 @@ Supabase project:
 - [x] Add saved watchlist support.
 - [x] Add responsive layout matching current minimal sharp-corner design.
 - [x] Add owner-restricted manual market refresh with automatic report reload.
+- [x] Show live market refresh progress from GitHub Actions job steps.
 - [x] Add a complete stock-information dialog from ticker symbols.
 
 ## Phase 6 - Historical Views
