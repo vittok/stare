@@ -68,6 +68,10 @@ export function PortalHelp() {
             <p>Add companies to your watchlist and choose your preferred theme, region, sector, market, and visible columns. These choices are saved to your signed-in profile and restored when you return.</p>
           </section>
           <section>
+            <h3>Refresh market data</h3>
+            <p>Authorized users can select Refresh data to request a new market update. The portal shows progress and replaces the report automatically after the latest prices, calculations, and signals are ready. An update already in progress will continue instead of starting a duplicate.</p>
+          </section>
+          <section>
             <h3>Check freshness</h3>
             <p>The footer shows both when the portal was updated and the date represented by the market prices. These can differ on weekends, holidays, or when a source is delayed. Always use the market-data date when judging how current a price or signal is.</p>
           </section>

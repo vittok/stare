@@ -16,6 +16,14 @@ services:
         value: https://bprknqcgtezsgfjuztqs.supabase.co
       - key: SUPABASE_PUBLISHABLE_KEY
         value: sb_publishable_7DuSM4ZLMMX9rLnBva0LfA_yDRi4eE7
+      - key: GITHUB_ACTIONS_TOKEN
+        sync: false
+      - key: GITHUB_REPOSITORY
+        value: vittok/stare
+      - key: GITHUB_WORKFLOW
+        value: pipeline_weekdays.yml
+      - key: REFRESH_ALLOWED_EMAILS
+        value: vittok@gmail.com
 
   - type: web
     name: stare-portal

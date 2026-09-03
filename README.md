@@ -486,7 +486,8 @@ Current status:
   derives NA region direction from S&P 500 sector snapshots using the same
   calculation as the static publisher.
 - The Next.js portal has current static-app feature parity plus authenticated
-  watchlist, theme, filter, and visible-column personalization.
+  watchlist, theme, filter, visible-column personalization, complete ticker
+  detail dialogs, and owner-controlled manual market refresh.
 
 Current standalone operations:
 
@@ -494,6 +495,8 @@ Current standalone operations:
 - Host `apps/api` as the FastAPI backend on Render.
 - Store `DATABASE_URL` and future service secrets in deployment secrets.
 - Import each GitHub-scheduled market update into Supabase during UAT.
+- Allow authorized portal users to start the same update workflow on demand;
+  the portal reloads automatically when the new snapshot is complete.
 - Keep GitHub Pages available as the public demo/fallback while the portal matures.
 
 The remaining operational migration is moving market-open and market-close

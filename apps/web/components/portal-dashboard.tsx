@@ -2,8 +2,9 @@
 
 import { useEffect, useMemo, useState, useTransition } from "react";
 import type { FocusEvent, MouseEvent } from "react";
-import { savePreferences } from "../app/actions";
+import { savePreferences, startMarketRefresh } from "../app/actions";
 import { AuthButton } from "./auth-button";
+import { StockDetailDialog } from "./stock-detail-dialog";
 import type { DecisionSnapshot, LatestReport, RegionSnapshot, SectorSnapshot, StockSnapshot, UserPreferences } from "../lib/portal-api";
 
 type UserIdentity = { displayName: string; email: string };
@@ -78,7 +79,7 @@ function formatTimestamp(value?: string | null) {
   return Number.isNaN(date.valueOf()) ? value : `${date.toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short", timeZone: "UTC" })} UTC`;
 }
 
-function ExplainButton({ className, label, title, content, onShow, onHide, onPin }: { className: string; label: string; title: string; content: string; onShow: PopoverHandler; onHide: () => void; onPin: PopoverHandler }) {
+function ExplainButton({ className, label, title, content, onActivate, onShow, onHide, onPin }: { className: string; label: string; title: string; content: string; onActivate?: () => void; onShow: PopoverHandler; onHide: () => void; onPin: PopoverHandler }) {
   function pointerPosition(event: MouseEvent<HTMLButtonElement>) {
     const bounds = event.currentTarget.getBoundingClientRect();
     return event.clientX || event.clientY
@@ -91,7 +92,7 @@ function ExplainButton({ className, label, title, content, onShow, onHide, onPin
     return { x: bounds.right, y: bounds.top };
   }
 
-  return <button className={className} onBlur={onHide} onClick={(event) => { event.stopPropagation(); const point = pointerPosition(event); onPin(title, content, point.x, point.y); }} onFocus={(event) => { const point = focusPosition(event); onShow(title, content, point.x, point.y); }} onMouseEnter={(event) => { const point = pointerPosition(event); onShow(title, content, point.x, point.y); }} onMouseLeave={onHide} onMouseMove={(event) => { const point = pointerPosition(event); onShow(title, content, point.x, point.y); }} type="button">{label}</button>;
+  return <button className={className} onBlur={onHide} onClick={(event) => { event.stopPropagation(); if (onActivate) { onHide(); onActivate(); return; } const point = pointerPosition(event); onPin(title, content, point.x, point.y); }} onFocus={(event) => { const point = focusPosition(event); onShow(title, content, point.x, point.y); }} onMouseEnter={(event) => { const point = pointerPosition(event); onShow(title, content, point.x, point.y); }} onMouseLeave={onHide} onMouseMove={(event) => { const point = pointerPosition(event); onShow(title, content, point.x, point.y); }} type="button">{label}</button>;
 }
 
 export function PortalDashboard({ report, preferences, signedIn, user }: Props) {
@@ -114,6 +115,10 @@ export function PortalDashboard({ report, preferences, signedIn, user }: Props) 
   const [currentReport, setCurrentReport] = useState(report);
   const [reportMessage, setReportMessage] = useState("Connecting to the market data service...");
   const [reportRetry, setReportRetry] = useState(0);
+  const [refreshBaseline, setRefreshBaseline] = useState<string | null>(null);
+  const [refreshState, setRefreshState] = useState<"idle" | "requesting" | "queued" | "complete" | "error">("idle");
+  const [refreshMessage, setRefreshMessage] = useState("");
+  const [selectedStock, setSelectedStock] = useState<StockSnapshot | null>(null);
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
@@ -156,6 +161,49 @@ export function PortalDashboard({ report, preferences, signedIn, user }: Props) 
       if (retryTimer) clearTimeout(retryTimer);
     };
   }, [currentReport?.update, reportRetry]);
+  useEffect(() => {
+    if (!refreshBaseline) return;
+
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let attempts = 0;
+
+    async function checkForUpdatedReport() {
+      attempts += 1;
+      try {
+        const response = await fetch("/api/report", { cache: "no-store" });
+        if (response.ok) {
+          const nextReport = await response.json() as LatestReport;
+          const nextVersion = nextReport.update?.id || nextReport.update?.completed_at;
+          if (nextReport.update && nextVersion && nextVersion !== refreshBaseline) {
+            if (!cancelled) {
+              setCurrentReport(nextReport);
+              setRefreshState("complete");
+              setRefreshMessage(`Update complete. Market data date: ${nextReport.update.latest_price_date || nextReport.update.market_data_date || "n/a"}.`);
+              setRefreshBaseline(null);
+            }
+            return;
+          }
+        }
+      } catch {
+        // A sleeping service can miss an individual check; the next poll retries it.
+      }
+
+      if (!cancelled && attempts < 80) {
+        timer = setTimeout(checkForUpdatedReport, 15_000);
+      } else if (!cancelled) {
+        setRefreshState("error");
+        setRefreshMessage("The update is taking longer than expected. Reload later to see the newest completed report.");
+        setRefreshBaseline(null);
+      }
+    }
+
+    timer = setTimeout(checkForUpdatedReport, 15_000);
+    return () => {
+      cancelled = true;
+      if (timer) clearTimeout(timer);
+    };
+  }, [refreshBaseline]);
 
   const allStocks = currentReport?.top_stocks || [];
   const regions = currentReport?.regions || [];
@@ -215,6 +263,11 @@ export function PortalDashboard({ report, preferences, signedIn, user }: Props) 
   const bullish = groups.filter((group) => group.direction === "Bullish").length;
   const bearish = groups.filter((group) => group.direction === "Bearish").length;
   const averageStrength = groups.length ? groups.reduce((sum, group) => sum + (group.strength || 0), 0) / groups.length : 0;
+  const selectedGroupSignal = selectedStock
+    ? selectedStock.region === "NA"
+      ? sectors.find((sector) => sector.sector === selectedStock.sector)
+      : regions.find((region) => region.region === selectedStock.region)
+    : null;
 
   function positionPopover(x: number, y: number) {
     const margin = 12;
@@ -245,6 +298,21 @@ export function PortalDashboard({ report, preferences, signedIn, user }: Props) 
   function toggleTheme() { const next = theme === "dark" ? "light" : "dark"; setTheme(next); window.localStorage.setItem("stare-theme", next); document.documentElement.dataset.theme = next; persist({ theme: next }); }
   function sortBy(key: string) { if (sortKey === key) setSortDirection((current) => current === "asc" ? "desc" : "asc"); else { setSortKey(key); setSortDirection("asc"); } }
   function resetOverview() { setRegionMode("Sectors"); setDirection("All"); setSelectedGroup(null); setSelectedMarket(null); setSearch(""); persist({ default_region: "Sectors", default_sector: null, default_market: null }); }
+  async function refreshData() {
+    if (refreshState === "requesting" || refreshState === "queued") return;
+    setRefreshState("requesting");
+    setRefreshMessage("Requesting a fresh market update...");
+    const result = await startMarketRefresh();
+    if (!result.ok) {
+      setRefreshState("error");
+      setRefreshMessage(result.error);
+      return;
+    }
+
+    setRefreshState("queued");
+    setRefreshMessage(result.message);
+    setRefreshBaseline(currentReport?.update?.id || currentReport?.update?.completed_at || "initial-report");
+  }
 
   if (!currentReport?.update) return <section className="empty-state report-loading" aria-live="polite"><p className="eyebrow">Market data</p><h1>Loading the latest report</h1><p>{reportMessage}</p><button className="button secondary" onClick={() => setReportRetry((value) => value + 1)} type="button">Retry now</button></section>;
 
@@ -259,17 +327,18 @@ export function PortalDashboard({ report, preferences, signedIn, user }: Props) 
     </aside>
 
     <div className="workspace">
-      <section className="workspace-header"><div><p className="eyebrow">{REGION_LABELS[regionMode]}</p><h1>Sector & Stock Trend Analysis Engine</h1><p className="lede">{regionMode === "Sectors" ? "North American sector strength and active S&P 500 names." : regionMode === "All" ? "Top active stocks and market direction across all covered regions." : `${regionMode} market direction, countries, and top active stocks.`}</p><p className="disclaimer">Deterministic research signals, not personalized financial advice.</p></div><div className="workspace-actions"><button className="button secondary" onClick={resetOverview} type="button">Overview</button><button aria-pressed={theme === "dark"} className="button secondary" onClick={toggleTheme} type="button">{theme === "dark" ? "Light" : "Dark"}</button><button className="button secondary" onClick={() => window.print()} type="button">Print</button></div></section>
+      <section className="workspace-header"><div><p className="eyebrow">{REGION_LABELS[regionMode]}</p><h1>Sector & Stock Trend Analysis Engine</h1><p className="lede">{regionMode === "Sectors" ? "North American sector strength and active S&P 500 names." : regionMode === "All" ? "Top active stocks and market direction across all covered regions." : `${regionMode} market direction, countries, and top active stocks.`}</p><p className="disclaimer">Deterministic research signals, not personalized financial advice.</p></div><div className="workspace-action-area"><div className="workspace-actions"><button className="button secondary" onClick={resetOverview} type="button">Overview</button><button className="button secondary" disabled={refreshState === "requesting" || refreshState === "queued"} onClick={refreshData} type="button">{refreshState === "requesting" ? "Requesting..." : refreshState === "queued" ? "Updating..." : "Refresh data"}</button><button aria-pressed={theme === "dark"} className="button secondary" onClick={toggleTheme} type="button">{theme === "dark" ? "Light" : "Dark"}</button><button className="button secondary" onClick={() => window.print()} type="button">Print</button></div>{refreshMessage ? <p className={`refresh-status ${refreshState}`} aria-live="polite">{refreshMessage}</p> : null}</div></section>
       <section className="signal-strip"><SignalExplanation title="Fundamentals Snapshot" text="P/E · P/B · PEG · dividend yield" content={HELP.fundamentals} onShow={showPopover} onHide={hidePopover} onPin={pinPopover} /><SignalExplanation title="Sector Strength" text="Breadth · returns · trading activity" content={HELP.strength} onShow={showPopover} onHide={hidePopover} onPin={pinPopover} /><SignalExplanation title="Buy / Hold / Sell" text="Valuation · momentum · market context" content={HELP.recommendation} onShow={showPopover} onHide={hidePopover} onPin={pinPopover} /></section>
       <section className="kpi-strip" aria-label="Dashboard KPIs"><Metric label={regionMode === "Sectors" ? "Sectors" : "Regions"} value={groups.length.toString()} /><Metric label="Bullish / Bearish" value={`${bullish} / ${bearish}`} /><Metric label="Avg Strength" value={averageStrength.toFixed(1)} /><Metric label="Tracked Names" value={new Set(displayedRows.map((stock) => stock.ticker)).size.toString()} /></section>
       <section className="section-block"><div className="section-heading"><div><p className="eyebrow">Market map</p><h2>{regionMode === "Sectors" ? "Sector Heatmap" : "Region Heatmap"}</h2></div><span>{groups.length} groups</span></div><div className="heatmap">{groups.map((group) => <button className={`heat-cell ${classFor(group.direction)}`} key={groupName(group)} onClick={() => regionMode === "Sectors" && chooseGroup(groupName(group))} type="button"><strong>{groupName(group)}</strong><span>{group.strength ?? 0}</span><small>{group.direction || "Neutral"}</small></button>)}</div></section>
       <div className="analysis-grid"><section className="section-block strength-section"><div className="section-heading"><div><p className="eyebrow">Comparison</p><h2>Strength by {regionMode === "Sectors" ? "Sector" : "Region"}</h2></div><span>Select a bar to inspect</span></div><div className="strength-chart">{[...groups].sort((a, b) => (b.strength || 0) - (a.strength || 0)).map((group) => <button className="chart-column" key={groupName(group)} onClick={() => regionMode === "Sectors" && chooseGroup(groupName(group))} type="button"><span className="chart-value">{group.strength ?? 0}</span><span className={`chart-bar ${classFor(group.direction)}`} style={{ height: `${Math.max(3, group.strength || 0)}%` }} /><span className="chart-label">{groupName(group)}</span></button>)}</div></section>
-      <section className="section-block picks-section"><div className="section-heading"><div><p className="eyebrow">Last trading day</p><h2>Top Active Stocks <ExplainButton className="help-button" label="?" title="Top Active Stocks" content={HELP.topPicks} onShow={showPopover} onHide={hidePopover} onPin={pinPopover} /></h2></div><span>{topPicks.length} picks</span></div><div className="picks-grid">{topPicks.map((stock) => <article className="stock-card" key={`pick-${stock.region}-${stock.market}-${stock.ticker}`}><div className="stock-card-top"><div><strong>{stock.ticker}</strong><span>{stockName(stock)}</span></div><b className={classFor(stock.action)}>{formatPercent(stock.weekly_return)}</b></div><div className="stock-card-price">{formatPrice(stock, stock.current_price)}</div><div className="stock-card-metrics"><span>Signal <b className={classFor(stock.action)}>{stock.action || "Hold"}</b></span><span>Valuation <b>{stock.decision_snapshot?.valuation?.label || "n/a"}</b></span><span>Risk <b>{stock.decision_snapshot?.risk?.label || "n/a"}</b></span></div></article>)}</div></section></div>
+      <section className="section-block picks-section"><div className="section-heading"><div><p className="eyebrow">Last trading day</p><h2>Top Active Stocks <ExplainButton className="help-button" label="?" title="Top Active Stocks" content={HELP.topPicks} onShow={showPopover} onHide={hidePopover} onPin={pinPopover} /></h2></div><span>{topPicks.length} picks</span></div><div className="picks-grid">{topPicks.map((stock) => <article className="stock-card" key={`pick-${stock.region}-${stock.market}-${stock.ticker}`}><div className="stock-card-top"><div><button className="stock-card-ticker" onClick={() => setSelectedStock(stock)} type="button">{stock.ticker}</button><span>{stockName(stock)}</span></div><b className={classFor(stock.action)}>{formatPercent(stock.weekly_return)}</b></div><div className="stock-card-price">{formatPrice(stock, stock.current_price)}</div><div className="stock-card-metrics"><span>Signal <b className={classFor(stock.action)}>{stock.action || "Hold"}</b></span><span>Valuation <b>{stock.decision_snapshot?.valuation?.label || "n/a"}</b></span><span>Risk <b>{stock.decision_snapshot?.risk?.label || "n/a"}</b></span></div></article>)}</div></section></div>
       <section className="section-block table-section"><div className="section-heading table-heading"><div><p className="eyebrow">Complete snapshot</p><h2>{displayedRows.length} stocks</h2></div><div className="table-tools"><span className="save-status">{isPending ? "Saving..." : status}</span><button aria-pressed={watchlistOnly} className={watchlistOnly ? "button secondary active" : "button secondary"} onClick={() => setWatchlistOnly((active) => !active)} type="button">Watchlist ({watchlist.length})</button><div className="column-menu-wrap"><button className="button secondary" onClick={() => setColumnMenuOpen((open) => !open)} type="button">Columns</button>{columnMenuOpen ? <div className="column-menu">{DEFAULT_COLUMNS.map((column) => <label key={column}><input checked={visibleColumns.includes(column)} onChange={() => toggleColumn(column)} type="checkbox" /> {COLUMNS[column]}</label>)}</div> : null}</div></div></div>
-      <div className="table-wrap"><table><thead><tr>{DEFAULT_COLUMNS.filter((column) => visibleColumns.includes(column)).map((column) => <th className={NUMERIC_COLUMNS.has(column) ? "num" : ""} key={column}>{!["watch", "decision"].includes(column) ? <button className="sort-button" onClick={() => sortBy(column)} type="button">{COLUMNS[column]} <span aria-hidden="true">{sortKey === column ? sortDirection === "asc" ? "↑" : "↓" : "↕"}</span></button> : COLUMNS[column]}</th>)}</tr></thead><tbody>{displayedRows.map((stock) => <StockRow key={`${stock.region}-${stock.market}-${stock.sector}-${stock.ticker}`} stock={stock} columns={visibleColumns} watched={watchlist.includes(stock.ticker)} onWatch={toggleWatchlist} onShow={showPopover} onHide={hidePopover} onPin={pinPopover} />)}</tbody></table></div></section>
+      <div className="table-wrap"><table><thead><tr>{DEFAULT_COLUMNS.filter((column) => visibleColumns.includes(column)).map((column) => <th className={NUMERIC_COLUMNS.has(column) ? "num" : ""} key={column}>{!["watch", "decision"].includes(column) ? <button className="sort-button" onClick={() => sortBy(column)} type="button">{COLUMNS[column]} <span aria-hidden="true">{sortKey === column ? sortDirection === "asc" ? "↑" : "↓" : "↕"}</span></button> : COLUMNS[column]}</th>)}</tr></thead><tbody>{displayedRows.map((stock) => <StockRow key={`${stock.region}-${stock.market}-${stock.sector}-${stock.ticker}`} stock={stock} columns={visibleColumns} watched={watchlist.includes(stock.ticker)} onOpenStock={setSelectedStock} onWatch={toggleWatchlist} onShow={showPopover} onHide={hidePopover} onPin={pinPopover} />)}</tbody></table></div></section>
       <footer className="data-footer"><span>Updated {formatTimestamp(currentReport.update.completed_at)} · Market data {currentReport.update.latest_price_date || currentReport.update.market_data_date || "n/a"}</span><span>Source: Yahoo Finance market and fundamental data. Signals are deterministic research outputs and may be incomplete or delayed.</span><span>Created by vittok. GitHub Pages remains available as the static fallback.</span></footer>
     </div>
     {popover ? <aside className={`summary-popover ${popover.pinned ? "pinned" : "hovering"}`} onClick={(event) => event.stopPropagation()} style={{ left: popover.x, top: popover.y }}><div><strong>{popover.title}</strong>{popover.pinned ? <button aria-label="Close explanation" onClick={() => setPopover(null)} type="button">×</button> : null}</div><p>{popover.content}</p></aside> : null}
+    <StockDetailDialog groupSignal={selectedGroupSignal ? { direction: selectedGroupSignal.direction, name: groupName(selectedGroupSignal), strength: selectedGroupSignal.strength } : null} onClose={() => setSelectedStock(null)} stock={selectedStock} />
   </div>;
 }
 
@@ -280,13 +349,13 @@ function sortValue(stock: DisplayStock, key: string): string | number | null {
 function SignalExplanation({ title, text, content, onShow, onHide, onPin }: { title: string; text: string; content: string; onShow: PopoverHandler; onHide: () => void; onPin: PopoverHandler }) { return <div><h2>{title} <ExplainButton className="help-button" label="?" title={title} content={content} onShow={onShow} onHide={onHide} onPin={onPin} /></h2><p>{text}</p></div>; }
 function Metric({ label, value }: { label: string; value: string }) { return <div><span>{label}</span><strong>{value}</strong></div>; }
 
-function StockRow({ stock, columns, watched, onWatch, onShow, onHide, onPin }: { stock: DisplayStock; columns: string[]; watched: boolean; onWatch: (ticker: string) => void; onShow: PopoverHandler; onHide: () => void; onPin: PopoverHandler }) {
+function StockRow({ stock, columns, watched, onOpenStock, onWatch, onShow, onHide, onPin }: { stock: DisplayStock; columns: string[]; watched: boolean; onOpenStock: (stock: StockSnapshot) => void; onWatch: (ticker: string) => void; onShow: PopoverHandler; onHide: () => void; onPin: PopoverHandler }) {
   const snapshot = stock.decision_snapshot;
   const closeDirection = stock.close_direction === "up" ? "positive" : stock.close_direction === "down" ? "negative" : "neutral";
   const values: Record<string, React.ReactNode> = {
     watch: <button aria-label={`${watched ? "Remove" : "Add"} ${stock.ticker} ${watched ? "from" : "to"} watchlist`} className={watched ? "watch-button active" : "watch-button"} onClick={() => onWatch(stock.ticker)} type="button">{watched ? "★" : "☆"}</button>,
     group: <span><strong>{stock.sector || stock.region || "n/a"}</strong>{stock.market ? <small>{stock.market}</small> : null}</span>, rank: stock.rank ?? "n/a",
-    ticker: <ExplainButton className="text-link ticker-link" label={stock.ticker} title={`${stock.ticker} daily summary`} content={stock.daily_summary || "No generated summary is available for this ticker today."} onShow={onShow} onHide={onHide} onPin={onPin} />,
+    ticker: <ExplainButton className="text-link ticker-link" label={stock.ticker} title={`${stock.ticker} daily summary`} content={stock.daily_summary || "No generated summary is available for this ticker today."} onActivate={() => onOpenStock(stock)} onShow={onShow} onHide={onHide} onPin={onPin} />,
     name: <ExplainButton className="text-link name-link" label={stockName(stock)} title={stockName(stock)} content={companySummary(stock)} onShow={onShow} onHide={onHide} onPin={onPin} />,
     current_price: formatPrice(stock, stock.current_price), previous_close: <span className={`close-value ${closeDirection}`}>{formatPrice(stock, stock.previous_close)} <b>{stock.close_direction === "up" ? "▲" : stock.close_direction === "down" ? "▼" : "●"}</b><small>{stock.previous_close_date || "n/a"} · {formatPercent(stock.close_change_pct)}</small></span>,
     action: <span className={`signal ${classFor(stock.action)}`}>{stock.action || "Hold"}</span>,

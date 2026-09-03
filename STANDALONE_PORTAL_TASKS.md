@@ -102,6 +102,8 @@ Supabase project:
   default market, visible columns, and watchlist.
 - [x] Add saved watchlist support.
 - [x] Add responsive layout matching current minimal sharp-corner design.
+- [x] Add owner-restricted manual market refresh with automatic report reload.
+- [x] Add a complete stock-information dialog from ticker symbols.
 
 ## Phase 6 - Historical Views
 
@@ -120,6 +122,7 @@ Supabase project:
 - [x] Add Render UAT portal URL to Google OAuth authorized origins.
 - [x] Add Render UAT callback URL to Supabase Auth redirect URLs.
 - [x] Import each GitHub-scheduled UAT update into Supabase as a temporary bridge.
+- [x] Allow an authorized portal user to trigger the existing update workflow as a temporary bridge.
 - [ ] Create Render scheduled job for market open refresh.
 - [ ] Create Render scheduled job for market close refresh.
 - [ ] Move SMTP notification into the standalone job flow.

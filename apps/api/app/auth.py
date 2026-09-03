@@ -1,12 +1,19 @@
+from dataclasses import dataclass
 from uuid import UUID
 
 import httpx
-from fastapi import Header, HTTPException
+from fastapi import Depends, Header, HTTPException
 
 from .config import get_settings
 
 
-async def require_user_id(authorization: str | None = Header(default=None)) -> UUID:
+@dataclass(frozen=True)
+class AuthenticatedUser:
+    id: UUID
+    email: str | None
+
+
+async def require_user(authorization: str | None = Header(default=None)) -> AuthenticatedUser:
     if not authorization or not authorization.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Missing bearer token")
 
@@ -30,6 +37,11 @@ async def require_user_id(authorization: str | None = Header(default=None)) -> U
         raise HTTPException(status_code=401, detail="Invalid or expired access token")
 
     try:
-        return UUID(response.json()["id"])
+        payload = response.json()
+        return AuthenticatedUser(id=UUID(payload["id"]), email=payload.get("email"))
     except (KeyError, TypeError, ValueError) as exc:
         raise HTTPException(status_code=401, detail="Invalid authenticated user") from exc
+
+
+async def require_user_id(user: AuthenticatedUser = Depends(require_user)) -> UUID:
+    return user.id

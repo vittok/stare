@@ -128,6 +128,12 @@ export type UserPreferences = {
   notification_settings: Record<string, unknown>;
 };
 
+export type MarketRefreshResponse = {
+  status: "queued" | "already_running";
+  message: string;
+  workflow_run_url?: string;
+};
+
 const defaultPreferences: UserPreferences = {
   theme: "system",
   default_region: null,
@@ -226,4 +232,30 @@ export async function putUserPreferences(
   }
 
   return response.json();
+}
+
+export async function triggerMarketRefresh(accessToken: string): Promise<MarketRefreshResponse> {
+  const apiUrl = getApiUrl();
+  if (!apiUrl) {
+    throw new Error("The market update service is not configured.");
+  }
+
+  const response = await fetch(`${apiUrl}/api/refresh`, {
+    method: "POST",
+    cache: "no-store",
+    headers: {
+      authorization: `Bearer ${accessToken}`
+    }
+  });
+  const payload = await response.json().catch(() => ({})) as Partial<MarketRefreshResponse> & { detail?: string };
+
+  if (!response.ok) {
+    throw new Error(payload.detail || "The market update could not be started.");
+  }
+
+  return {
+    status: payload.status || "queued",
+    message: payload.message || "The market update has been queued.",
+    workflow_run_url: payload.workflow_run_url
+  };
 }

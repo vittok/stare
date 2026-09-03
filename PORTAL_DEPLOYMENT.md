@@ -46,7 +46,11 @@ Create the first UAT deployment from Render's dashboard:
 8. Set `CORS_ORIGINS` on `stare-api` to `https://stare-portal.onrender.com`.
 9. Set `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` on `stare-api` so it can
    validate user access tokens.
-10. Redeploy both services after environment variables are finalized.
+10. Set `GITHUB_ACTIONS_TOKEN` on `stare-api` to a fine-grained GitHub token
+    scoped to `vittok/stare` with **Actions: Read and write** permission.
+11. Set `REFRESH_ALLOWED_EMAILS` on `stare-api` to the comma-separated Google
+    account emails allowed to start manual market updates.
+12. Redeploy both services after environment variables are finalized.
 
 Render UAT URLs will look similar to:
 
@@ -117,6 +121,10 @@ For the FastAPI service:
 - `CORS_ORIGINS`
 - `SUPABASE_URL`
 - `SUPABASE_PUBLISHABLE_KEY`
+- `GITHUB_ACTIONS_TOKEN` (backend-only fine-grained token)
+- `GITHUB_REPOSITORY=vittok/stare`
+- `GITHUB_WORKFLOW=pipeline_weekdays.yml`
+- `REFRESH_ALLOWED_EMAILS` (comma-separated update administrators)
 
 For the Next.js frontend:
 
@@ -134,6 +142,25 @@ During UAT, the existing GitHub market refresh also imports each completed
 report into Supabase when the repository secret `DATABASE_URL` is configured.
 This keeps the portal current until the refresh is moved to a standalone
 scheduled service.
+
+## Manual Portal Refresh
+
+Authenticated update administrators can select **Refresh data** in the portal.
+The request is sent through the Next.js server to FastAPI, which validates the
+Supabase user and checks `REFRESH_ALLOWED_EMAILS`. FastAPI then starts the same
+`pipeline_weekdays.yml` workflow used for scheduled updates. This ensures a
+manual refresh uses the established price pull, calculations, recommendation
+generation, database import, static fallback publishing, and notification flow.
+
+The API checks for a queued or active workflow before dispatching another one.
+After a request is accepted, the portal checks for a newly completed database
+snapshot and replaces the visible report automatically. The GitHub token is
+never sent to the browser.
+
+Create the token in GitHub under **Settings > Developer settings > Personal
+access tokens > Fine-grained tokens**. Limit repository access to `vittok/stare`
+and grant **Actions: Read and write**. Store the token only in the Render
+`stare-api` environment as `GITHUB_ACTIONS_TOKEN`.
 
 ## Secret Rotation Before Production
 

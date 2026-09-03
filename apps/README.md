@@ -102,7 +102,13 @@ Current UAT URLs:
 Set these environment variables in Render:
 
 - `stare-api`: `DATABASE_URL`, `CORS_ORIGINS=https://stare-portal.onrender.com`,
-  `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`
+  `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `GITHUB_ACTIONS_TOKEN`,
+  `REFRESH_ALLOWED_EMAILS`
 - `stare-portal`: `FASTAPI_URL=https://stare-api.onrender.com`, `NEXT_PUBLIC_APP_URL=https://stare-portal.onrender.com`
 
 `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` are included in the blueprint because they are browser-safe project configuration.
+
+`GITHUB_ACTIONS_TOKEN` must be a backend-only fine-grained token for
+`vittok/stare` with Actions read/write permission. It lets an allowed signed-in
+user start the established update workflow from the portal without exposing the
+token to the browser.
