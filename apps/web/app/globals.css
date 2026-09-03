@@ -136,6 +136,21 @@ button { border-radius: 0; }
   position: sticky;
   top: var(--header-height);
 }
+.sidebar-account {
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+  display: grid;
+  gap: 10px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  margin-bottom: 22px;
+  padding: 0 0 20px;
+}
+.sidebar-account > div { display: grid; gap: 3px; min-width: 0; }
+.sidebar-account .control-label { margin-bottom: 3px; }
+.sidebar-account strong, .sidebar-account small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sidebar-account strong { font-size: 13px; }
+.sidebar-account small { color: var(--muted); font-size: 10px; }
+.sidebar-signout { min-height: 34px; padding: 7px 10px; }
 .sidebar-section { margin-bottom: 24px; }
 .control-label, .eyebrow {
   color: var(--muted);

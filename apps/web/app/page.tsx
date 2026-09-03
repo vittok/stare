@@ -1,4 +1,3 @@
-import { AuthButton } from "../components/auth-button";
 import { LoginExperience } from "../components/login-experience";
 import { PortalDashboard } from "../components/portal-dashboard";
 import { getLatestReport, getUserPreferences } from "../lib/portal-api";
@@ -16,6 +15,12 @@ export default async function Home() {
   const latestReport = await getLatestReport();
   const preferences = await getUserPreferences(session?.access_token);
   const signedIn = Boolean(user);
+  const userIdentity = user ? {
+    displayName: typeof user.user_metadata.full_name === "string"
+      ? user.user_metadata.full_name
+      : user.email?.split("@")[0] || "User",
+    email: user.email || ""
+  } : null;
 
   return (
     <LoginExperience signedIn={signedIn}>
@@ -26,7 +31,6 @@ export default async function Home() {
               <Image alt="S.T.A.R.E logo" className="brand-logo" height={52} priority src="/Logo.png" width={52} />
               <span>Sector & Stock Trend Analysis Engine <b>(S.T.A.R.E)</b></span>
             </div>
-            {signedIn ? <AuthButton signedIn /> : null}
           </div>
         </header>
 
@@ -35,6 +39,7 @@ export default async function Home() {
             preferences={preferences}
             report={latestReport}
             signedIn={signedIn}
+            user={userIdentity}
           />
         </div>
 

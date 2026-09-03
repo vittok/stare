@@ -2,9 +2,11 @@
 
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { savePreferences } from "../app/actions";
+import { AuthButton } from "./auth-button";
 import type { DecisionSnapshot, LatestReport, RegionSnapshot, SectorSnapshot, StockSnapshot, UserPreferences } from "../lib/portal-api";
 
-type Props = { report: LatestReport | null; preferences: UserPreferences; signedIn: boolean };
+type UserIdentity = { displayName: string; email: string };
+type Props = { report: LatestReport | null; preferences: UserPreferences; signedIn: boolean; user: UserIdentity | null };
 type RegionMode = "All" | "NA" | "Sectors" | "LAC" | "EMEA" | "APAC";
 type Direction = "All" | "Bullish" | "Bearish" | "Neutral";
 type Group = RegionSnapshot | SectorSnapshot;
@@ -78,7 +80,7 @@ function ExplainButton({ className, label, title, content, onShow, onHide, onPin
   return <button className={className} onBlur={onHide} onClick={(event) => { event.stopPropagation(); onPin(title, content); }} onFocus={() => onShow(title, content)} onMouseEnter={() => onShow(title, content)} onMouseLeave={onHide} type="button">{label}</button>;
 }
 
-export function PortalDashboard({ report, preferences, signedIn }: Props) {
+export function PortalDashboard({ report, preferences, signedIn, user }: Props) {
   const initialRegion = REGION_ORDER.includes(preferences.default_region as RegionMode) ? preferences.default_region as RegionMode : "Sectors";
   const [regionMode, setRegionMode] = useState<RegionMode>(initialRegion);
   const [direction, setDirection] = useState<Direction>("All");
@@ -221,6 +223,7 @@ export function PortalDashboard({ report, preferences, signedIn }: Props) {
 
   return <div className="portal-layout" onClick={() => popover?.pinned && setPopover(null)}>
     <aside className="sidebar" onClick={(event) => event.stopPropagation()}>
+      {signedIn && user ? <section className="sidebar-account" aria-label="Signed-in account"><div><span className="control-label">Signed in</span><strong title={user.displayName}>{user.displayName}</strong><small title={user.email}>{user.email}</small></div><AuthButton className="button secondary sidebar-signout" label="Sign out" signedIn /></section> : null}
       <div className="sidebar-section"><label className="control-label" htmlFor="stock-search">Search</label><input autoComplete="off" className="search-input" id="stock-search" onChange={(event) => setSearch(event.target.value)} placeholder="Ticker, company, group" type="search" value={search} /></div>
       <div className="sidebar-section"><span className="control-label">Direction</span><div className="segmented direction-control">{(["All", "Bullish", "Bearish", "Neutral"] as Direction[]).map((item) => <button className={direction === item ? "active" : ""} key={item} onClick={() => setDirection(item)} type="button">{item}</button>)}</div></div>
       <div className="sidebar-section"><span className="control-label">Regions</span><div className="segmented region-control">{REGION_ORDER.map((region) => <button className={regionMode === region ? "active" : ""} key={region} onClick={() => chooseRegion(region)} type="button">{REGION_LABELS[region]}</button>)}</div></div>
