@@ -126,6 +126,58 @@ button { border-radius: 0; }
 .login-google-button { align-items: center; display: flex; font-weight: 700; justify-content: center; min-height: 50px; width: 100%; }
 .login-disclaimer { border-top: 1px solid var(--line); color: var(--muted); font-size: 10px; line-height: 1.5; margin: 24px 0 0; padding-top: 18px; }
 
+.help-launcher {
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  color: var(--ink);
+  cursor: pointer;
+  display: flex;
+  font-size: 18px;
+  font-weight: 800;
+  height: 38px;
+  justify-content: center;
+  padding: 0;
+  position: fixed;
+  right: 28px;
+  top: 19px;
+  width: 38px;
+  z-index: 150;
+}
+.help-launcher:hover, .help-launcher:focus-visible { background: var(--ink); color: var(--surface); outline: 2px solid var(--blue); outline-offset: 2px; }
+.help-dialog {
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  color: var(--ink);
+  max-height: min(760px, calc(100vh - 48px));
+  max-width: 760px;
+  overflow-y: auto;
+  padding: 0;
+  width: calc(100% - 32px);
+}
+.help-dialog::backdrop { background: rgba(10, 12, 10, .68); backdrop-filter: blur(4px); }
+.help-dialog-header {
+  align-items: flex-start;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  padding: 28px 30px 24px;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+.help-dialog-header .eyebrow { margin-bottom: 6px; }
+.help-dialog-header h2 { font-size: 30px; margin: 0; }
+.help-close { background: transparent; border: 0; color: var(--ink); cursor: pointer; font-size: 28px; height: 36px; line-height: 1; padding: 0; width: 36px; }
+.help-close:hover, .help-close:focus-visible { background: var(--surface-2); outline: 2px solid var(--blue); }
+.help-content { padding: 4px 30px; }
+.help-content section { border-bottom: 1px solid var(--line); padding: 22px 0; }
+.help-content section:last-child { border-bottom: 0; }
+.help-content h3 { font-size: 16px; margin: 0 0 8px; }
+.help-content p { color: var(--muted); font-size: 13px; line-height: 1.65; margin: 0; }
+.help-notice { background: var(--surface-2); border-top: 1px solid var(--line); color: var(--muted); font-size: 11px; line-height: 1.6; margin: 0; padding: 20px 30px; }
+
 .portal-layout { display: grid; grid-template-columns: var(--sidebar-width) minmax(0, 1fr); min-height: calc(100vh - var(--header-height)); }
 .sidebar {
   background: var(--surface);
@@ -385,6 +437,7 @@ tbody tr:hover { background: var(--surface-2); }
   .brand-logo { height: 42px; width: 42px; }
   .brand span { font-size: 12px; }
   .brand b { display: none; }
+  .help-launcher { right: 14px; top: 14px; }
   .portal-layout { display: block; }
   .sidebar { border-bottom: 1px solid var(--line); border-right: 0; height: auto; overflow: visible; padding: 14px; position: static; }
   .sidebar-section { margin-bottom: 14px; }
@@ -429,6 +482,12 @@ tbody tr:hover { background: var(--surface-2); }
   .login-dialog-brand img { height: 58px; width: 58px; }
   .login-dialog-copy { padding: 24px 0 20px; }
   .login-dialog-copy h1 { font-size: 32px; }
+  .help-dialog { max-height: calc(100vh - 20px); width: calc(100% - 20px); }
+  .help-dialog-header { padding: 22px 20px 18px; }
+  .help-dialog-header h2 { font-size: 25px; }
+  .help-content { padding: 2px 20px; }
+  .help-content section { padding: 18px 0; }
+  .help-notice { padding: 18px 20px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -436,7 +495,7 @@ tbody tr:hover { background: var(--surface-2); }
 }
 
 @media print {
-  .topbar, .sidebar, .workspace-actions, .column-menu-wrap, .watch-button, .summary-popover { display: none !important; }
+  .topbar, .sidebar, .workspace-actions, .column-menu-wrap, .watch-button, .summary-popover, .help-launcher, .help-dialog { display: none !important; }
   .portal-layout { display: block; }
   .workspace { padding: 0; }
   .section-block, .signal-strip, .kpi-strip { break-inside: avoid; }

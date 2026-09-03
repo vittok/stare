@@ -3,6 +3,7 @@
 import Image from "next/image";
 import type { PointerEvent, ReactNode } from "react";
 import { AuthButton } from "./auth-button";
+import { PortalHelp } from "./portal-help";
 
 type LoginExperienceProps = {
   children: ReactNode;
@@ -10,7 +11,7 @@ type LoginExperienceProps = {
 };
 
 export function LoginExperience({ children, signedIn }: LoginExperienceProps) {
-  if (signedIn) return children;
+  if (signedIn) return <><PortalHelp />{children}</>;
 
   function movePreview(event: PointerEvent<HTMLDivElement>) {
     const bounds = event.currentTarget.getBoundingClientRect();
@@ -28,6 +29,7 @@ export function LoginExperience({ children, signedIn }: LoginExperienceProps) {
 
   return (
     <div className="login-experience" onPointerLeave={resetPreview} onPointerMove={movePreview}>
+      <PortalHelp />
       <div aria-hidden="true" className="login-preview" inert>
         {children}
       </div>
