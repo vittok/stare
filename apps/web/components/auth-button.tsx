@@ -3,10 +3,12 @@
 import { createClient } from "../lib/supabase/client";
 
 type AuthButtonProps = {
+  className?: string;
+  label?: string;
   signedIn: boolean;
 };
 
-export function AuthButton({ signedIn }: AuthButtonProps) {
+export function AuthButton({ className = "button", label, signedIn }: AuthButtonProps) {
   const supabase = createClient();
 
   async function signIn() {
@@ -25,8 +27,8 @@ export function AuthButton({ signedIn }: AuthButtonProps) {
   }
 
   return (
-    <button className="button" onClick={signedIn ? signOut : signIn}>
-      {signedIn ? "Sign out" : "Sign in with Google"}
+    <button className={className} onClick={signedIn ? signOut : signIn} type="button">
+      {label || (signedIn ? "Sign out" : "Sign in with Google")}
     </button>
   );
 }
