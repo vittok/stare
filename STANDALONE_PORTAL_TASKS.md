@@ -114,6 +114,8 @@ Supabase project:
 - [x] Add owner-restricted manual market refresh with automatic report reload.
 - [x] Show live market refresh progress from GitHub Actions job steps.
 - [x] Add a complete stock-information dialog from ticker symbols.
+- [x] Add commit-derived Semantic Versioning, user-facing release notes, and
+  an unread What's new indicator.
 
 ## Phase 6 - Historical Views
 

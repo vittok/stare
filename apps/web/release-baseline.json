@@ -1,0 +1,18 @@
+{
+  "base_version": "1.0.0",
+  "base_commit": "1f2c5b65b0372dbbf42a00c72c5c09433e20e4e7",
+  "repository_url": "https://github.com/vittok/stare",
+  "initial_release": {
+    "version": "1.0.0",
+    "title": "Standalone portal foundation",
+    "date": "2026-09-05",
+    "commit": "1f2c5b65b0372dbbf42a00c72c5c09433e20e4e7",
+    "level": "major",
+    "changes": [
+      "Launched the authenticated S.T.A.R.E portal with regional and sector market views.",
+      "Added named watchlists, saved preferences, and adjustable scoring weights.",
+      "Added standard versus personalized stock signal comparisons.",
+      "Added on-demand market updates with progress reporting and detailed company views."
+    ]
+  }
+}

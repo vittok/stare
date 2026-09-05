@@ -4,6 +4,7 @@ __pycache__/
 .python_deps/
 node_modules/
 .next/
+apps/web/public/releases.json
 supabase/.temp/
 *.tsbuildinfo
 .vscode/

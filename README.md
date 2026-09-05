@@ -101,6 +101,11 @@ print; named watchlists; adjustable scoring-factor weights with standard versus
 personal signal comparison; visible-column
 preferences; and exact update/source context.
 
+Portal release notes and versions are generated from conventional Git commits.
+The What's new control shows each user-facing release and indicates when the
+latest version has not been opened in the current browser. Version and commit
+rules are documented in `RELEASES.md`.
+
 Local portal setup is documented in `apps/README.md`. Production auth, DNS, deployment secrets, and secret rotation notes are tracked in `PORTAL_DEPLOYMENT.md`. The project task tracker is `STANDALONE_PORTAL_TASKS.md`.
 
 ## Data Sources

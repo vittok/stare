@@ -23,6 +23,8 @@ The existing GitHub Pages app remains the public demo/fallback while this portal
   market dashboard remains public during UAT.
 - FastAPI validates each preference request against the caller's Supabase
   access token before selecting or updating user data.
+- The What's new dialog is generated from conventional Git commits and marks
+  newly deployed application versions as unread in each browser.
 
 ## Local Frontend
 
@@ -31,6 +33,10 @@ cd apps/web
 npm install
 npm run dev
 ```
+
+User-facing commits follow the SemVer and release-note convention documented
+in `../RELEASES.md`. `npm run release:generate` creates the browser manifest
+from Git metadata and runs automatically before development and builds.
 
 The frontend expects these environment variables:
 

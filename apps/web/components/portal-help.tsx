@@ -1,6 +1,8 @@
 "use client";
 
+import { CircleHelp } from "lucide-react";
 import { useRef } from "react";
+import { PortalUpdates } from "./portal-updates";
 
 export function PortalHelp() {
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -16,16 +18,20 @@ export function PortalHelp() {
 
   return (
     <>
-      <button
-        aria-label="Open portal help"
-        className="help-launcher"
-        onClick={openHelp}
-        ref={triggerRef}
-        title="Help"
-        type="button"
-      >
-        ?
-      </button>
+      <div className="portal-tools">
+        <PortalUpdates />
+        <button
+          aria-label="Open portal help"
+          className="portal-tool-button help-launcher"
+          onClick={openHelp}
+          ref={triggerRef}
+          title="Help"
+          type="button"
+        >
+          <CircleHelp aria-hidden="true" size={18} strokeWidth={2} />
+          <span>Help</span>
+        </button>
+      </div>
 
       <dialog
         aria-labelledby="portal-help-title"
