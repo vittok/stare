@@ -82,6 +82,13 @@ The first Supabase imports have been verified with populated historical data and
 PYTHONPATH=.python_deps:src python src/export_reports_to_postgres.py --run-label "portal seed with shared recommendations"
 ```
 
+Before an update becomes visible in the portal, the writer validates expected
+sector and region coverage, minimum stock counts, market dates, price and
+latest-day activity coverage, generated signals, and final database row counts.
+Incomplete pulls are rolled back and recorded as `failed` in `update_runs`, with
+the failure stage and diagnostics retained for investigation. The portal keeps
+serving the newest successful report.
+
 The local backend uses Supabase's Session Pooler connection string through `DATABASE_URL`. Keep that value in `.env` or deployment secrets only; do not commit it.
 
 The portal includes All Regions, NA, NA/Sectors, LAC, EMEA, and APAC views;
@@ -629,6 +636,8 @@ python src/run_pipeline.py --postgres-mode required
 Use `--postgres-mode auto` when Postgres should be used only when a database
 URL is available. Production GitHub updates use `required`, so a missing or
 failed database write fails the update instead of leaving the portal stale.
+Scheduled Postgres writes reject reports older than seven days by default. Set
+`STARE_MAX_DATA_AGE_DAYS` to adjust that tolerance for extended market closures.
 
 Refresh only the publishable app from existing report data:
 

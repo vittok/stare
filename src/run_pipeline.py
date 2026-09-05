@@ -5,6 +5,7 @@ import os
 import subprocess
 import sys
 import time
+from datetime import UTC, datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -75,6 +76,7 @@ def persist_to_postgres(database_url: str, run_label: str) -> str:
         region_report_path=ROOT / "reports/region_dashboard.json",
         run_label=run_label,
         triggered_by="market_pipeline",
+        max_data_age_days=int(os.getenv("STARE_MAX_DATA_AGE_DAYS", "7")),
     )
 
 
@@ -95,6 +97,32 @@ def _database_url(explicit_url: str | None) -> str | None:
     from export_reports_to_postgres import resolve_database_url
 
     return resolve_database_url(explicit_url)
+
+
+def log_pipeline_failure(
+    database_url: str,
+    run_label: str,
+    started_at: datetime,
+    completed_steps: list[str],
+    failed_steps: list[dict[str, object]],
+) -> str:
+    from export_reports_to_postgres import record_failed_update
+
+    return record_failed_update(
+        database_url=database_url,
+        run_label=run_label,
+        triggered_by="market_pipeline",
+        stage="market_data_calculation",
+        message="; ".join(
+            f"{step['name']} exited with code {step['returncode']}" for step in failed_steps
+        ),
+        diagnostics={
+            "partial_data": bool(completed_steps),
+            "completed_steps": completed_steps,
+            "failed_steps": failed_steps,
+        },
+        started_at=started_at,
+    )
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -123,9 +151,14 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     write_postgres = bool(database_url) and args.postgres_mode in {"auto", "required"}
+    refresh_label = args.run_label or os.getenv("STARE_REFRESH_LABEL", "manual")
+    run_label = f"{refresh_label.strip() or 'manual'} portal update"
+    pipeline_started_at = datetime.now(UTC)
     steps = build_steps(args.with_fundamentals)
     total_steps = len(steps) + (1 if write_postgres else 0)
     failures = 0
+    completed_steps: list[str] = []
+    failed_steps: list[dict[str, object]] = []
     step_idx = 0
 
     for step in steps:
@@ -133,16 +166,28 @@ def main(argv: list[str] | None = None) -> int:
         step_idx += 1
         try:
             run_step(name, cmd, step_idx, total_steps, env)
+            completed_steps.append(name)
         except subprocess.CalledProcessError as e:
             failures += 1
+            failed_steps.append({"name": name, "returncode": e.returncode})
             print(f"✗ FAILED ({e.returncode}): {name}")
             if not args.continue_on_error:
+                if write_postgres:
+                    try:
+                        failure_id = log_pipeline_failure(
+                            database_url,
+                            run_label,
+                            pipeline_started_at,
+                            completed_steps,
+                            failed_steps,
+                        )
+                        print(f"Failure recorded in update_run_id={failure_id}")
+                    except Exception as log_exc:
+                        print(f"Could not record update failure: {log_exc}", file=sys.stderr)
                 return e.returncode
 
     if write_postgres and failures == 0:
         step_idx += 1
-        refresh_label = args.run_label or os.getenv("STARE_REFRESH_LABEL", "manual")
-        run_label = f"{refresh_label.strip() or 'manual'} portal update"
         try:
             run_postgres_step(database_url, run_label, step_idx, total_steps)
         except Exception as exc:
@@ -154,6 +199,17 @@ def main(argv: list[str] | None = None) -> int:
         print("\nPostgres output skipped because DATABASE_URL is not configured.")
     elif write_postgres and failures:
         print("\nPostgres output skipped because an earlier step failed.")
+        try:
+            failure_id = log_pipeline_failure(
+                database_url,
+                run_label,
+                pipeline_started_at,
+                completed_steps,
+                failed_steps,
+            )
+            print(f"Failure recorded in update_run_id={failure_id}")
+        except Exception as log_exc:
+            print(f"Could not record update failure: {log_exc}", file=sys.stderr)
 
     print("\n" + progress_bar(total_steps, total_steps))
     print("🎉 Market update finished.")

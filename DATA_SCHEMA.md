@@ -63,6 +63,25 @@ id | run_label | triggered_by | status | started_at | completed_at | market_data
 
 One row per standalone portal import or future scheduled update.
 
+### Update validation and failure audit
+
+An update is marked `success` only after `src/export_reports_to_postgres.py`
+confirms all 11 S&P 500 sectors and APAC, EMEA, and LAC are present, each group
+has at least three stocks, price and latest-day activity coverage are at least
+90%, group signals and generated stock recommendations are valid, and the
+Postgres row counts match the validated report totals. Scheduled updates also
+reject market data older than seven calendar days by default; override that
+limit with `STARE_MAX_DATA_AGE_DAYS` when needed.
+
+The `update_runs` audit row is committed before snapshot persistence. Snapshot
+rows and the final status change are then written atomically. If artifact
+loading, validation, or persistence fails, snapshot changes are rolled back and
+the audit row is marked `failed`. Its `diagnostics.failure` object records the
+stage, exception type, message, and validation errors where applicable.
+Calculation-step failures are also recorded with completed and failed step
+lists. Failed rows are not selected as the portal's latest report, so users
+continue to see the newest successful snapshot.
+
 ### Snapshot retention
 
 Supabase Cron runs `private.cleanup_market_snapshot_retention(30)` every day at

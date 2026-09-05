@@ -81,8 +81,8 @@ Supabase project:
 - [x] Persist recommendation snapshots from the same code path that generates buy/hold/sell signals.
 - [x] Verify a Supabase import with populated `stock_recommendations` after remote execution is available.
 - [x] Keep JSON export generation as a fallback/debug artifact.
-- [ ] Add validation checks before marking an update as successful.
-- [ ] Add failure logging for partial data pulls.
+- [x] Add validation checks before marking an update as successful.
+- [x] Add failure logging for partial data pulls.
 - [x] Run first Supabase import after replacing direct DB URL with Session Pooler URL.
 
 ## Phase 5 - Standalone Web App
