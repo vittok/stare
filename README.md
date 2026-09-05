@@ -1,6 +1,6 @@
-# Sector & Stock Trend Analysis Engine (S.T.A.R.E)
+# Stock Trend Analysis Risk Engine (S.T.A.R.E)
 
-Sector & Stock Trend Analysis Engine (S.T.A.R.E) is an automated analytics system for monitoring S&P 500 sector momentum, regional market activity, active stocks, and basic company fundamentals.
+Stock Trend Analysis Risk Engine (S.T.A.R.E) is an automated analytics system for monitoring S&P 500 sector momentum, regional market activity, active stocks, basic company fundamentals, and market risk signals.
 
 The repository now supports two delivery paths:
 

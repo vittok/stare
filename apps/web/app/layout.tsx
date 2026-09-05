@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "S.T.A.R.E Portal",
-  description: "Personalized market trend analysis for S.T.A.R.E."
+  title: "Stock Trend Analysis Risk Engine (S.T.A.R.E)",
+  description: "Personalized market trend and risk analysis from S.T.A.R.E."
 };
 
 export default function RootLayout({

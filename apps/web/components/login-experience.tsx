@@ -39,7 +39,7 @@ export function LoginExperience({ children, signedIn }: LoginExperienceProps) {
           <div className="login-dialog-brand">
             <Image alt="S.T.A.R.E logo" height={72} priority src="/Logo.png" width={72} />
             <div>
-              <span>Sector &amp; Stock Trend Analysis Engine</span>
+              <span>Stock Trend Analysis Risk Engine</span>
               <strong>S.T.A.R.E</strong>
             </div>
           </div>

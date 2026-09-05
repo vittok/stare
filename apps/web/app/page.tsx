@@ -29,7 +29,7 @@ export default async function Home() {
           <div className="topbar-inner">
             <div className="brand">
               <Image alt="S.T.A.R.E logo" className="brand-logo" height={52} priority src="/Logo.png" width={52} />
-              <span>Sector & Stock Trend Analysis Engine <b>(S.T.A.R.E)</b></span>
+              <span>Stock Trend Analysis Risk Engine <b>(S.T.A.R.E)</b></span>
             </div>
           </div>
         </header>

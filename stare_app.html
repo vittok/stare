@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Sector & Stock Trend Analysis Engine (S.T.A.R.E)</title>
+  <title>Stock Trend Analysis Risk Engine (S.T.A.R.E)</title>
   <link rel="icon" href="Logo.png" type="image/png" />
   <style>
     :root {
@@ -517,7 +517,7 @@
         <img class="mark" src="Logo.png" alt="S.T.A.R.E logo" />
         <div>
           <h1>S.T.A.R.E</h1>
-          <small>Sector & Stock Trend Analysis Engine</small>
+          <small>Stock Trend Analysis Risk Engine</small>
         </div>
       </div>
 
@@ -549,7 +549,7 @@
     <main>
       <div class="toolbar">
         <div class="headline">
-          <h2 id="viewTitle">Sector & Stock Trend Analysis Engine (S.T.A.R.E)</h2>
+          <h2 id="viewTitle">Stock Trend Analysis Risk Engine (S.T.A.R.E)</h2>
           <p id="viewSubtitle"></p>
           <p class="refresh-line">Signals are deterministic model outputs for research, not personalized financial advice.</p>
         </div>
@@ -991,7 +991,7 @@
     function renderHeader(currentSectors) {
       const regionMode = state.selectedRegion !== 'Sectors';
       const groupWord = regionMode ? 'region' : 'sector';
-      const title = state.selectedSector || state.selectedMarket || (regionMode ? (state.selectedRegion === 'All' ? 'All Regions' : state.selectedRegion) : 'Sector & Stock Trend Analysis Engine (S.T.A.R.E)');
+      const title = state.selectedSector || state.selectedMarket || (regionMode ? (state.selectedRegion === 'All' ? 'All Regions' : state.selectedRegion) : 'Stock Trend Analysis Risk Engine (S.T.A.R.E)');
       const weeks = [...new Set(currentSectors.map(s => s.week_ending).filter(Boolean))].join(', ');
       const refresh = DATA.last_refresh?.display || DATA.last_refresh?.iso_utc || 'n/a';
       const timezone = DATA.last_refresh?.timezone || 'GMT';

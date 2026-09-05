@@ -101,6 +101,11 @@ Supabase project:
 - [x] Add saved user preferences for theme, default region, default sector,
   default market, visible columns, and watchlist.
 - [x] Add saved watchlist support.
+- [ ] Add multiple named custom watchlists per user.
+- [ ] Add validated per-user scoring weights with model defaults and a reset
+  option.
+- [ ] Show the standard model signal alongside personalized scores so users
+  can compare them.
 - [x] Add responsive layout matching current minimal sharp-corner design.
 - [x] Add owner-restricted manual market refresh with automatic report reload.
 - [x] Show live market refresh progress from GitHub Actions job steps.
@@ -155,7 +160,7 @@ Supabase project:
 ## Open Questions
 
 - [x] Keep the dashboard publicly readable during UAT; require sign-in for saved personalization.
-- [ ] Should users be able to create custom watchlists only, or also custom scoring weights?
+- [x] Allow users to create custom watchlists and configure custom scoring weights.
 - [ ] Should historical data be stored for every tracked ticker or only displayed top picks?
 - [ ] How long should daily snapshots be retained?
 - [ ] Should email reports become per-user configurable?
