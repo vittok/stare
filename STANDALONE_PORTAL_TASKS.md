@@ -105,8 +105,8 @@ Supabase project:
 - [x] Add saved user preferences for theme, default region, default sector,
   default market, visible columns, and watchlist.
 - [x] Add saved watchlist support.
-- [ ] Add multiple named custom watchlists per user.
-- [ ] Add validated per-user scoring weights with model defaults and a reset
+- [x] Add multiple named custom watchlists per user.
+- [x] Add validated per-user scoring weights with model defaults and a reset
   option.
 - [ ] Show the standard model signal alongside personalized scores so users
   can compare them.

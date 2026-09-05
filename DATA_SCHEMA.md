@@ -56,7 +56,9 @@ ticker | asof_utc | normalized_json
 Defined in `supabase/migrations/001_initial_portal_schema.sql`, hardened by
 `supabase/migrations/002_portal_security_hardening.sql`, and maintained by the
 30-day retention job in
-`supabase/migrations/20260905150822_market_snapshot_retention.sql`.
+`supabase/migrations/20260905150822_market_snapshot_retention.sql`. Named
+watchlists and scoring profiles are added by
+`supabase/migrations/20260905154101_named_watchlists_and_scoring_weights.sql`.
 
 ## update_runs
 id | run_label | triggered_by | status | started_at | completed_at | market_data_date | latest_price_date | source_commit | diagnostics | created_at
@@ -119,4 +121,26 @@ Linked to Supabase Auth users.
 ## user_preferences
 user_id | theme | default_region | default_sector | default_market | visible_columns | watchlist | notification_settings | created_at | updated_at
 
-Stores per-user personalization settings. Row Level Security allows users to read and update only their own rows.
+Stores per-user display and navigation settings. The original `watchlist` array
+is retained as a compatibility field; new watchlists use the normalized tables
+below. Row Level Security allows users to read and update only their own rows.
+
+## user_watchlists
+id | user_id | name | is_default | created_at | updated_at
+
+Stores multiple uniquely named lists per user. A partial unique index permits at
+most one default list for each user.
+
+## user_watchlist_items
+watchlist_id | user_id | ticker | created_at
+
+Stores normalized uppercase ticker membership. The composite foreign key binds
+each item to a watchlist owned by the same user, and deleting a list cascades to
+its items.
+
+## user_scoring_weights
+user_id | group_sentiment_weight | pe_weight | pb_weight | peg_weight | dividend_weight | momentum_weight | created_at | updated_at
+
+Stores one optional custom scoring profile per user. Each factor is constrained
+between `0.0` and `2.0`; at least one factor must remain above zero. Missing or
+reset profiles use the standard model multiplier of `1.0` for every factor.

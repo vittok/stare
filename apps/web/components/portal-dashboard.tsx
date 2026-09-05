@@ -2,13 +2,39 @@
 
 import { useEffect, useMemo, useState, useTransition } from "react";
 import type { FocusEvent, MouseEvent } from "react";
-import { getMarketRefreshProgress, savePreferences, startMarketRefresh } from "../app/actions";
+import {
+  createWatchlist,
+  deleteWatchlist,
+  getMarketRefreshProgress,
+  resetScoringWeights,
+  savePreferences,
+  saveScoringWeights,
+  saveWatchlist,
+  startMarketRefresh
+} from "../app/actions";
 import { AuthButton } from "./auth-button";
 import { StockDetailDialog } from "./stock-detail-dialog";
-import type { DecisionSnapshot, LatestReport, RegionSnapshot, SectorSnapshot, StockSnapshot, UserPreferences } from "../lib/portal-api";
+import {
+  defaultScoringWeights,
+  type DecisionSnapshot,
+  type LatestReport,
+  type RegionSnapshot,
+  type ScoringWeights,
+  type SectorSnapshot,
+  type StockSnapshot,
+  type UserPreferences,
+  type UserWatchlist
+} from "../lib/portal-api";
 
 type UserIdentity = { displayName: string; email: string };
-type Props = { report: LatestReport | null; preferences: UserPreferences; signedIn: boolean; user: UserIdentity | null };
+type Props = {
+  report: LatestReport | null;
+  preferences: UserPreferences;
+  scoringWeights: ScoringWeights;
+  signedIn: boolean;
+  user: UserIdentity | null;
+  watchlists: UserWatchlist[];
+};
 type RegionMode = "All" | "NA" | "Sectors" | "LAC" | "EMEA" | "APAC";
 type Direction = "All" | "Bullish" | "Bearish" | "Neutral";
 type Group = RegionSnapshot | SectorSnapshot;
@@ -32,6 +58,14 @@ const HELP = {
   recommendation: "The recommendation starts with the sector or region raw score and adjusts it using weekly momentum and fundamentals. Lower P/E, lower P/B, PEG below 1, and dividend support can improve the score. Expensive valuation, weak momentum, or bearish group sentiment can reduce it. The final deterministic score maps to Buy, Hold, or Sell; confidence reflects score magnitude.",
   topPicks: "Top active stocks are ranked by latest available trading-day dollar volume, not cumulative weekly volume. The period is the last trading day captured by the update. Weekly return and volume ratio remain supporting context but do not determine pick order."
 };
+const SCORING_FACTORS: { key: keyof ScoringWeights; label: string }[] = [
+  { key: "group_sentiment_weight", label: "Group sentiment" },
+  { key: "pe_weight", label: "P/E" },
+  { key: "pb_weight", label: "P/B" },
+  { key: "peg_weight", label: "PEG" },
+  { key: "dividend_weight", label: "Dividend yield" },
+  { key: "momentum_weight", label: "Momentum" }
+];
 
 function toNumber(value?: number | string | null) {
   if (value === null || value === undefined || value === "") return null;
@@ -95,7 +129,7 @@ function ExplainButton({ className, label, title, content, onActivate, onShow, o
   return <button className={className} onBlur={onHide} onClick={(event) => { event.stopPropagation(); if (onActivate) { onHide(); onActivate(); return; } const point = pointerPosition(event); onPin(title, content, point.x, point.y); }} onFocus={(event) => { const point = focusPosition(event); onShow(title, content, point.x, point.y); }} onMouseEnter={(event) => { const point = pointerPosition(event); onShow(title, content, point.x, point.y); }} onMouseLeave={onHide} onMouseMove={(event) => { const point = pointerPosition(event); onShow(title, content, point.x, point.y); }} type="button">{label}</button>;
 }
 
-export function PortalDashboard({ report, preferences, signedIn, user }: Props) {
+export function PortalDashboard({ report, preferences, scoringWeights, signedIn, user, watchlists }: Props) {
   const initialRegion = REGION_ORDER.includes(preferences.default_region as RegionMode) ? preferences.default_region as RegionMode : "Sectors";
   const [regionMode, setRegionMode] = useState<RegionMode>(initialRegion);
   const [direction, setDirection] = useState<Direction>("All");
@@ -104,7 +138,10 @@ export function PortalDashboard({ report, preferences, signedIn, user }: Props) 
   const [search, setSearch] = useState("");
   const [sortKey, setSortKey] = useState("dollar_vol_latest");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
-  const [watchlist, setWatchlist] = useState(preferences.watchlist || []);
+  const [namedWatchlists, setNamedWatchlists] = useState(watchlists);
+  const [activeWatchlistId, setActiveWatchlistId] = useState(
+    watchlists.find((item) => item.is_default)?.id || watchlists[0]?.id || ""
+  );
   const [watchlistOnly, setWatchlistOnly] = useState(false);
   const [visibleColumns, setVisibleColumns] = useState(preferences.visible_columns.length ? preferences.visible_columns : DEFAULT_COLUMNS);
   const [theme, setTheme] = useState<UserPreferences["theme"]>(preferences.theme || "system");
@@ -123,6 +160,10 @@ export function PortalDashboard({ report, preferences, signedIn, user }: Props) 
   const [refreshRunId, setRefreshRunId] = useState<number | undefined>();
   const [refreshBaselineRunId, setRefreshBaselineRunId] = useState<number | undefined>();
   const [selectedStock, setSelectedStock] = useState<StockSnapshot | null>(null);
+  const [watchlistEditor, setWatchlistEditor] = useState<"new" | "rename" | null>(null);
+  const [watchlistName, setWatchlistName] = useState("");
+  const [personalizationOpen, setPersonalizationOpen] = useState(false);
+  const [weightState, setWeightState] = useState(scoringWeights);
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
@@ -259,6 +300,8 @@ export function PortalDashboard({ report, preferences, signedIn, user }: Props) 
   const allStocks = currentReport?.top_stocks || [];
   const regions = currentReport?.regions || [];
   const sectors = currentReport?.sectors || [];
+  const activeWatchlist = namedWatchlists.find((item) => item.id === activeWatchlistId) || null;
+  const watchlist = activeWatchlist?.tickers || (namedWatchlists.length ? [] : preferences.watchlist || []);
   const regionalTopRows = useMemo(() => {
     const rows: StockSnapshot[] = [];
     for (const region of ["NA", "LAC", "EMEA", "APAC"]) {
@@ -344,7 +387,101 @@ export function PortalDashboard({ report, preferences, signedIn, user }: Props) 
   function chooseRegion(region: RegionMode) { setRegionMode(region); setSelectedGroup(null); setSelectedMarket(null); persist({ default_region: region, default_sector: null, default_market: null }); }
   function chooseGroup(name: string) { const next = selectedGroup === name ? null : name; setSelectedGroup(next); persist({ default_sector: next }); }
   function chooseMarket(market: string) { const next = selectedMarket === market ? null : market; setSelectedMarket(next); persist({ default_market: next }); }
-  function toggleWatchlist(ticker: string) { const next = watchlist.includes(ticker) ? watchlist.filter((item) => item !== ticker) : [...watchlist, ticker]; setWatchlist(next); if (!signedIn) setStatus("Sign in to save a watchlist."); persist({ watchlist: next }); }
+  function replaceNamedWatchlist(next: UserWatchlist) {
+    setNamedWatchlists((current) => current.map((item) => item.id === next.id ? next : item));
+  }
+  function selectWatchlist(id: string) {
+    setActiveWatchlistId(id);
+    setWatchlistOnly(false);
+    if (!signedIn) return;
+    setNamedWatchlists((current) => current.map((item) => ({ ...item, is_default: item.id === id })));
+    startTransition(() => { void (async () => {
+      const result = await saveWatchlist(id, { is_default: true });
+      if (result.ok) replaceNamedWatchlist(result.watchlist); else setStatus(result.error);
+    })(); });
+  }
+  function submitWatchlistName() {
+    const name = watchlistName.trim();
+    if (!name) return;
+    startTransition(() => { void (async () => {
+      if (watchlistEditor === "rename" && activeWatchlist) {
+        const result = await saveWatchlist(activeWatchlist.id, { name });
+        if (result.ok) {
+          replaceNamedWatchlist(result.watchlist);
+          setStatus("Watchlist renamed.");
+          setWatchlistEditor(null);
+          setWatchlistName("");
+        } else setStatus(result.error);
+      } else {
+        const result = await createWatchlist(name);
+        if (result.ok) {
+          setNamedWatchlists((current) => [
+            ...current.map((item) => ({ ...item, is_default: false })),
+            result.watchlist
+          ]);
+          setActiveWatchlistId(result.watchlist.id);
+          setStatus("Watchlist created.");
+          setWatchlistEditor(null);
+          setWatchlistName("");
+        } else setStatus(result.error);
+      }
+    })(); });
+  }
+  function removeActiveWatchlist() {
+    if (!activeWatchlist || !window.confirm(`Delete ${activeWatchlist.name}?`)) return;
+    startTransition(() => { void (async () => {
+      const result = await deleteWatchlist(activeWatchlist.id);
+      if (!result.ok) { setStatus(result.error); return; }
+      const remaining = namedWatchlists
+        .filter((item) => item.id !== activeWatchlist.id)
+        .map((item, index) => ({ ...item, is_default: index === 0 }));
+      setNamedWatchlists(remaining);
+      setActiveWatchlistId(remaining[0]?.id || "");
+      setWatchlistOnly(false);
+      setStatus("Watchlist deleted.");
+    })(); });
+  }
+  function toggleWatchlist(ticker: string) {
+    if (!signedIn) { setStatus("Sign in to save a watchlist."); return; }
+    if (!activeWatchlist) {
+      startTransition(() => { void (async () => {
+        const result = await createWatchlist("My Watchlist", [ticker]);
+        if (result.ok) {
+          setNamedWatchlists((current) => [
+            ...current.map((item) => ({ ...item, is_default: false })),
+            result.watchlist
+          ]);
+          setActiveWatchlistId(result.watchlist.id);
+          setStatus(`${ticker} added to My Watchlist.`);
+        } else setStatus(result.error);
+      })(); });
+      return;
+    }
+    const previous = activeWatchlist;
+    const tickers = watchlist.includes(ticker)
+      ? watchlist.filter((item) => item !== ticker)
+      : [...watchlist, ticker];
+    replaceNamedWatchlist({ ...activeWatchlist, tickers });
+    startTransition(() => { void (async () => {
+      const result = await saveWatchlist(activeWatchlist.id, { tickers });
+      if (result.ok) { replaceNamedWatchlist(result.watchlist); setStatus("Watchlist saved."); }
+      else { replaceNamedWatchlist(previous); setStatus(result.error); }
+    })(); });
+  }
+  function persistScoringWeights() {
+    startTransition(() => { void (async () => {
+      const result = await saveScoringWeights(weightState);
+      if (result.ok) { setWeightState(result.weights); setStatus("Scoring weights saved."); }
+      else setStatus(result.error);
+    })(); });
+  }
+  function restoreScoringWeights() {
+    startTransition(() => { void (async () => {
+      const result = await resetScoringWeights();
+      if (result.ok) { setWeightState(result.weights); setStatus("Scoring weights reset."); }
+      else setStatus(result.error);
+    })(); });
+  }
   function toggleColumn(column: string) { const next = visibleColumns.includes(column) ? visibleColumns.filter((item) => item !== column) : DEFAULT_COLUMNS.filter((item) => item === column || visibleColumns.includes(item)); setVisibleColumns(next); persist({ visible_columns: next }); }
   function toggleTheme() { const next = theme === "dark" ? "light" : "dark"; setTheme(next); window.localStorage.setItem("stare-theme", next); document.documentElement.dataset.theme = next; persist({ theme: next }); }
   function sortBy(key: string) { if (sortKey === key) setSortDirection((current) => current === "asc" ? "desc" : "asc"); else { setSortKey(key); setSortDirection("asc"); } }
@@ -383,6 +520,7 @@ export function PortalDashboard({ report, preferences, signedIn, user }: Props) 
       <div className="sidebar-section"><label className="control-label" htmlFor="stock-search">Search</label><input autoComplete="off" className="search-input" id="stock-search" onChange={(event) => setSearch(event.target.value)} placeholder="Ticker, company, group" type="search" value={search} /></div>
       <div className="sidebar-section"><span className="control-label">Direction</span><div className="segmented direction-control">{(["All", "Bullish", "Bearish", "Neutral"] as Direction[]).map((item) => <button className={direction === item ? "active" : ""} key={item} onClick={() => setDirection(item)} type="button">{item}</button>)}</div></div>
       <div className="sidebar-section"><span className="control-label">Regions</span><div className="segmented region-control">{REGION_ORDER.map((region) => <button className={regionMode === region ? "active" : ""} key={region} onClick={() => chooseRegion(region)} type="button">{REGION_LABELS[region]}</button>)}</div></div>
+      {signedIn ? <div className="sidebar-section personalization-controls"><span className="control-label">Watchlists</span><select aria-label="Active watchlist" onChange={(event) => selectWatchlist(event.target.value)} value={activeWatchlistId}>{!namedWatchlists.length ? <option value="">No watchlist</option> : null}{namedWatchlists.map((item) => <option key={item.id} value={item.id}>{item.name} ({item.tickers.length})</option>)}</select><div className="personalization-commands"><button className="button secondary" onClick={() => { setWatchlistEditor("new"); setWatchlistName(""); }} type="button">New</button><button className="button secondary" disabled={!activeWatchlist} onClick={() => { setWatchlistEditor("rename"); setWatchlistName(activeWatchlist?.name || ""); }} type="button">Rename</button><button aria-label="Delete active watchlist" className="button secondary danger" disabled={!activeWatchlist} onClick={removeActiveWatchlist} type="button">Delete</button></div>{watchlistEditor ? <div className="watchlist-editor"><input aria-label={watchlistEditor === "new" ? "New watchlist name" : "Rename watchlist"} autoFocus maxLength={60} onChange={(event) => setWatchlistName(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") submitWatchlistName(); if (event.key === "Escape") setWatchlistEditor(null); }} placeholder="Watchlist name" value={watchlistName} /><div><button className="button" disabled={!watchlistName.trim()} onClick={submitWatchlistName} type="button">Save</button><button className="button secondary" onClick={() => setWatchlistEditor(null)} type="button">Cancel</button></div></div> : null}<button aria-expanded={personalizationOpen} className="button secondary scoring-toggle" onClick={() => setPersonalizationOpen((open) => !open)} type="button">Scoring weights</button>{personalizationOpen ? <div className="scoring-controls">{SCORING_FACTORS.map(({ key, label }) => <label key={key}><span>{label}<output>{Number(weightState[key] ?? 1).toFixed(1)}x</output></span><input max="2" min="0" onChange={(event) => setWeightState((current) => ({ ...current, [key]: Number(event.target.value) }))} step="0.1" type="range" value={weightState[key] ?? defaultScoringWeights[key]} /></label>)}<div className="personalization-commands"><button className="button" disabled={SCORING_FACTORS.every(({ key }) => Number(weightState[key]) === 0)} onClick={persistScoringWeights} type="button">Save</button><button className="button secondary" onClick={restoreScoringWeights} type="button">Reset</button></div></div> : null}</div> : null}
       {regionMode === "Sectors" ? <div className="sidebar-section group-list"><span className="control-label">Sectors</span>{sectors.map((sector) => <button className={selectedGroup === sector.sector ? "group-button active" : "group-button"} key={sector.sector} onClick={() => chooseGroup(sector.sector)} type="button"><span><strong>{sector.sector}</strong><small>{sector.direction} · {sector.week_ending}</small></span><b className={classFor(sector.direction)}>{sector.strength}</b></button>)}</div>
       : markets.length ? <div className="sidebar-section group-list"><span className="control-label">Countries</span>{markets.map((market) => <button className={selectedMarket === market.market ? "group-button active" : "group-button"} key={market.market} onClick={() => chooseMarket(market.market)} type="button"><span><strong>{market.country}</strong><small>{market.market}</small></span><b>{market.count}</b></button>)}</div> : null}
     </aside>
@@ -394,7 +532,7 @@ export function PortalDashboard({ report, preferences, signedIn, user }: Props) 
       <section className="section-block"><div className="section-heading"><div><p className="eyebrow">Market map</p><h2>{regionMode === "Sectors" ? "Sector Heatmap" : "Region Heatmap"}</h2></div><span>{groups.length} groups</span></div><div className="heatmap">{groups.map((group) => <button className={`heat-cell ${classFor(group.direction)}`} key={groupName(group)} onClick={() => regionMode === "Sectors" && chooseGroup(groupName(group))} type="button"><strong>{groupName(group)}</strong><span>{group.strength ?? 0}</span><small>{group.direction || "Neutral"}</small></button>)}</div></section>
       <div className="analysis-grid"><section className="section-block strength-section"><div className="section-heading"><div><p className="eyebrow">Comparison</p><h2>Strength by {regionMode === "Sectors" ? "Sector" : "Region"}</h2></div><span>Select a bar to inspect</span></div><div className="strength-chart">{[...groups].sort((a, b) => (b.strength || 0) - (a.strength || 0)).map((group) => <button className="chart-column" key={groupName(group)} onClick={() => regionMode === "Sectors" && chooseGroup(groupName(group))} type="button"><span className="chart-value">{group.strength ?? 0}</span><span className={`chart-bar ${classFor(group.direction)}`} style={{ height: `${Math.max(3, group.strength || 0)}%` }} /><span className="chart-label">{groupName(group)}</span></button>)}</div></section>
       <section className="section-block picks-section"><div className="section-heading"><div><p className="eyebrow">Last trading day</p><h2>Top Active Stocks <ExplainButton className="help-button" label="?" title="Top Active Stocks" content={HELP.topPicks} onShow={showPopover} onHide={hidePopover} onPin={pinPopover} /></h2></div><span>{topPicks.length} picks</span></div><div className="picks-grid">{topPicks.map((stock) => <article className="stock-card" key={`pick-${stock.region}-${stock.market}-${stock.ticker}`}><div className="stock-card-top"><div><button className="stock-card-ticker" onClick={() => setSelectedStock(stock)} type="button">{stock.ticker}</button><span>{stockName(stock)}</span></div><b className={classFor(stock.action)}>{formatPercent(stock.weekly_return)}</b></div><div className="stock-card-price">{formatPrice(stock, stock.current_price)}</div><div className="stock-card-metrics"><span>Signal <b className={classFor(stock.action)}>{stock.action || "Hold"}</b></span><span>Valuation <b>{stock.decision_snapshot?.valuation?.label || "n/a"}</b></span><span>Risk <b>{stock.decision_snapshot?.risk?.label || "n/a"}</b></span></div></article>)}</div></section></div>
-      <section className="section-block table-section"><div className="section-heading table-heading"><div><p className="eyebrow">Complete snapshot</p><h2>{displayedRows.length} stocks</h2></div><div className="table-tools"><span className="save-status">{isPending ? "Saving..." : status}</span><button aria-pressed={watchlistOnly} className={watchlistOnly ? "button secondary active" : "button secondary"} onClick={() => setWatchlistOnly((active) => !active)} type="button">Watchlist ({watchlist.length})</button><div className="column-menu-wrap"><button className="button secondary" onClick={() => setColumnMenuOpen((open) => !open)} type="button">Columns</button>{columnMenuOpen ? <div className="column-menu">{DEFAULT_COLUMNS.map((column) => <label key={column}><input checked={visibleColumns.includes(column)} onChange={() => toggleColumn(column)} type="checkbox" /> {COLUMNS[column]}</label>)}</div> : null}</div></div></div>
+      <section className="section-block table-section"><div className="section-heading table-heading"><div><p className="eyebrow">Complete snapshot</p><h2>{displayedRows.length} stocks</h2></div><div className="table-tools"><span className="save-status">{isPending ? "Saving..." : status}</span><button aria-pressed={watchlistOnly} className={watchlistOnly ? "button secondary active" : "button secondary"} disabled={!activeWatchlist && !watchlist.length} onClick={() => setWatchlistOnly((active) => !active)} type="button">{activeWatchlist?.name || "Watchlist"} ({watchlist.length})</button><div className="column-menu-wrap"><button className="button secondary" onClick={() => setColumnMenuOpen((open) => !open)} type="button">Columns</button>{columnMenuOpen ? <div className="column-menu">{DEFAULT_COLUMNS.map((column) => <label key={column}><input checked={visibleColumns.includes(column)} onChange={() => toggleColumn(column)} type="checkbox" /> {COLUMNS[column]}</label>)}</div> : null}</div></div></div>
       <div className="table-wrap"><table><thead><tr>{DEFAULT_COLUMNS.filter((column) => visibleColumns.includes(column)).map((column) => <th className={NUMERIC_COLUMNS.has(column) ? "num" : ""} key={column}>{!["watch", "decision"].includes(column) ? <button className="sort-button" onClick={() => sortBy(column)} type="button">{COLUMNS[column]} <span aria-hidden="true">{sortKey === column ? sortDirection === "asc" ? "↑" : "↓" : "↕"}</span></button> : COLUMNS[column]}</th>)}</tr></thead><tbody>{displayedRows.map((stock) => <StockRow key={`${stock.region}-${stock.market}-${stock.sector}-${stock.ticker}`} stock={stock} columns={visibleColumns} watched={watchlist.includes(stock.ticker)} onOpenStock={setSelectedStock} onWatch={toggleWatchlist} onShow={showPopover} onHide={hidePopover} onPin={pinPopover} />)}</tbody></table></div></section>
       <footer className="data-footer"><span>Updated {formatTimestamp(currentReport.update.completed_at)} · Market data {currentReport.update.latest_price_date || currentReport.update.market_data_date || "n/a"}</span><span>Source: Yahoo Finance market and fundamental data. Signals are deterministic research outputs and may be incomplete or delayed.</span><span>Created by vittok. GitHub Pages remains available as the static fallback.</span></footer>
     </div>

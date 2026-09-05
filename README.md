@@ -74,7 +74,9 @@ Core standalone tables:
 - `stock_snapshots` - per-ticker prices, volume, fundamentals, and activity data
 - `stock_recommendations` - Buy/Hold/Sell action, score, confidence, rationale, decision snapshot, and daily summary
 - `user_profiles` - authenticated user profile data
-- `user_preferences` - saved theme, default filters, visible columns, watchlist, and notification preferences
+- `user_preferences` - saved theme, default filters, visible columns, and notification preferences
+- `user_watchlists` and `user_watchlist_items` - multiple named ticker lists per user
+- `user_scoring_weights` - validated personal factor multipliers with model-default reset behavior
 
 The first Supabase imports have been verified with populated historical data and recommendation rows. The importer reads the current JSON artifacts and writes them to Postgres:
 
@@ -95,7 +97,8 @@ The portal includes All Regions, NA, NA/Sectors, LAC, EMEA, and APAC views;
 country/market and sector navigation; direction and text filters; KPIs;
 heatmap and strength comparisons; top active picks; sortable price, activity,
 fundamental, recommendation, and decision data; company explanations; theme;
-print; watchlists; visible-column preferences; and exact update/source context.
+print; named watchlists; adjustable scoring-factor weights; visible-column
+preferences; and exact update/source context.
 
 Local portal setup is documented in `apps/README.md`. Production auth, DNS, deployment secrets, and secret rotation notes are tracked in `PORTAL_DEPLOYMENT.md`. The project task tracker is `STANDALONE_PORTAL_TASKS.md`.
 

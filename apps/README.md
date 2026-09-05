@@ -18,8 +18,9 @@ The existing GitHub Pages app remains the public demo/fallback while this portal
   navigation, search and direction filters, heatmap, strength chart, top
   active picks, sortable fundamentals table, explanations, theme, print, and
   update/source metadata.
-- Signed-in users can save theme, default filters, visible columns, and a
-  watchlist. The read-only market dashboard remains public during UAT.
+- Signed-in users can save theme, default filters, visible columns, multiple
+  named watchlists, and validated recommendation-factor weights. The read-only
+  market dashboard remains public during UAT.
 - FastAPI validates each preference request against the caller's Supabase
   access token before selecting or updating user data.
 
@@ -93,6 +94,13 @@ This imports:
 - `GET /api/latest-report`
 - `GET /api/me/preferences`
 - `PUT /api/me/preferences`
+- `GET /api/me/watchlists`
+- `POST /api/me/watchlists`
+- `PUT /api/me/watchlists/{watchlist_id}`
+- `DELETE /api/me/watchlists/{watchlist_id}`
+- `GET /api/me/scoring-weights`
+- `PUT /api/me/scoring-weights`
+- `DELETE /api/me/scoring-weights`
 
 Preference endpoints reject missing, invalid, and expired Supabase access
 tokens. Client-provided user IDs are not accepted.

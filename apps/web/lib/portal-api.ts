@@ -128,6 +128,25 @@ export type UserPreferences = {
   notification_settings: Record<string, unknown>;
 };
 
+export type UserWatchlist = {
+  id: string;
+  name: string;
+  is_default: boolean;
+  tickers: string[];
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type ScoringWeights = {
+  user_id?: string;
+  group_sentiment_weight: number;
+  pe_weight: number;
+  pb_weight: number;
+  peg_weight: number;
+  dividend_weight: number;
+  momentum_weight: number;
+};
+
 export type MarketRefreshResponse = {
   status: "queued" | "already_running";
   message: string;
@@ -154,6 +173,15 @@ const defaultPreferences: UserPreferences = {
   visible_columns: [],
   watchlist: [],
   notification_settings: {}
+};
+
+export const defaultScoringWeights: ScoringWeights = {
+  group_sentiment_weight: 1,
+  pe_weight: 1,
+  pb_weight: 1,
+  peg_weight: 1,
+  dividend_weight: 1,
+  momentum_weight: 1
 };
 
 const REPORT_REQUEST_TIMEOUT_MS = 8_000;
@@ -244,6 +272,91 @@ export async function putUserPreferences(
   }
 
   return response.json();
+}
+
+async function authenticatedRequest<T>(
+  accessToken: string,
+  path: string,
+  init?: RequestInit
+): Promise<T> {
+  const apiUrl = getApiUrl();
+  if (!apiUrl) throw new Error("FASTAPI_URL is not configured.");
+  const response = await fetch(`${apiUrl}${path}`, {
+    ...init,
+    cache: "no-store",
+    headers: {
+      ...(init?.body ? { "content-type": "application/json" } : {}),
+      ...init?.headers,
+      authorization: `Bearer ${accessToken}`
+    }
+  });
+  if (!response.ok) {
+    const payload = await response.json().catch(() => ({})) as { detail?: string };
+    throw new Error(payload.detail || `Request failed with status ${response.status}.`);
+  }
+  if (response.status === 204) return undefined as T;
+  return response.json();
+}
+
+export async function getUserWatchlists(accessToken?: string): Promise<UserWatchlist[]> {
+  if (!accessToken) return [];
+  try {
+    return await authenticatedRequest<UserWatchlist[]>(accessToken, "/api/me/watchlists");
+  } catch {
+    return [];
+  }
+}
+
+export function postUserWatchlist(
+  accessToken: string,
+  payload: { name: string; tickers?: string[]; is_default?: boolean }
+): Promise<UserWatchlist> {
+  return authenticatedRequest(accessToken, "/api/me/watchlists", {
+    method: "POST",
+    body: JSON.stringify(payload)
+  });
+}
+
+export function putUserWatchlist(
+  accessToken: string,
+  id: string,
+  payload: { name?: string; tickers?: string[]; is_default?: boolean }
+): Promise<UserWatchlist> {
+  return authenticatedRequest(accessToken, `/api/me/watchlists/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(payload)
+  });
+}
+
+export function removeUserWatchlist(accessToken: string, id: string): Promise<void> {
+  return authenticatedRequest(accessToken, `/api/me/watchlists/${id}`, {
+    method: "DELETE"
+  });
+}
+
+export async function getUserScoringWeights(accessToken?: string): Promise<ScoringWeights> {
+  if (!accessToken) return defaultScoringWeights;
+  try {
+    return await authenticatedRequest<ScoringWeights>(accessToken, "/api/me/scoring-weights");
+  } catch {
+    return defaultScoringWeights;
+  }
+}
+
+export function putUserScoringWeights(
+  accessToken: string,
+  weights: ScoringWeights
+): Promise<ScoringWeights> {
+  return authenticatedRequest(accessToken, "/api/me/scoring-weights", {
+    method: "PUT",
+    body: JSON.stringify(weights)
+  });
+}
+
+export function deleteUserScoringWeights(accessToken: string): Promise<ScoringWeights> {
+  return authenticatedRequest(accessToken, "/api/me/scoring-weights", {
+    method: "DELETE"
+  });
 }
 
 export async function triggerMarketRefresh(accessToken: string): Promise<MarketRefreshResponse> {

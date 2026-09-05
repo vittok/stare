@@ -65,7 +65,7 @@ export function PortalHelp() {
           </section>
           <section>
             <h3>Save your view</h3>
-            <p>Add companies to your watchlist and choose your preferred theme, region, sector, market, and visible columns. These choices are saved to your signed-in profile and restored when you return.</p>
+            <p>Create separate named watchlists for different ideas and use the star beside a ticker to edit the active list. You can also adjust the influence of group sentiment, valuation, income, and momentum or reset every scoring factor to the standard model. Your lists, weights, theme, filters, and visible columns return with your signed-in profile.</p>
           </section>
           <section>
             <h3>Refresh market data</h3>

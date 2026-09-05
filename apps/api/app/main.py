@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .config import get_settings
 from .routes.preferences import router as preferences_router
+from .routes.personalization import router as personalization_router
 from .routes.refresh import router as refresh_router
 from .routes.report import router as report_router
 
@@ -20,6 +21,7 @@ app.add_middleware(
 
 app.include_router(report_router)
 app.include_router(preferences_router)
+app.include_router(personalization_router)
 app.include_router(refresh_router)
 
 
