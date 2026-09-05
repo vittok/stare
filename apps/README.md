@@ -18,6 +18,10 @@ The existing GitHub Pages app remains the public demo/fallback while this portal
   navigation, search and direction filters, heatmap, strength chart, top
   active picks, sortable fundamentals table, explanations, theme, print, and
   update/source metadata.
+- Historical analysis covers retained sector and region strength, ticker
+  prices, returns, activity, volume, and model recommendations. Up to five
+  tickers can be compared, and snapshot or history data can be exported as CSV
+  or JSON.
 - Signed-in users can save theme, default filters, visible columns, multiple
   named watchlists, and validated recommendation-factor weights. The read-only
   market dashboard remains public during UAT.
@@ -98,6 +102,8 @@ This imports:
 
 - `GET /health`
 - `GET /api/latest-report`
+- `GET /api/history/groups?kind=sector|region&names=...&days=30`
+- `GET /api/history/tickers?tickers=...&days=30`
 - `GET /api/me/preferences`
 - `PUT /api/me/preferences`
 - `GET /api/me/watchlists`

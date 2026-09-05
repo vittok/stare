@@ -70,6 +70,14 @@ export function PortalHelp() {
             <p>Search by ticker, company, sector, country, or market. Select table headers marked with sorting arrows to reorder results, and use Columns to keep only the information useful to your review. Select a company name for a concise business and financial profile.</p>
           </section>
           <section>
+            <h3>Review history</h3>
+            <p>Open History to chart sector and region strength over the retained 30-day period. Ticker Compare places up to five stocks on common price, return, activity, volume, and recommendation timelines. Multiple observations on one market date represent separate updates, such as market open and close.</p>
+          </section>
+          <section>
+            <h3>Export results</h3>
+            <p>CSV exports provide flat rows for spreadsheets and analysis tools. JSON exports preserve the report structure and metadata. Snapshot exports follow the current filters; history exports follow the active period and selected groups or tickers.</p>
+          </section>
+          <section>
             <h3>Save your view</h3>
             <p>Create separate named watchlists for different ideas and use the star beside a ticker to edit the active list. You can also adjust the influence of group sentiment, valuation, income, and momentum or reset every scoring factor to the standard model. Your lists, weights, theme, filters, and visible columns return with your signed-in profile.</p>
           </section>

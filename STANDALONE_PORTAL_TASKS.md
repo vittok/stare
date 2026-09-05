@@ -119,12 +119,12 @@ Supabase project:
 
 ## Phase 6 - Historical Views
 
-- [ ] Add sector strength trend chart over time.
-- [ ] Add region strength trend chart over time.
-- [ ] Add ticker recommendation history.
-- [ ] Add price, previous close, weekly return, daily trading percentile, and volume trend charts.
-- [ ] Add compare mode for sectors, regions, or tickers.
-- [ ] Add export options for CSV or JSON.
+- [x] Add sector strength trend chart over time.
+- [x] Add region strength trend chart over time.
+- [x] Add ticker recommendation history.
+- [x] Add price, previous close, weekly return, daily trading percentile, and volume trend charts.
+- [x] Add compare mode for tickers.
+- [x] Add export options for CSV or JSON.
 
 ## Phase 7 - Scheduled Updates
 

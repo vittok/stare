@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState, useTransition } from "react";
 import type { FocusEvent, MouseEvent } from "react";
+import { Download, FileJson, History, LayoutDashboard } from "lucide-react";
+import dynamic from "next/dynamic";
 import {
   createWatchlist,
   deleteWatchlist,
@@ -15,6 +17,7 @@ import {
 } from "../app/actions";
 import { AuthButton } from "./auth-button";
 import { StockDetailDialog } from "./stock-detail-dialog";
+import { downloadCsv, downloadJson } from "../lib/download-data";
 import {
   defaultScoringWeights,
   type DecisionSnapshot,
@@ -44,6 +47,11 @@ type Group = RegionSnapshot | SectorSnapshot;
 type DisplayStock = StockSnapshot & { daily_percentile: number | null };
 type Popover = { title: string; content: string; pinned: boolean; x: number; y: number } | null;
 type PopoverHandler = (title: string, content: string, x: number, y: number) => void;
+
+const HistoryWorkspace = dynamic(
+  () => import("./history-workspace").then((module) => module.HistoryWorkspace),
+  { loading: () => <div className="history-state">Loading history workspace...</div>, ssr: false }
+);
 
 const REGION_ORDER: RegionMode[] = ["All", "NA", "Sectors", "LAC", "EMEA", "APAC"];
 const REGION_LABELS: Record<RegionMode, string> = { All: "All Regions", NA: "NA", Sectors: "NA/Sectors", LAC: "LAC", EMEA: "EMEA", APAC: "APAC" };
@@ -175,6 +183,7 @@ export function PortalDashboard({ report, preferences, personalizedSignals, scor
   const [personalizationOpen, setPersonalizationOpen] = useState(false);
   const [weightState, setWeightState] = useState(scoringWeights);
   const [personalizedSignalState, setPersonalizedSignalState] = useState(personalizedSignals);
+  const [workspaceView, setWorkspaceView] = useState<"snapshot" | "history">("snapshot");
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
@@ -387,6 +396,34 @@ export function PortalDashboard({ report, preferences, personalizedSignals, scor
     if (selectedGroup) return byVolume.slice(0, 6);
     return [...groups].sort((a, b) => (b.strength || 0) - (a.strength || 0)).map((group) => byVolume.find((stock) => stock.sector === groupName(group))).filter((stock): stock is DisplayStock => Boolean(stock)).slice(0, 6);
   }, [displayedRows, groups, regionMode, selectedGroup]);
+  const snapshotExportRows = useMemo(() => displayedRows.map((stock) => ({
+    ticker: stock.ticker,
+    company_name: stockName(stock),
+    region: stock.region,
+    market: stock.market,
+    country: stock.country,
+    sector: stock.sector,
+    price_date: stock.price_date,
+    current_price: stock.current_price,
+    previous_close: stock.previous_close,
+    close_change_pct: stock.close_change_pct,
+    weekly_return: stock.weekly_return,
+    daily_trading_percentile: stock.daily_percentile,
+    latest_volume: stock.latest_volume,
+    dollar_volume: stock.dollar_vol_latest,
+    market_cap: stock.market_cap,
+    trailing_pe: stock.trailing_pe,
+    price_to_book: stock.price_to_book,
+    peg_ratio: stock.peg_ratio,
+    dividend_yield: stock.dividend_yield,
+    standard_action: stock.action,
+    standard_score: stock.score,
+    standard_confidence: stock.confidence,
+    personalized_action: stock.personalized_action,
+    personalized_score: stock.personalized_score,
+    personalized_confidence: stock.personalized_confidence,
+    decision_summary: stock.decision_snapshot?.summary
+  })), [displayedRows]);
   const bullish = groups.filter((group) => group.direction === "Bullish").length;
   const bearish = groups.filter((group) => group.direction === "Bearish").length;
   const averageStrength = groups.length ? groups.reduce((sum, group) => sum + (group.strength || 0), 0) / groups.length : 0;
@@ -547,6 +584,11 @@ export function PortalDashboard({ report, preferences, personalizedSignals, scor
     setRefreshMessage(result.message);
     setRefreshBaseline(currentReport?.update?.id || currentReport?.update?.completed_at || "initial-report");
   }
+  function exportSnapshot(format: "csv" | "json") {
+    const date = currentReport?.update?.latest_price_date || currentReport?.update?.market_data_date || "latest";
+    if (format === "csv") downloadCsv(`stare-snapshot-${date}.csv`, snapshotExportRows);
+    else downloadJson(`stare-snapshot-${date}.json`, { update: currentReport?.update, stocks: displayedRows });
+  }
 
   if (!currentReport?.update) return <section className="empty-state report-loading" aria-live="polite"><p className="eyebrow">Market data</p><h1>Loading the latest report</h1><p>{reportMessage}</p><button className="button secondary" onClick={() => setReportRetry((value) => value + 1)} type="button">Retry now</button></section>;
 
@@ -562,14 +604,16 @@ export function PortalDashboard({ report, preferences, personalizedSignals, scor
     </aside>
 
     <div className="workspace">
-      <section className="workspace-header"><div><p className="eyebrow">{REGION_LABELS[regionMode]}</p><h1>Stock Trend Analysis Risk Engine</h1><p className="lede">{regionMode === "Sectors" ? "North American sector strength and active S&P 500 names." : regionMode === "All" ? "Top active stocks and market direction across all covered regions." : `${regionMode} market direction, countries, and top active stocks.`}</p><p className="disclaimer">Deterministic research signals, not personalized financial advice.</p></div><div className="workspace-action-area"><div className="workspace-actions"><button className="button secondary" onClick={resetOverview} type="button">Overview</button><button className="button secondary" disabled={refreshState === "requesting" || refreshState === "queued"} onClick={refreshData} type="button">{refreshState === "requesting" ? "Requesting..." : refreshState === "queued" ? "Updating..." : "Refresh data"}</button><button aria-pressed={theme === "dark"} className="button secondary" onClick={toggleTheme} type="button">{theme === "dark" ? "Light" : "Dark"}</button><button className="button secondary" onClick={() => window.print()} type="button">Print</button></div>{refreshState !== "idle" ? <div className={`refresh-progress-panel ${refreshState}`}><div className="refresh-progress-meta"><span>{refreshStage}</span><strong>{refreshProgress}%</strong></div><div aria-label={refreshStage} aria-valuemax={100} aria-valuemin={0} aria-valuenow={refreshProgress} className="refresh-progress-track" role="progressbar"><span style={{ width: `${refreshProgress}%` }} /></div>{refreshMessage ? <p className={`refresh-status ${refreshState}`} aria-live="polite">{refreshMessage}</p> : null}</div> : null}</div></section>
+      <section className="workspace-header"><div><p className="eyebrow">{REGION_LABELS[regionMode]}</p><h1>Stock Trend Analysis Risk Engine</h1><p className="lede">{workspaceView === "history" ? "Thirty-day market history, signal timelines, and ticker comparisons." : regionMode === "Sectors" ? "North American sector strength and active S&P 500 names." : regionMode === "All" ? "Top active stocks and market direction across all covered regions." : `${regionMode} market direction, countries, and top active stocks.`}</p><p className="disclaimer">Deterministic research signals, not personalized financial advice.</p></div><div className="workspace-action-area"><div className="segmented workspace-view-tabs"><button className={workspaceView === "snapshot" ? "active" : ""} onClick={() => setWorkspaceView("snapshot")} type="button"><LayoutDashboard aria-hidden="true" size={15} /> Snapshot</button><button className={workspaceView === "history" ? "active" : ""} onClick={() => setWorkspaceView("history")} type="button"><History aria-hidden="true" size={15} /> History</button></div><div className="workspace-actions"><button className="button secondary" onClick={resetOverview} type="button">Overview</button><button className="button secondary" disabled={refreshState === "requesting" || refreshState === "queued"} onClick={refreshData} type="button">{refreshState === "requesting" ? "Requesting..." : refreshState === "queued" ? "Updating..." : "Refresh data"}</button><button aria-pressed={theme === "dark"} className="button secondary" onClick={toggleTheme} type="button">{theme === "dark" ? "Light" : "Dark"}</button><button className="button secondary" onClick={() => window.print()} type="button">Print</button></div>{refreshState !== "idle" ? <div className={`refresh-progress-panel ${refreshState}`}><div className="refresh-progress-meta"><span>{refreshStage}</span><strong>{refreshProgress}%</strong></div><div aria-label={refreshStage} aria-valuemax={100} aria-valuemin={0} aria-valuenow={refreshProgress} className="refresh-progress-track" role="progressbar"><span style={{ width: `${refreshProgress}%` }} /></div>{refreshMessage ? <p className={`refresh-status ${refreshState}`} aria-live="polite">{refreshMessage}</p> : null}</div> : null}</div></section>
+      {workspaceView === "history" ? <HistoryWorkspace regions={regions} sectors={sectors} stocks={allStocks} /> : <>
       <section className="signal-strip"><SignalExplanation title="Fundamentals Snapshot" text="P/E · P/B · PEG · dividend yield" content={HELP.fundamentals} onShow={showPopover} onHide={hidePopover} onPin={pinPopover} /><SignalExplanation title="Sector Strength" text="Breadth · returns · trading activity" content={HELP.strength} onShow={showPopover} onHide={hidePopover} onPin={pinPopover} /><SignalExplanation title="Buy / Hold / Sell" text="Valuation · momentum · market context" content={HELP.recommendation} onShow={showPopover} onHide={hidePopover} onPin={pinPopover} /></section>
       <section className="kpi-strip" aria-label="Dashboard KPIs"><Metric label={regionMode === "Sectors" ? "Sectors" : "Regions"} value={groups.length.toString()} /><Metric label="Bullish / Bearish" value={`${bullish} / ${bearish}`} /><Metric label="Avg Strength" value={averageStrength.toFixed(1)} /><Metric label="Tracked Names" value={new Set(displayedRows.map((stock) => stock.ticker)).size.toString()} /></section>
       <section className="section-block"><div className="section-heading"><div><p className="eyebrow">Market map</p><h2>{regionMode === "Sectors" ? "Sector Heatmap" : "Region Heatmap"}</h2></div><span>{groups.length} groups</span></div><div className="heatmap">{groups.map((group) => <button className={`heat-cell ${classFor(group.direction)}`} key={groupName(group)} onClick={() => regionMode === "Sectors" && chooseGroup(groupName(group))} type="button"><strong>{groupName(group)}</strong><span>{group.strength ?? 0}</span><small>{group.direction || "Neutral"}</small></button>)}</div></section>
       <div className="analysis-grid"><section className="section-block strength-section"><div className="section-heading"><div><p className="eyebrow">Comparison</p><h2>Strength by {regionMode === "Sectors" ? "Sector" : "Region"}</h2></div><span>Select a bar to inspect</span></div><div className="strength-chart">{[...groups].sort((a, b) => (b.strength || 0) - (a.strength || 0)).map((group) => <button className="chart-column" key={groupName(group)} onClick={() => regionMode === "Sectors" && chooseGroup(groupName(group))} type="button"><span className="chart-value">{group.strength ?? 0}</span><span className={`chart-bar ${classFor(group.direction)}`} style={{ height: `${Math.max(3, group.strength || 0)}%` }} /><span className="chart-label">{groupName(group)}</span></button>)}</div></section>
       <section className="section-block picks-section"><div className="section-heading"><div><p className="eyebrow">Last trading day</p><h2>Top Active Stocks <ExplainButton className="help-button" label="?" title="Top Active Stocks" content={HELP.topPicks} onShow={showPopover} onHide={hidePopover} onPin={pinPopover} /></h2></div><span>{topPicks.length} picks</span></div><div className="picks-grid">{topPicks.map((stock) => <article className="stock-card" key={`pick-${stock.region}-${stock.market}-${stock.ticker}`}><div className="stock-card-top"><div><button className="stock-card-ticker" onClick={() => setSelectedStock(stock)} type="button">{stock.ticker}</button><span>{stockName(stock)}</span></div><b className={classFor(stock.action)}>{formatPercent(stock.weekly_return)}</b></div><div className="stock-card-price">{formatPrice(stock, stock.current_price)}</div><div className="stock-card-metrics"><span>Standard <b className={classFor(stock.action)}>{stock.action || "Hold"}</b></span><span>Personal <b className={classFor(stock.personalized_action)}>{stock.personalized_action || "n/a"}</b></span><span>Valuation <b>{stock.decision_snapshot?.valuation?.label || "n/a"}</b></span><span>Risk <b>{stock.decision_snapshot?.risk?.label || "n/a"}</b></span></div></article>)}</div></section></div>
-      <section className="section-block table-section"><div className="section-heading table-heading"><div><p className="eyebrow">Complete snapshot</p><h2>{displayedRows.length} stocks</h2></div><div className="table-tools"><span className="save-status">{isPending ? "Saving..." : status}</span><button aria-pressed={watchlistOnly} className={watchlistOnly ? "button secondary active" : "button secondary"} disabled={!activeWatchlist && !watchlist.length} onClick={() => setWatchlistOnly((active) => !active)} type="button">{activeWatchlist?.name || "Watchlist"} ({watchlist.length})</button><div className="column-menu-wrap"><button className="button secondary" onClick={() => setColumnMenuOpen((open) => !open)} type="button">Columns</button>{columnMenuOpen ? <div className="column-menu">{DEFAULT_COLUMNS.map((column) => <label key={column}><input checked={visibleColumns.includes(column)} onChange={() => toggleColumn(column)} type="checkbox" /> {COLUMNS[column]}</label>)}</div> : null}</div></div></div>
+      <section className="section-block table-section"><div className="section-heading table-heading"><div><p className="eyebrow">Complete snapshot</p><h2>{displayedRows.length} stocks</h2></div><div className="table-tools"><span className="save-status">{isPending ? "Saving..." : status}</span><div className="export-buttons"><button className="button secondary icon-command" disabled={!displayedRows.length} onClick={() => exportSnapshot("csv")} title="Download visible stocks as CSV" type="button"><Download aria-hidden="true" size={15} /><span>CSV</span></button><button className="button secondary icon-command" disabled={!displayedRows.length} onClick={() => exportSnapshot("json")} title="Download visible stocks as JSON" type="button"><FileJson aria-hidden="true" size={15} /><span>JSON</span></button></div><button aria-pressed={watchlistOnly} className={watchlistOnly ? "button secondary active" : "button secondary"} disabled={!activeWatchlist && !watchlist.length} onClick={() => setWatchlistOnly((active) => !active)} type="button">{activeWatchlist?.name || "Watchlist"} ({watchlist.length})</button><div className="column-menu-wrap"><button className="button secondary" onClick={() => setColumnMenuOpen((open) => !open)} type="button">Columns</button>{columnMenuOpen ? <div className="column-menu">{DEFAULT_COLUMNS.map((column) => <label key={column}><input checked={visibleColumns.includes(column)} onChange={() => toggleColumn(column)} type="checkbox" /> {COLUMNS[column]}</label>)}</div> : null}</div></div></div>
       <div className="table-wrap"><table><thead><tr>{DEFAULT_COLUMNS.filter((column) => visibleColumns.includes(column)).map((column) => <th className={NUMERIC_COLUMNS.has(column) ? "num" : ""} key={column}>{!["watch", "decision"].includes(column) ? <button className="sort-button" onClick={() => sortBy(column)} type="button">{COLUMNS[column]} <span aria-hidden="true">{sortKey === column ? sortDirection === "asc" ? "↑" : "↓" : "↕"}</span></button> : COLUMNS[column]}</th>)}</tr></thead><tbody>{displayedRows.map((stock) => <StockRow key={`${stock.region}-${stock.market}-${stock.sector}-${stock.ticker}`} stock={stock} columns={visibleColumns} watched={watchlist.includes(stock.ticker)} onOpenStock={setSelectedStock} onWatch={toggleWatchlist} onShow={showPopover} onHide={hidePopover} onPin={pinPopover} />)}</tbody></table></div></section>
+      </>}
       <footer className="data-footer"><span>Updated {formatTimestamp(currentReport.update.completed_at)} · Market data {currentReport.update.latest_price_date || currentReport.update.market_data_date || "n/a"}</span><span>Source: Yahoo Finance market and fundamental data. Signals are deterministic research outputs and may be incomplete or delayed.</span><span>Created by vittok. GitHub Pages remains available as the static fallback.</span></footer>
     </div>
     {popover ? <aside className={`summary-popover ${popover.pinned ? "pinned" : "hovering"}`} onClick={(event) => event.stopPropagation()} style={{ left: popover.x, top: popover.y }}><div><strong>{popover.title}</strong>{popover.pinned ? <button aria-label="Close explanation" onClick={() => setPopover(null)} type="button">×</button> : null}</div><p>{popover.content}</p></aside> : null}

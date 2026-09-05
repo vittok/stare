@@ -147,3 +147,12 @@ reset profiles use the standard model multiplier of `1.0` for every factor.
 Personalized signals are calculated on request from the latest successful
 snapshot and these weights. They are not written over `stock_recommendations`;
 that table remains the standard-model baseline used for comparison.
+
+## Historical API Views
+
+The portal reads retained snapshots directly through FastAPI without adding
+materialized history tables. `/api/history/groups` joins sector or region
+snapshots to completed updates and synthesizes NA history from its sector raw
+scores. `/api/history/tickers` deduplicates each ticker within an update and
+joins its standard recommendation. Both responses include `observed_at` for
+the update timestamp and `market_date` for the underlying trading date.

@@ -122,6 +122,44 @@ export type LatestReport = {
   top_stocks: StockSnapshot[];
 };
 
+export type GroupHistoryPoint = {
+  market_date?: string | null;
+  observed_at: string;
+  direction?: string | null;
+  strength?: number | string | null;
+  raw_score?: number | string | null;
+};
+
+export type GroupHistoryResponse = {
+  kind: "sector" | "region";
+  days: number;
+  series: { name: string; points: GroupHistoryPoint[] }[];
+};
+
+export type TickerHistoryPoint = {
+  company_name?: string | null;
+  market_date?: string | null;
+  observed_at: string;
+  current_price?: number | string | null;
+  previous_close?: number | string | null;
+  weekly_return?: number | string | null;
+  daily_trading_percentile?: number | string | null;
+  latest_volume?: number | string | null;
+  dollar_vol_latest?: number | string | null;
+  currency?: string | null;
+  region?: string | null;
+  market?: string | null;
+  action?: "Buy" | "Hold" | "Sell" | null;
+  score?: number | string | null;
+  confidence?: number | null;
+  rationale?: string | null;
+};
+
+export type TickerHistoryResponse = {
+  days: number;
+  series: { name: string; points: TickerHistoryPoint[] }[];
+};
+
 export type UserPreferences = {
   user_id?: string;
   theme: "light" | "dark" | "system";

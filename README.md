@@ -99,7 +99,13 @@ heatmap and strength comparisons; top active picks; sortable price, activity,
 fundamental, recommendation, and decision data; company explanations; theme;
 print; named watchlists; adjustable scoring-factor weights with standard versus
 personal signal comparison; visible-column
-preferences; and exact update/source context.
+preferences; 30-day sector, region, and ticker histories; five-ticker compare;
+CSV/JSON exports; and exact update/source context.
+
+History is read from successful or partial database snapshots inside the
+configured retention window. Charts use the update completion timestamp on the
+x-axis, while retaining the source market date in exports. This preserves both
+market-open and market-close observations made on the same trading day.
 
 Portal release notes and versions are generated from conventional Git commits.
 The What's new control shows each user-facing release and indicates when the
