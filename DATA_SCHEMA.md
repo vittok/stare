@@ -5,6 +5,11 @@ S.T.A.R.E has two data layers:
 - **SQLite** for the GitHub Actions/static HTML publishing pipeline.
 - **Supabase/Postgres** for the standalone authenticated portal and historical tracking.
 
+`src/run_pipeline.py` produces the final calculated report once and sends that
+state to both layers when Postgres output is enabled. File artifacts remain
+available as the static fallback; `src/export_reports_to_postgres.py` is the
+reusable database writer and historical recovery command.
+
 ## SQLite Pipeline Tables
 
 ## prices
@@ -48,13 +53,24 @@ ticker | asof_utc | normalized_json
 
 ## Supabase/Postgres Portal Tables
 
-Defined in `supabase/migrations/001_initial_portal_schema.sql` and hardened by
-`supabase/migrations/002_portal_security_hardening.sql`.
+Defined in `supabase/migrations/001_initial_portal_schema.sql`, hardened by
+`supabase/migrations/002_portal_security_hardening.sql`, and maintained by the
+30-day retention job in
+`supabase/migrations/20260905150822_market_snapshot_retention.sql`.
 
 ## update_runs
 id | run_label | triggered_by | status | started_at | completed_at | market_data_date | latest_price_date | source_commit | diagnostics | created_at
 
 One row per standalone portal import or future scheduled update.
+
+### Snapshot retention
+
+Supabase Cron runs `private.cleanup_market_snapshot_retention(30)` every day at
+02:15 UTC. The function deletes `update_runs` older than 30 days, and the
+foreign-key cascades remove the associated sector, region, stock, and
+recommendation snapshots in the same transaction. The newest successful update
+is always preserved so the portal retains a report during an extended update
+outage. Function execution is restricted to the `postgres` job owner.
 
 ## sector_snapshots
 id | update_run_id | sector | week_ending | direction | strength | raw_score | diagnostics | created_at

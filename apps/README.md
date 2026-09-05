@@ -60,6 +60,18 @@ Authenticated preference requests must include the Supabase session access
 token as `Authorization: Bearer <access-token>`. FastAPI validates the token
 with Supabase Auth and derives the user ID from the validated response.
 
+## Market Update Output
+
+The shared update command writes both static artifacts and the portal snapshot
+when Postgres output is enabled:
+
+```bash
+python src/run_pipeline.py --postgres-mode required
+```
+
+GitHub Actions uses this required mode with its backend-only `DATABASE_URL`.
+For historical seeding or recovery, the writer can still be called directly.
+
 ## Import Current Reports
 
 From the repository root:

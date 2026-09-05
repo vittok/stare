@@ -68,6 +68,13 @@ jobs:
               f.write(f"should_run={str(should_run).lower()}\n")
               f.write(f"label={label}\n")
               f.write(f"ny_time={now.isoformat(timespec='seconds')}\n")
+              with_fundamentals = (
+                  event_name == "schedule"
+                  and should_run
+                  and label == "market-close"
+                  and now.weekday() == 0
+              )
+              f.write(f"with_fundamentals={str(with_fundamentals).lower()}\n")
 
           print(f"New York time: {now.isoformat(timespec='seconds')}")
           print(f"Triggered schedule: {event_schedule}")
@@ -100,49 +107,20 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run pipeline and publish app
-        if: ${{ steps.market-window.outputs.should_run == 'true' }}
-        env:
-          PYTHONUNBUFFERED: "1"
-          STARE_REFRESH_LABEL: ${{ steps.market-window.outputs.label }}
-        run: |
-          python src/run_pipeline.py
-
-      # Optional: run fundamentals once a week after Monday market close to reduce load
-      - name: Run fundamentals (Monday close only)
-        if: ${{ github.event_name == 'schedule' && steps.market-window.outputs.should_run == 'true' }}
-        run: |
-          if python - <<'PY'
-          from datetime import datetime
-          from zoneinfo import ZoneInfo
-          now = datetime.now(ZoneInfo("America/New_York"))
-          raise SystemExit(0 if now.weekday() == 0 and now.hour == 16 else 1)
-          PY
-          then
-            python src/fetch_fundamentals.py
-            STARE_UNIVERSE_CSV=data/universe_global.csv STARE_FUNDAMENTALS_REPORT=reports/fundamentals_global_latest.csv python src/fetch_fundamentals.py
-            python src/build_sector_dashboard.py
-            python src/rank_region_top_active.py
-            python src/build_region_dashboard.py
-            python src/build_sector_dashboard_html.py
-            python src/publish_stare_app.py
-          else
-            echo "Skipping fundamentals (not Monday market close)."
-          fi
-
-      - name: Import update into portal database
+      - name: Calculate and publish market update
         if: ${{ steps.market-window.outputs.should_run == 'true' }}
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          PYTHONUNBUFFERED: "1"
+          STARE_POSTGRES_MODE: required
           STARE_REFRESH_LABEL: ${{ steps.market-window.outputs.label }}
+          WITH_FUNDAMENTALS: ${{ steps.market-window.outputs.with_fundamentals }}
         run: |
-          if [ -z "$DATABASE_URL" ]; then
-            echo "::warning::Skipping portal database import because DATABASE_URL is not configured as a repository secret."
-            exit 0
+          if [ "$WITH_FUNDAMENTALS" = "true" ]; then
+            python src/run_pipeline.py --with-fundamentals
+          else
+            python src/run_pipeline.py
           fi
-
-          python src/export_reports_to_postgres.py \
-            --run-label "$STARE_REFRESH_LABEL portal update"
 
       - name: Commit & push updated data/reports/site
         if: ${{ steps.market-window.outputs.should_run == 'true' }}

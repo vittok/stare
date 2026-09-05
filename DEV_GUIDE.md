@@ -9,11 +9,22 @@ S.T.A.R.E currently has two tracks:
 
 The static app remains the GitHub Pages demo/fallback while the standalone portal is being built.
 
-## GitHub Actions / Static App Pipeline
+## Shared Market Update
 
 ```bash
 python src/run_pipeline.py
 ```
+
+This default mode writes the SQLite, JSON, CSV, and HTML artifacts. To write
+the same final calculated state to Supabase/Postgres as well:
+
+```bash
+python src/run_pipeline.py --postgres-mode required
+```
+
+`DATABASE_URL` must contain the backend-only Supabase Session Pooler URL.
+GitHub Actions uses required mode. The update fails if Postgres is unavailable,
+preventing a successful static publish with stale portal data.
 
 Refresh only the already-generated static app data:
 
@@ -36,7 +47,7 @@ PYTHONPATH=src python src/publish_stare_app.py
 - build_sector_dashboard_html.py: HTML rendering
 - stare_signals.py: shared Buy/Hold/Sell, confidence, rationale, decision snapshot, and summary logic
 - publish_stare_app.py: embeds dashboard data and shared signals into the static HTML app
-- export_reports_to_postgres.py: imports current artifacts into Supabase/Postgres for the standalone portal
+- export_reports_to_postgres.py: reusable Postgres output writer plus historical import CLI
 
 ## Standalone Portal
 
@@ -58,7 +69,7 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload --port 8000
 ```
 
-Import current report artifacts into Supabase/Postgres:
+Seed or recover current report artifacts independently of a full update:
 
 ```bash
 PYTHONPATH=.python_deps:src python src/export_reports_to_postgres.py --run-label "portal seed with shared recommendations"

@@ -62,7 +62,7 @@ Current standalone stack:
 - API: FastAPI in `apps/api`
 - Auth and database: Supabase project `STARE`
 - Database: Supabase Postgres
-- Historical import bridge: `src/export_reports_to_postgres.py`
+- Shared Postgres output writer: `src/export_reports_to_postgres.py`
 
 The Supabase schema is defined in `supabase/migrations/001_initial_portal_schema.sql`.
 
@@ -144,7 +144,11 @@ Pipeline steps:
     Embeds fresh sector and regional dashboard data, refresh metadata, generated top-3 stock summaries, and shared Buy/Hold/Sell model signals into the standalone HTML app and publishes it to `docs/index.html`.
 
 11. `src/export_reports_to_postgres.py`
-    Imports the current JSON artifacts into Supabase/Postgres for the standalone portal, including stock recommendation rows generated from the same shared signal module.
+    Provides the Postgres output writer called by `src/run_pipeline.py` after
+    all calculations and file outputs finish. It persists the same sector,
+    region, stock, and recommendation state used by the static application.
+    Its command-line interface remains available for historical seeding and
+    recovery imports.
 
 ## Application Workflow
 
@@ -191,6 +195,7 @@ flowchart TD
     Q1 --> R["Write report artifacts"]
     Q2 --> R
     Q3 --> R
+    R --> S["Generated reports"]
     S --> S1["reports/sector_dashboard.json"]
     S --> S2["reports/sector_dashboard_top10.csv"]
     S --> S3["reports/sector_dashboard.html"]
@@ -206,7 +211,7 @@ flowchart TD
     W --> Y["Build scheduled email report"]
     Y --> Z["Send email to Viktor"]
 
-    R --> AA["Import artifacts to Supabase"]
+    R --> AA["Persist final snapshot to Supabase"]
     AA --> AB[("Supabase Postgres")]
     AB --> AC["FastAPI latest-report endpoint"]
     AC --> AD["Next.js standalone portal"]
@@ -362,7 +367,7 @@ Fundamentals are used to add business context to the active stock rankings.
 
 ### Daily Stock Summaries
 
-During each publish or portal import step, S.T.A.R.E generates short explanatory summaries from the fundamentals available in the dashboard data.
+During each publish or portal persistence step, S.T.A.R.E generates short explanatory summaries from the fundamentals available in the dashboard data.
 
 The summaries focus on:
 
@@ -495,7 +500,8 @@ Current standalone operations:
 - Host `apps/web` as the Next.js frontend on Render.
 - Host `apps/api` as the FastAPI backend on Render.
 - Store `DATABASE_URL` and future service secrets in deployment secrets.
-- Import each GitHub-scheduled market update into Supabase during UAT.
+- Persist each GitHub-scheduled market update directly to Supabase as the final
+  output of the shared update command.
 - Allow authorized portal users to start the same update workflow on demand;
   the portal tracks GitHub Actions job-step progress and reloads automatically
   when the new snapshot is complete.
@@ -612,6 +618,17 @@ Run the full pipeline:
 ```bash
 python src/run_pipeline.py
 ```
+
+Local runs are artifact-only by default. To require both artifact and Postgres
+outputs, configure `DATABASE_URL` and run:
+
+```bash
+python src/run_pipeline.py --postgres-mode required
+```
+
+Use `--postgres-mode auto` when Postgres should be used only when a database
+URL is available. Production GitHub updates use `required`, so a missing or
+failed database write fails the update instead of leaving the portal stale.
 
 Refresh only the publishable app from existing report data:
 

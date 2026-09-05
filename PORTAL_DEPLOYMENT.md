@@ -138,10 +138,11 @@ Future backend-only secrets may include:
 - `SUPABASE_SERVICE_ROLE_KEY`
 - SMTP credentials if notifications move from GitHub Actions to the standalone update job
 
-During UAT, the existing GitHub market refresh also imports each completed
-report into Supabase when the repository secret `DATABASE_URL` is configured.
-This keeps the portal current until the refresh is moved to a standalone
-scheduled service.
+During UAT, the shared market update writes its final calculated report to
+Supabase after generating the static artifacts. GitHub Actions sets Postgres
+output to `required`, using the repository `DATABASE_URL` secret, so the update
+fails visibly if the portal snapshot cannot be persisted. This keeps the portal
+current until scheduling moves to a standalone service.
 
 ## Manual Portal Refresh
 
@@ -150,7 +151,8 @@ The request is sent through the Next.js server to FastAPI, which validates the
 Supabase user and checks `REFRESH_ALLOWED_EMAILS`. FastAPI then starts the same
 `pipeline_weekdays.yml` workflow used for scheduled updates. This ensures a
 manual refresh uses the established price pull, calculations, recommendation
-generation, database import, static fallback publishing, and notification flow.
+generation, Postgres persistence, static fallback publishing, and notification
+flow.
 
 The API checks for a queued or active workflow before dispatching another one.
 After a request is accepted, the portal checks for a newly completed database

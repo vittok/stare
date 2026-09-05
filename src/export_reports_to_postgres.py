@@ -36,6 +36,13 @@ def _env_value(name: str, env_path: Path = Path(".env")) -> str | None:
     return None
 
 
+def resolve_database_url(
+    explicit_url: str | None = None,
+    env_path: Path = Path(".env"),
+) -> str | None:
+    return explicit_url or _env_value("DATABASE_URL", env_path)
+
+
 def _db_url(value: str) -> str:
     if value.startswith("postgresql://"):
         return value.replace("postgresql://", "postgresql+psycopg://", 1)
@@ -217,12 +224,14 @@ def export_reports(
     sector_report_path: Path,
     region_report_path: Path,
     run_label: str,
+    triggered_by: str = "artifact_import",
 ) -> str:
     sector_report = _load_json(sector_report_path)
     region_report = _load_json(region_report_path)
     engine = create_engine(_db_url(database_url), pool_pre_ping=True)
     started_at = datetime.now(UTC)
     latest_price_date = _latest_price_date(sector_report, region_report)
+    source_commit = _source_commit()
 
     with engine.begin() as conn:
         update_run = conn.execute(
@@ -233,7 +242,7 @@ def export_reports(
                   market_data_date, latest_price_date, source_commit, diagnostics
                 )
                 values (
-                  :run_label, 'artifact_import', 'started', :started_at, null,
+                  :run_label, :triggered_by, 'started', :started_at, null,
                   :market_data_date, :latest_price_date, :source_commit,
                   cast(:diagnostics as jsonb)
                 )
@@ -242,10 +251,11 @@ def export_reports(
             ),
             {
                 "run_label": run_label,
+                "triggered_by": triggered_by,
                 "started_at": started_at,
                 "market_data_date": latest_price_date,
                 "latest_price_date": latest_price_date,
-                "source_commit": _source_commit(),
+                "source_commit": source_commit,
                 "diagnostics": _json(
                     {
                         "sector_report": str(sector_report_path),
@@ -380,10 +390,11 @@ def _recommendation_insert_sql():
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Export S.T.A.R.E JSON reports to Supabase Postgres.")
-    parser.add_argument("--database-url", default=_env_value("DATABASE_URL"))
+    parser.add_argument("--database-url", default=resolve_database_url())
     parser.add_argument("--sector-report", type=Path, default=Path("reports/sector_dashboard.json"))
     parser.add_argument("--region-report", type=Path, default=Path("reports/region_dashboard.json"))
     parser.add_argument("--run-label", default="manual artifact import")
+    parser.add_argument("--triggered-by", default="artifact_import")
     args = parser.parse_args()
 
     if not args.database_url:
@@ -394,6 +405,7 @@ def main() -> None:
         sector_report_path=args.sector_report,
         region_report_path=args.region_report,
         run_label=args.run_label,
+        triggered_by=args.triggered_by,
     )
     print(f"Created update_run_id={update_run_id}")
 

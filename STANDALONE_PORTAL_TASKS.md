@@ -65,18 +65,22 @@ Supabase project:
 - [x] Create `user_profiles` table linked to authenticated users.
 - [x] Create `user_preferences` table for saved filters, default regions/sectors, theme, and watchlists.
 - [x] Add indexes for date, ticker, sector, region, and user lookups.
-- [ ] Add retention strategy for raw data if storage grows too much.
+- [x] Define raw-data retention strategy: retain a rolling 30 days of snapshot
+  data for now.
+- [x] Implement and verify an automated daily cleanup of snapshot data older
+  than 30 days.
 
 ## Phase 4 - Pipeline Migration
 
-- [ ] Refactor current pipeline so outputs can be written to Postgres instead of only JSON/CSV/HTML.
+- [x] Refactor the current market update so its final calculated outputs can be
+  written to Postgres as well as JSON/CSV/HTML.
 - [x] Add Supabase/Postgres connection configuration.
 - [x] Add first artifact importer: `src/export_reports_to_postgres.py`.
 - [x] Write each imported update into `update_runs`.
 - [x] Persist sector, region, and stock snapshots from existing JSON artifacts.
 - [x] Persist recommendation snapshots from the same code path that generates buy/hold/sell signals.
 - [x] Verify a Supabase import with populated `stock_recommendations` after remote execution is available.
-- [ ] Keep JSON export generation as a fallback/debug artifact.
+- [x] Keep JSON export generation as a fallback/debug artifact.
 - [ ] Add validation checks before marking an update as successful.
 - [ ] Add failure logging for partial data pulls.
 - [x] Run first Supabase import after replacing direct DB URL with Session Pooler URL.
@@ -128,6 +132,8 @@ Supabase project:
 - [x] Add Render UAT portal URL to Google OAuth authorized origins.
 - [x] Add Render UAT callback URL to Supabase Auth redirect URLs.
 - [x] Import each GitHub-scheduled UAT update into Supabase as a temporary bridge.
+- [x] Replace the separate scheduled import with unified Postgres output from
+  the shared market update.
 - [x] Allow an authorized portal user to trigger the existing update workflow as a temporary bridge.
 - [ ] Create Render scheduled job for market open refresh.
 - [ ] Create Render scheduled job for market close refresh.
@@ -162,6 +168,6 @@ Supabase project:
 - [x] Keep the dashboard publicly readable during UAT; require sign-in for saved personalization.
 - [x] Allow users to create custom watchlists and configure custom scoring weights.
 - [ ] Should historical data be stored for every tracked ticker or only displayed top picks?
-- [ ] How long should daily snapshots be retained?
+- [x] Retain daily snapshots for a rolling 30-day period for now.
 - [ ] Should email reports become per-user configurable?
 - [ ] Should future recommendations include user risk profile and investment horizon?
