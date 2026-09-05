@@ -101,9 +101,15 @@ This imports:
 - `GET /api/me/scoring-weights`
 - `PUT /api/me/scoring-weights`
 - `DELETE /api/me/scoring-weights`
+- `GET /api/me/personalized-signals`
 
 Preference endpoints reject missing, invalid, and expired Supabase access
 tokens. Client-provided user IDs are not accepted.
+
+The personalized-signal endpoint applies the signed-in user's saved factor
+weights to the latest successful snapshot. It returns both the persisted
+standard-model result and the calculated personal result so the portal can
+display them side by side without modifying the baseline recommendation.
 
 See `../PORTAL_DEPLOYMENT.md` for production domain, OAuth callback, Session Pooler, and secret-rotation notes.
 

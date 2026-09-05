@@ -108,7 +108,7 @@ Supabase project:
 - [x] Add multiple named custom watchlists per user.
 - [x] Add validated per-user scoring weights with model defaults and a reset
   option.
-- [ ] Show the standard model signal alongside personalized scores so users
+- [x] Show the standard model signal alongside personalized scores so users
   can compare them.
 - [x] Add responsive layout matching current minimal sharp-corner design.
 - [x] Add owner-restricted manual market refresh with automatic report reload.

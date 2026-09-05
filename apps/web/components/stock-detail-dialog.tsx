@@ -90,7 +90,10 @@ export function StockDetailDialog({ groupSignal, onClose, stock }: StockDetailDi
             <p>{fundamentals.longBusinessSummary || `${companyName} operates in ${stock.industry || stock.sector || "its reported business category"}.`}</p>
           </div>
           <div className="stock-detail-header-actions">
-            <span className={`stock-detail-signal ${signalClass(stock.action)}`}>{stock.action || "Hold"}</span>
+            <div className="stock-detail-signal-pair">
+              <span><small>Standard</small><b className={`stock-detail-signal ${signalClass(stock.action)}`}>{stock.action || "Hold"}</b></span>
+              <span><small>Personal</small><b className={`stock-detail-signal ${signalClass(stock.personalized_action)}`}>{stock.personalized_action || "n/a"}</b></span>
+            </div>
             <button aria-label="Close stock information" className="stock-detail-close" onClick={() => dialogRef.current?.close()} title="Close" type="button">&times;</button>
           </div>
         </header>
@@ -165,16 +168,20 @@ export function StockDetailDialog({ groupSignal, onClose, stock }: StockDetailDi
         <section className="stock-detail-section stock-signal-analysis">
           <h3>Market signal</h3>
           <MetricGrid items={[
-            ["Recommendation", stock.action || "Hold"],
-            ["Signal score", formatNumber(stock.score)],
-            ["Confidence", toNumber(stock.confidence) === null ? "n/a" : `${formatNumber(stock.confidence, 0)}%`],
+            ["Standard recommendation", stock.action || "Hold"],
+            ["Standard score", formatNumber(stock.score)],
+            ["Standard confidence", toNumber(stock.confidence) === null ? "n/a" : `${formatNumber(stock.confidence, 0)}%`],
+            ["Personal recommendation", stock.personalized_action || "n/a"],
+            ["Personal score", formatNumber(stock.personalized_score)],
+            ["Personal confidence", toNumber(stock.personalized_confidence) === null ? "n/a" : `${formatNumber(stock.personalized_confidence, 0)}%`],
             ["Close direction", stock.close_direction || "n/a"],
             ["Context group", groupSignal?.name || "n/a"],
             ["Context direction", groupSignal?.direction || "n/a"],
             ["Context strength", formatNumber(groupSignal?.strength, 0)]
           ]} />
           <div className="stock-detail-narrative"><strong>Decision summary</strong><p>{snapshot?.summary || "No decision summary is available for this update."}</p></div>
-          <div className="stock-detail-narrative"><strong>Rationale</strong><p>{stock.rationale || "No recommendation rationale is available for this update."}</p></div>
+          <div className="stock-detail-narrative"><strong>Standard rationale</strong><p>{stock.rationale || "No standard-model rationale is available for this update."}</p></div>
+          <div className="stock-detail-narrative"><strong>Personal rationale</strong><p>{stock.personalized_rationale || "No personalized rationale is available for this update."}</p></div>
           <div className="stock-detail-narrative"><strong>Daily summary</strong><p>{stock.daily_summary || "No daily summary is available for this update."}</p></div>
           <dl className="stock-decision-details">
             <DecisionDetail item={snapshot?.valuation} title="Valuation" />

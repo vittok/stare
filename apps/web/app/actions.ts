@@ -4,10 +4,12 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "../lib/supabase/server";
 import {
   type ScoringWeights,
+  type PersonalizedSignal,
   type UserPreferences,
   type UserWatchlist,
   deleteUserScoringWeights,
   getMarketRefreshStatus,
+  getUserPersonalizedSignals,
   getUserPreferences,
   postUserWatchlist,
   putUserScoringWeights,
@@ -103,29 +105,51 @@ export async function deleteWatchlist(
 
 export async function saveScoringWeights(
   weights: ScoringWeights
-): Promise<{ ok: true; weights: ScoringWeights } | { ok: false; error: string }> {
+): Promise<
+  { ok: true; weights: ScoringWeights; signals: PersonalizedSignal[] }
+  | { ok: false; error: string }
+> {
   const accessToken = await getAccessToken();
   if (!accessToken) return { ok: false, error: "Sign in to save scoring weights." };
   try {
     const saved = await putUserScoringWeights(accessToken, weights);
+    const personalized = await getUserPersonalizedSignals(accessToken);
     revalidatePath("/");
-    return { ok: true, weights: saved };
+    return { ok: true, weights: saved, signals: personalized.signals };
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : "Scoring weights could not be saved." };
   }
 }
 
 export async function resetScoringWeights(): Promise<
-  { ok: true; weights: ScoringWeights } | { ok: false; error: string }
+  { ok: true; weights: ScoringWeights; signals: PersonalizedSignal[] }
+  | { ok: false; error: string }
 > {
   const accessToken = await getAccessToken();
   if (!accessToken) return { ok: false, error: "Sign in to reset scoring weights." };
   try {
     const weights = await deleteUserScoringWeights(accessToken);
+    const personalized = await getUserPersonalizedSignals(accessToken);
     revalidatePath("/");
-    return { ok: true, weights };
+    return { ok: true, weights, signals: personalized.signals };
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : "Scoring weights could not be reset." };
+  }
+}
+
+export async function loadPersonalizedSignals(): Promise<
+  { ok: true; signals: PersonalizedSignal[] } | { ok: false; error: string }
+> {
+  const accessToken = await getAccessToken();
+  if (!accessToken) return { ok: false, error: "Sign in to load personalized signals." };
+  try {
+    const personalized = await getUserPersonalizedSignals(accessToken);
+    return { ok: true, signals: personalized.signals };
+  } catch (error) {
+    return {
+      ok: false,
+      error: error instanceof Error ? error.message : "Personalized signals are unavailable."
+    };
   }
 }
 

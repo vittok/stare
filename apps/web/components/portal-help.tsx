@@ -53,7 +53,7 @@ export function PortalHelp() {
           </section>
           <section>
             <h3>Understand the stock signal</h3>
-            <p>Buy, Hold, and Sell combine the surrounding market direction with price momentum and company fundamentals such as P/E, P/B, PEG, and dividend yield. Select a ticker or a Decision Snapshot label to see the rationale behind an individual result.</p>
+            <p>Buy, Hold, and Sell combine the surrounding market direction with price momentum and company fundamentals such as P/E, P/B, PEG, and dividend yield. Standard is the unchanged model result; Personal applies your saved scoring weights to the same market snapshot. Select a ticker to compare both scores, confidence levels, and rationales.</p>
           </section>
           <section>
             <h3>Use Top Active Stocks</h3>

@@ -1,6 +1,6 @@
 import { LoginExperience } from "../components/login-experience";
 import { PortalDashboard } from "../components/portal-dashboard";
-import { getLatestReport, getUserPreferences, getUserScoringWeights, getUserWatchlists } from "../lib/portal-api";
+import { getLatestReport, getUserPersonalizedSignals, getUserPreferences, getUserScoringWeights, getUserWatchlists } from "../lib/portal-api";
 import { createClient } from "../lib/supabase/server";
 import Image from "next/image";
 
@@ -12,11 +12,12 @@ export default async function Home() {
   const {
     data: { session }
   } = await supabase.auth.getSession();
-  const [latestReport, preferences, watchlists, scoringWeights] = await Promise.all([
+  const [latestReport, preferences, watchlists, scoringWeights, personalized] = await Promise.all([
     getLatestReport(),
     getUserPreferences(session?.access_token),
     getUserWatchlists(session?.access_token),
-    getUserScoringWeights(session?.access_token)
+    getUserScoringWeights(session?.access_token),
+    getUserPersonalizedSignals(session?.access_token)
   ]);
   const signedIn = Boolean(user);
   const userIdentity = user ? {
@@ -41,6 +42,7 @@ export default async function Home() {
         <div className="app-shell">
           <PortalDashboard
             preferences={preferences}
+            personalizedSignals={personalized.update_run_id === latestReport?.update?.id ? personalized.signals : []}
             report={latestReport}
             signedIn={signedIn}
             scoringWeights={scoringWeights}

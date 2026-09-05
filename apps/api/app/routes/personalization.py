@@ -8,17 +8,11 @@ from sqlalchemy.orm import Session
 
 from ..auth import require_user_id
 from ..db import get_db
+from ..scoring import DEFAULT_WEIGHTS, personalized_recommendation
 
 router = APIRouter(prefix="/api/me", tags=["personalization"])
 
-DEFAULT_SCORING_WEIGHTS = {
-    "group_sentiment_weight": 1.0,
-    "pe_weight": 1.0,
-    "pb_weight": 1.0,
-    "peg_weight": 1.0,
-    "dividend_weight": 1.0,
-    "momentum_weight": 1.0,
-}
+DEFAULT_SCORING_WEIGHTS = DEFAULT_WEIGHTS
 
 
 def _normalize_tickers(tickers: list[str]) -> list[str]:
@@ -294,11 +288,7 @@ def _scoring_response(user_id: UUID, values: dict) -> dict:
     }
 
 
-@router.get("/scoring-weights")
-def get_scoring_weights(
-    user_id: UUID = Depends(require_user_id),
-    db: Session = Depends(get_db),
-) -> dict:
+def _scoring_values(db: Session, user_id: UUID) -> dict:
     row = db.execute(
         text(
             """
@@ -310,7 +300,113 @@ def get_scoring_weights(
         ),
         {"user_id": user_id},
     ).mappings().first()
-    return _scoring_response(user_id, dict(row) if row else DEFAULT_SCORING_WEIGHTS)
+    return dict(row) if row else DEFAULT_SCORING_WEIGHTS
+
+
+@router.get("/scoring-weights")
+def get_scoring_weights(
+    user_id: UUID = Depends(require_user_id),
+    db: Session = Depends(get_db),
+) -> dict:
+    return _scoring_response(user_id, _scoring_values(db, user_id))
+
+
+@router.get("/personalized-signals")
+def get_personalized_signals(
+    user_id: UUID = Depends(require_user_id),
+    db: Session = Depends(get_db),
+) -> dict:
+    update_run_id = db.execute(
+        text(
+            """
+            select id
+            from public.update_runs
+            where status in ('success', 'partial')
+            order by completed_at desc nulls last, started_at desc
+            limit 1
+            """
+        )
+    ).scalar_one_or_none()
+    weights = _scoring_values(db, user_id)
+    if update_run_id is None:
+        return {"update_run_id": None, "weights": _scoring_response(user_id, weights), "signals": []}
+
+    rows = db.execute(
+        text(
+            """
+            with latest_rows as (
+              select s.*,
+                     row_number() over (
+                       partition by s.region, s.market, s.sector, s.ticker
+                       order by s.created_at, s.id
+                     ) as duplicate_rank
+              from public.stock_snapshots s
+              where s.update_run_id = :run_id and s.rank is not null
+            )
+            select s.ticker, s.region, s.market, s.sector, s.weekly_return,
+                   s.fundamentals, standard.action as standard_action,
+                   standard.score as standard_score,
+                   standard.confidence as standard_confidence,
+                   standard.rationale as standard_rationale,
+                   coalesce(sector.raw_score, region.raw_score) as context_raw_score,
+                   coalesce(sector.direction, region.direction) as context_direction,
+                   coalesce(sector.strength, region.strength) as context_strength
+            from latest_rows s
+            left join public.stock_recommendations standard
+              on standard.update_run_id = s.update_run_id and standard.ticker = s.ticker
+            left join public.sector_snapshots sector
+              on s.region = 'NA'
+             and sector.update_run_id = s.update_run_id
+             and sector.sector = s.sector
+            left join public.region_snapshots region
+              on s.region <> 'NA'
+             and region.update_run_id = s.update_run_id
+             and region.region = s.region
+            where s.duplicate_rank = 1
+            order by s.region, s.market, s.sector, s.rank, s.ticker
+            """
+        ),
+        {"run_id": update_run_id},
+    ).mappings().all()
+
+    signals = []
+    for row in rows:
+        group = {
+            "raw_score": row["context_raw_score"],
+            "direction": row["context_direction"],
+            "strength": row["context_strength"],
+            "sector": row["sector"] if row["region"] == "NA" else None,
+            "region": row["region"] if row["region"] != "NA" else None,
+        }
+        personalized = personalized_recommendation(
+            group,
+            {"weekly_return": row["weekly_return"], "fundamentals": row["fundamentals"] or {}},
+            weights,
+        )
+        signals.append(
+            {
+                "ticker": row["ticker"],
+                "region": row["region"],
+                "market": row["market"],
+                "sector": row["sector"],
+                "standard_action": row["standard_action"] or "Hold",
+                "standard_score": row["standard_score"],
+                "standard_confidence": row["standard_confidence"],
+                "standard_rationale": row["standard_rationale"],
+                "personalized_action": personalized["action"],
+                "personalized_score": personalized["score"],
+                "personalized_confidence": personalized["confidence"],
+                "personalized_rationale": personalized["rationale"],
+                "factor_contributions": personalized["factor_contributions"],
+                "changed": personalized["action"] != (row["standard_action"] or "Hold"),
+            }
+        )
+
+    return {
+        "update_run_id": str(update_run_id),
+        "weights": _scoring_response(user_id, weights),
+        "signals": signals,
+    }
 
 
 @router.put("/scoring-weights")

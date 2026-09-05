@@ -6,6 +6,7 @@ import {
   createWatchlist,
   deleteWatchlist,
   getMarketRefreshProgress,
+  loadPersonalizedSignals,
   resetScoringWeights,
   savePreferences,
   saveScoringWeights,
@@ -18,6 +19,7 @@ import {
   defaultScoringWeights,
   type DecisionSnapshot,
   type LatestReport,
+  type PersonalizedSignal,
   type RegionSnapshot,
   type ScoringWeights,
   type SectorSnapshot,
@@ -30,6 +32,7 @@ type UserIdentity = { displayName: string; email: string };
 type Props = {
   report: LatestReport | null;
   preferences: UserPreferences;
+  personalizedSignals: PersonalizedSignal[];
   scoringWeights: ScoringWeights;
   signedIn: boolean;
   user: UserIdentity | null;
@@ -46,7 +49,7 @@ const REGION_ORDER: RegionMode[] = ["All", "NA", "Sectors", "LAC", "EMEA", "APAC
 const REGION_LABELS: Record<RegionMode, string> = { All: "All Regions", NA: "NA", Sectors: "NA/Sectors", LAC: "LAC", EMEA: "EMEA", APAC: "APAC" };
 const COLUMNS: Record<string, string> = {
   watch: "Watch", group: "Sector / Region", rank: "#", ticker: "Ticker", name: "Name",
-  current_price: "Price", previous_close: "Prev Close", action: "Signal", decision: "Decision Snapshot",
+  current_price: "Price", previous_close: "Prev Close", action: "Standard", personalized_action: "Personal", decision: "Decision Snapshot",
   weekly_return: "Weekly", daily_percentile: "Daily", dollar_vol_latest: "Day $ Vol", market_cap: "Mkt Cap",
   trailing_pe: "P/E", price_to_book: "P/B", peg_ratio: "PEG", dividend_yield: "Div"
 };
@@ -72,6 +75,12 @@ function toNumber(value?: number | string | null) {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : null;
 }
+function columnsWithPersonalSignal(columns: string[]) {
+  if (!columns.includes("action") || columns.includes("personalized_action")) return columns;
+  const next = [...columns];
+  next.splice(next.indexOf("action") + 1, 0, "personalized_action");
+  return next;
+}
 function formatPercent(value?: number | string | null) { const n = toNumber(value); return n === null ? "n/a" : `${n >= 0 ? "+" : ""}${(n * 100).toFixed(2)}%`; }
 function formatRatio(value?: number | string | null, digits = 2) { const n = toNumber(value); return n === null ? "n/a" : n.toFixed(digits); }
 function formatYield(value?: number | string | null) { const n = toNumber(value); return n === null ? "n/a" : `${n.toFixed(2)}%`; }
@@ -85,6 +94,7 @@ function formatPrice(stock: StockSnapshot, value?: number | string | null) {
   catch { return `${currency} ${n.toFixed(2)}`; }
 }
 function groupName(group: Group) { return "sector" in group ? group.sector : group.region; }
+function stockKey(stock: Pick<StockSnapshot, "region" | "market" | "sector" | "ticker">) { return `${stock.region || ""}|${stock.market || ""}|${stock.sector || ""}|${stock.ticker}`; }
 function classFor(value?: string | null) { return (value || "Neutral").toLowerCase(); }
 function snapshotClass(label?: string | null) {
   if (["Attractive", "Strong", "Low", "Positive", "Supportive"].includes(label || "")) return "good";
@@ -129,7 +139,7 @@ function ExplainButton({ className, label, title, content, onActivate, onShow, o
   return <button className={className} onBlur={onHide} onClick={(event) => { event.stopPropagation(); if (onActivate) { onHide(); onActivate(); return; } const point = pointerPosition(event); onPin(title, content, point.x, point.y); }} onFocus={(event) => { const point = focusPosition(event); onShow(title, content, point.x, point.y); }} onMouseEnter={(event) => { const point = pointerPosition(event); onShow(title, content, point.x, point.y); }} onMouseLeave={onHide} onMouseMove={(event) => { const point = pointerPosition(event); onShow(title, content, point.x, point.y); }} type="button">{label}</button>;
 }
 
-export function PortalDashboard({ report, preferences, scoringWeights, signedIn, user, watchlists }: Props) {
+export function PortalDashboard({ report, preferences, personalizedSignals, scoringWeights, signedIn, user, watchlists }: Props) {
   const initialRegion = REGION_ORDER.includes(preferences.default_region as RegionMode) ? preferences.default_region as RegionMode : "Sectors";
   const [regionMode, setRegionMode] = useState<RegionMode>(initialRegion);
   const [direction, setDirection] = useState<Direction>("All");
@@ -143,7 +153,7 @@ export function PortalDashboard({ report, preferences, scoringWeights, signedIn,
     watchlists.find((item) => item.is_default)?.id || watchlists[0]?.id || ""
   );
   const [watchlistOnly, setWatchlistOnly] = useState(false);
-  const [visibleColumns, setVisibleColumns] = useState(preferences.visible_columns.length ? preferences.visible_columns : DEFAULT_COLUMNS);
+  const [visibleColumns, setVisibleColumns] = useState(columnsWithPersonalSignal(preferences.visible_columns.length ? preferences.visible_columns : DEFAULT_COLUMNS));
   const [theme, setTheme] = useState<UserPreferences["theme"]>(preferences.theme || "system");
   const [preferenceState, setPreferenceState] = useState(preferences);
   const [columnMenuOpen, setColumnMenuOpen] = useState(false);
@@ -164,6 +174,7 @@ export function PortalDashboard({ report, preferences, scoringWeights, signedIn,
   const [watchlistName, setWatchlistName] = useState("");
   const [personalizationOpen, setPersonalizationOpen] = useState(false);
   const [weightState, setWeightState] = useState(scoringWeights);
+  const [personalizedSignalState, setPersonalizedSignalState] = useState(personalizedSignals);
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
@@ -176,6 +187,15 @@ export function PortalDashboard({ report, preferences, scoringWeights, signedIn,
     const close = (event: KeyboardEvent) => event.key === "Escape" && setPopover(null);
     document.addEventListener("keydown", close); return () => document.removeEventListener("keydown", close);
   }, []);
+  useEffect(() => {
+    if (!signedIn || !currentReport?.update?.id) return;
+    let cancelled = false;
+    void (async () => {
+      const result = await loadPersonalizedSignals();
+      if (!cancelled && result.ok) setPersonalizedSignalState(result.signals);
+    })();
+    return () => { cancelled = true; };
+  }, [currentReport?.update?.id, signedIn]);
   useEffect(() => {
     if (currentReport?.update) return;
 
@@ -297,7 +317,20 @@ export function PortalDashboard({ report, preferences, scoringWeights, signedIn,
     };
   }, [refreshBaselineRunId, refreshRunId, refreshState]);
 
-  const allStocks = currentReport?.top_stocks || [];
+  const allStocks = useMemo(() => {
+    const byStock = new Map(personalizedSignalState.map((signal) => [stockKey(signal), signal]));
+    return (currentReport?.top_stocks || []).map((stock) => {
+      const signal = byStock.get(stockKey(stock));
+      return signal ? {
+        ...stock,
+        personalized_action: signal.personalized_action,
+        personalized_score: signal.personalized_score,
+        personalized_confidence: signal.personalized_confidence,
+        personalized_rationale: signal.personalized_rationale,
+        personalized_changed: signal.changed
+      } : stock;
+    });
+  }, [currentReport?.top_stocks, personalizedSignalState]);
   const regions = currentReport?.regions || [];
   const sectors = currentReport?.sectors || [];
   const activeWatchlist = namedWatchlists.find((item) => item.id === activeWatchlistId) || null;
@@ -357,10 +390,13 @@ export function PortalDashboard({ report, preferences, scoringWeights, signedIn,
   const bullish = groups.filter((group) => group.direction === "Bullish").length;
   const bearish = groups.filter((group) => group.direction === "Bearish").length;
   const averageStrength = groups.length ? groups.reduce((sum, group) => sum + (group.strength || 0), 0) / groups.length : 0;
-  const selectedGroupSignal = selectedStock
-    ? selectedStock.region === "NA"
-      ? sectors.find((sector) => sector.sector === selectedStock.sector)
-      : regions.find((region) => region.region === selectedStock.region)
+  const activeSelectedStock = selectedStock
+    ? allStocks.find((stock) => stockKey(stock) === stockKey(selectedStock)) || selectedStock
+    : null;
+  const selectedGroupSignal = activeSelectedStock
+    ? activeSelectedStock.region === "NA"
+      ? sectors.find((sector) => sector.sector === activeSelectedStock.sector)
+      : regions.find((region) => region.region === activeSelectedStock.region)
     : null;
 
   function positionPopover(x: number, y: number) {
@@ -471,14 +507,14 @@ export function PortalDashboard({ report, preferences, scoringWeights, signedIn,
   function persistScoringWeights() {
     startTransition(() => { void (async () => {
       const result = await saveScoringWeights(weightState);
-      if (result.ok) { setWeightState(result.weights); setStatus("Scoring weights saved."); }
+      if (result.ok) { setWeightState(result.weights); setPersonalizedSignalState(result.signals); setStatus("Scoring weights saved. Personalized signals updated."); }
       else setStatus(result.error);
     })(); });
   }
   function restoreScoringWeights() {
     startTransition(() => { void (async () => {
       const result = await resetScoringWeights();
-      if (result.ok) { setWeightState(result.weights); setStatus("Scoring weights reset."); }
+      if (result.ok) { setWeightState(result.weights); setPersonalizedSignalState(result.signals); setStatus("Scoring weights reset to the standard model."); }
       else setStatus(result.error);
     })(); });
   }
@@ -531,18 +567,18 @@ export function PortalDashboard({ report, preferences, scoringWeights, signedIn,
       <section className="kpi-strip" aria-label="Dashboard KPIs"><Metric label={regionMode === "Sectors" ? "Sectors" : "Regions"} value={groups.length.toString()} /><Metric label="Bullish / Bearish" value={`${bullish} / ${bearish}`} /><Metric label="Avg Strength" value={averageStrength.toFixed(1)} /><Metric label="Tracked Names" value={new Set(displayedRows.map((stock) => stock.ticker)).size.toString()} /></section>
       <section className="section-block"><div className="section-heading"><div><p className="eyebrow">Market map</p><h2>{regionMode === "Sectors" ? "Sector Heatmap" : "Region Heatmap"}</h2></div><span>{groups.length} groups</span></div><div className="heatmap">{groups.map((group) => <button className={`heat-cell ${classFor(group.direction)}`} key={groupName(group)} onClick={() => regionMode === "Sectors" && chooseGroup(groupName(group))} type="button"><strong>{groupName(group)}</strong><span>{group.strength ?? 0}</span><small>{group.direction || "Neutral"}</small></button>)}</div></section>
       <div className="analysis-grid"><section className="section-block strength-section"><div className="section-heading"><div><p className="eyebrow">Comparison</p><h2>Strength by {regionMode === "Sectors" ? "Sector" : "Region"}</h2></div><span>Select a bar to inspect</span></div><div className="strength-chart">{[...groups].sort((a, b) => (b.strength || 0) - (a.strength || 0)).map((group) => <button className="chart-column" key={groupName(group)} onClick={() => regionMode === "Sectors" && chooseGroup(groupName(group))} type="button"><span className="chart-value">{group.strength ?? 0}</span><span className={`chart-bar ${classFor(group.direction)}`} style={{ height: `${Math.max(3, group.strength || 0)}%` }} /><span className="chart-label">{groupName(group)}</span></button>)}</div></section>
-      <section className="section-block picks-section"><div className="section-heading"><div><p className="eyebrow">Last trading day</p><h2>Top Active Stocks <ExplainButton className="help-button" label="?" title="Top Active Stocks" content={HELP.topPicks} onShow={showPopover} onHide={hidePopover} onPin={pinPopover} /></h2></div><span>{topPicks.length} picks</span></div><div className="picks-grid">{topPicks.map((stock) => <article className="stock-card" key={`pick-${stock.region}-${stock.market}-${stock.ticker}`}><div className="stock-card-top"><div><button className="stock-card-ticker" onClick={() => setSelectedStock(stock)} type="button">{stock.ticker}</button><span>{stockName(stock)}</span></div><b className={classFor(stock.action)}>{formatPercent(stock.weekly_return)}</b></div><div className="stock-card-price">{formatPrice(stock, stock.current_price)}</div><div className="stock-card-metrics"><span>Signal <b className={classFor(stock.action)}>{stock.action || "Hold"}</b></span><span>Valuation <b>{stock.decision_snapshot?.valuation?.label || "n/a"}</b></span><span>Risk <b>{stock.decision_snapshot?.risk?.label || "n/a"}</b></span></div></article>)}</div></section></div>
+      <section className="section-block picks-section"><div className="section-heading"><div><p className="eyebrow">Last trading day</p><h2>Top Active Stocks <ExplainButton className="help-button" label="?" title="Top Active Stocks" content={HELP.topPicks} onShow={showPopover} onHide={hidePopover} onPin={pinPopover} /></h2></div><span>{topPicks.length} picks</span></div><div className="picks-grid">{topPicks.map((stock) => <article className="stock-card" key={`pick-${stock.region}-${stock.market}-${stock.ticker}`}><div className="stock-card-top"><div><button className="stock-card-ticker" onClick={() => setSelectedStock(stock)} type="button">{stock.ticker}</button><span>{stockName(stock)}</span></div><b className={classFor(stock.action)}>{formatPercent(stock.weekly_return)}</b></div><div className="stock-card-price">{formatPrice(stock, stock.current_price)}</div><div className="stock-card-metrics"><span>Standard <b className={classFor(stock.action)}>{stock.action || "Hold"}</b></span><span>Personal <b className={classFor(stock.personalized_action)}>{stock.personalized_action || "n/a"}</b></span><span>Valuation <b>{stock.decision_snapshot?.valuation?.label || "n/a"}</b></span><span>Risk <b>{stock.decision_snapshot?.risk?.label || "n/a"}</b></span></div></article>)}</div></section></div>
       <section className="section-block table-section"><div className="section-heading table-heading"><div><p className="eyebrow">Complete snapshot</p><h2>{displayedRows.length} stocks</h2></div><div className="table-tools"><span className="save-status">{isPending ? "Saving..." : status}</span><button aria-pressed={watchlistOnly} className={watchlistOnly ? "button secondary active" : "button secondary"} disabled={!activeWatchlist && !watchlist.length} onClick={() => setWatchlistOnly((active) => !active)} type="button">{activeWatchlist?.name || "Watchlist"} ({watchlist.length})</button><div className="column-menu-wrap"><button className="button secondary" onClick={() => setColumnMenuOpen((open) => !open)} type="button">Columns</button>{columnMenuOpen ? <div className="column-menu">{DEFAULT_COLUMNS.map((column) => <label key={column}><input checked={visibleColumns.includes(column)} onChange={() => toggleColumn(column)} type="checkbox" /> {COLUMNS[column]}</label>)}</div> : null}</div></div></div>
       <div className="table-wrap"><table><thead><tr>{DEFAULT_COLUMNS.filter((column) => visibleColumns.includes(column)).map((column) => <th className={NUMERIC_COLUMNS.has(column) ? "num" : ""} key={column}>{!["watch", "decision"].includes(column) ? <button className="sort-button" onClick={() => sortBy(column)} type="button">{COLUMNS[column]} <span aria-hidden="true">{sortKey === column ? sortDirection === "asc" ? "↑" : "↓" : "↕"}</span></button> : COLUMNS[column]}</th>)}</tr></thead><tbody>{displayedRows.map((stock) => <StockRow key={`${stock.region}-${stock.market}-${stock.sector}-${stock.ticker}`} stock={stock} columns={visibleColumns} watched={watchlist.includes(stock.ticker)} onOpenStock={setSelectedStock} onWatch={toggleWatchlist} onShow={showPopover} onHide={hidePopover} onPin={pinPopover} />)}</tbody></table></div></section>
       <footer className="data-footer"><span>Updated {formatTimestamp(currentReport.update.completed_at)} · Market data {currentReport.update.latest_price_date || currentReport.update.market_data_date || "n/a"}</span><span>Source: Yahoo Finance market and fundamental data. Signals are deterministic research outputs and may be incomplete or delayed.</span><span>Created by vittok. GitHub Pages remains available as the static fallback.</span></footer>
     </div>
     {popover ? <aside className={`summary-popover ${popover.pinned ? "pinned" : "hovering"}`} onClick={(event) => event.stopPropagation()} style={{ left: popover.x, top: popover.y }}><div><strong>{popover.title}</strong>{popover.pinned ? <button aria-label="Close explanation" onClick={() => setPopover(null)} type="button">×</button> : null}</div><p>{popover.content}</p></aside> : null}
-    <StockDetailDialog groupSignal={selectedGroupSignal ? { direction: selectedGroupSignal.direction, name: groupName(selectedGroupSignal), strength: selectedGroupSignal.strength } : null} onClose={() => setSelectedStock(null)} stock={selectedStock} />
+    <StockDetailDialog groupSignal={selectedGroupSignal ? { direction: selectedGroupSignal.direction, name: groupName(selectedGroupSignal), strength: selectedGroupSignal.strength } : null} onClose={() => setSelectedStock(null)} stock={activeSelectedStock} />
   </div>;
 }
 
 function sortValue(stock: DisplayStock, key: string): string | number | null {
-  const values: Record<string, string | number | null | undefined> = { group: stock.sector || stock.region, rank: stock.rank, ticker: stock.ticker, name: stockName(stock), current_price: toNumber(stock.current_price), previous_close: toNumber(stock.previous_close), action: stock.action, decision: stock.decision_snapshot?.summary, weekly_return: toNumber(stock.weekly_return), daily_percentile: stock.daily_percentile, dollar_vol_latest: toNumber(stock.dollar_vol_latest), market_cap: toNumber(stockValue(stock, "marketCap", stock.market_cap)), trailing_pe: toNumber(stockValue(stock, "trailingPE", stock.trailing_pe)), price_to_book: toNumber(stockValue(stock, "priceToBook", stock.price_to_book)), peg_ratio: toNumber(stockValue(stock, "pegRatio", stock.peg_ratio)), dividend_yield: toNumber(stockValue(stock, "dividendYield", stock.dividend_yield)) };
+  const values: Record<string, string | number | null | undefined> = { group: stock.sector || stock.region, rank: stock.rank, ticker: stock.ticker, name: stockName(stock), current_price: toNumber(stock.current_price), previous_close: toNumber(stock.previous_close), action: stock.action, personalized_action: stock.personalized_action, decision: stock.decision_snapshot?.summary, weekly_return: toNumber(stock.weekly_return), daily_percentile: stock.daily_percentile, dollar_vol_latest: toNumber(stock.dollar_vol_latest), market_cap: toNumber(stockValue(stock, "marketCap", stock.market_cap)), trailing_pe: toNumber(stockValue(stock, "trailingPE", stock.trailing_pe)), price_to_book: toNumber(stockValue(stock, "priceToBook", stock.price_to_book)), peg_ratio: toNumber(stockValue(stock, "pegRatio", stock.peg_ratio)), dividend_yield: toNumber(stockValue(stock, "dividendYield", stock.dividend_yield)) };
   return values[key] ?? null;
 }
 function SignalExplanation({ title, text, content, onShow, onHide, onPin }: { title: string; text: string; content: string; onShow: PopoverHandler; onHide: () => void; onPin: PopoverHandler }) { return <div><h2>{title} <ExplainButton className="help-button" label="?" title={title} content={content} onShow={onShow} onHide={onHide} onPin={onPin} /></h2><p>{text}</p></div>; }
@@ -557,7 +593,8 @@ function StockRow({ stock, columns, watched, onOpenStock, onWatch, onShow, onHid
     ticker: <ExplainButton className="text-link ticker-link" label={stock.ticker} title={`${stock.ticker} daily summary`} content={stock.daily_summary || "No generated summary is available for this ticker today."} onActivate={() => onOpenStock(stock)} onShow={onShow} onHide={onHide} onPin={onPin} />,
     name: <ExplainButton className="text-link name-link" label={stockName(stock)} title={stockName(stock)} content={companySummary(stock)} onShow={onShow} onHide={onHide} onPin={onPin} />,
     current_price: formatPrice(stock, stock.current_price), previous_close: <span className={`close-value ${closeDirection}`}>{formatPrice(stock, stock.previous_close)} <b>{stock.close_direction === "up" ? "▲" : stock.close_direction === "down" ? "▼" : "●"}</b><small>{stock.previous_close_date || "n/a"} · {formatPercent(stock.close_change_pct)}</small></span>,
-    action: <span className={`signal ${classFor(stock.action)}`}>{stock.action || "Hold"}</span>,
+    action: <span className="signal-cell"><span className={`signal ${classFor(stock.action)}`}>{stock.action || "Hold"}</span><small>{formatRatio(stock.score)} / {stock.confidence ?? "n/a"}%</small></span>,
+    personalized_action: <span className={stock.personalized_changed ? "signal-cell personalized-change" : "signal-cell"}><span className={`signal ${classFor(stock.personalized_action)}`}>{stock.personalized_action || "n/a"}</span><small>{formatRatio(stock.personalized_score)} / {stock.personalized_confidence ?? "n/a"}%</small></span>,
     decision: <div className="snapshot-tags">{decisionItems(snapshot).map(([short, item]) => item?.label ? <ExplainButton className={`snapshot-tag ${snapshotClass(item.label)}`} key={short} label={`${short}: ${item.label}`} title={`${stock.ticker} ${short}`} content={`${item.detail || "No detail available."} ${snapshot?.summary || ""}`.trim()} onShow={onShow} onHide={onHide} onPin={onPin} /> : null)}</div>,
     weekly_return: <span className={(toNumber(stock.weekly_return) || 0) >= 0 ? "positive" : "negative"}>{formatPercent(stock.weekly_return)}</span>, daily_percentile: stock.daily_percentile === null ? "n/a" : `${stock.daily_percentile.toFixed(0)}%`, dollar_vol_latest: formatBig(stock.dollar_vol_latest || stock.dollar_vol_week), market_cap: formatBig(stockValue(stock, "marketCap", stock.market_cap)), trailing_pe: formatRatio(stockValue(stock, "trailingPE", stock.trailing_pe)), price_to_book: formatRatio(stockValue(stock, "priceToBook", stock.price_to_book)), peg_ratio: formatRatio(stockValue(stock, "pegRatio", stock.peg_ratio)), dividend_yield: formatYield(stockValue(stock, "dividendYield", stock.dividend_yield))
   };

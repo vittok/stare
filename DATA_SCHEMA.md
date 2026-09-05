@@ -144,3 +144,6 @@ user_id | group_sentiment_weight | pe_weight | pb_weight | peg_weight | dividend
 Stores one optional custom scoring profile per user. Each factor is constrained
 between `0.0` and `2.0`; at least one factor must remain above zero. Missing or
 reset profiles use the standard model multiplier of `1.0` for every factor.
+Personalized signals are calculated on request from the latest successful
+snapshot and these weights. They are not written over `stock_recommendations`;
+that table remains the standard-model baseline used for comparison.

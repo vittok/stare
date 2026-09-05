@@ -108,6 +108,11 @@ export type StockSnapshot = {
   rationale?: string | null;
   daily_summary?: string | null;
   decision_snapshot?: DecisionSnapshot;
+  personalized_action?: "Buy" | "Hold" | "Sell" | null;
+  personalized_score?: number | string | null;
+  personalized_confidence?: number | null;
+  personalized_rationale?: string | null;
+  personalized_changed?: boolean;
 };
 
 export type LatestReport = {
@@ -145,6 +150,29 @@ export type ScoringWeights = {
   peg_weight: number;
   dividend_weight: number;
   momentum_weight: number;
+};
+
+export type PersonalizedSignal = {
+  ticker: string;
+  region?: string | null;
+  market?: string | null;
+  sector?: string | null;
+  standard_action: "Buy" | "Hold" | "Sell";
+  standard_score?: number | string | null;
+  standard_confidence?: number | null;
+  standard_rationale?: string | null;
+  personalized_action: "Buy" | "Hold" | "Sell";
+  personalized_score: number;
+  personalized_confidence: number;
+  personalized_rationale: string;
+  factor_contributions: Record<string, number>;
+  changed: boolean;
+};
+
+export type PersonalizedSignalsResponse = {
+  update_run_id?: string | null;
+  weights: ScoringWeights;
+  signals: PersonalizedSignal[];
 };
 
 export type MarketRefreshResponse = {
@@ -340,6 +368,20 @@ export async function getUserScoringWeights(accessToken?: string): Promise<Scori
     return await authenticatedRequest<ScoringWeights>(accessToken, "/api/me/scoring-weights");
   } catch {
     return defaultScoringWeights;
+  }
+}
+
+export async function getUserPersonalizedSignals(
+  accessToken?: string
+): Promise<PersonalizedSignalsResponse> {
+  if (!accessToken) return { update_run_id: null, weights: defaultScoringWeights, signals: [] };
+  try {
+    return await authenticatedRequest<PersonalizedSignalsResponse>(
+      accessToken,
+      "/api/me/personalized-signals"
+    );
+  } catch {
+    return { update_run_id: null, weights: defaultScoringWeights, signals: [] };
   }
 }
 

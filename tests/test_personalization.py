@@ -8,12 +8,15 @@ from pydantic import ValidationError
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "apps/api"))
+sys.path.insert(0, str(ROOT / "src"))
 
+from app.scoring import personalized_recommendation  # noqa: E402
 from app.routes.personalization import (  # noqa: E402
     ScoringWeightsPayload,
     WatchlistCreate,
     WatchlistUpdate,
 )
+from stare_signals import recommendation_for_stock  # noqa: E402
 
 
 class WatchlistPayloadTests(TestCase):
@@ -51,6 +54,54 @@ class ScoringWeightPayloadTests(TestCase):
                 dividend_weight=0,
                 momentum_weight=0,
             )
+
+
+class PersonalizedRecommendationTests(TestCase):
+    def setUp(self) -> None:
+        self.group = {
+            "sector": "Technology",
+            "direction": "Bullish",
+            "strength": 72,
+            "raw_score": 0.4,
+        }
+        self.stock = {
+            "weekly_return": 0.06,
+            "fundamentals": {
+                "trailingPE": 13,
+                "priceToBook": 1.6,
+                "pegRatio": 0.8,
+                "dividendYield": 2.4,
+            },
+        }
+
+    def test_default_weights_exactly_match_standard_model(self) -> None:
+        standard = recommendation_for_stock(self.group, self.stock)
+        personalized = personalized_recommendation(self.group, self.stock)
+
+        self.assertEqual(personalized["action"], standard["action"])
+        self.assertEqual(personalized["score"], standard["score"])
+        self.assertEqual(personalized["confidence"], standard["confidence"])
+        self.assertEqual(personalized["rationale"], standard["rationale"])
+
+    def test_custom_weights_change_score_without_changing_standard_input(self) -> None:
+        standard = recommendation_for_stock(self.group, self.stock)
+        personalized = personalized_recommendation(
+            self.group,
+            self.stock,
+            {
+                "group_sentiment_weight": 0,
+                "pe_weight": 0,
+                "pb_weight": 0,
+                "peg_weight": 0,
+                "dividend_weight": 0,
+                "momentum_weight": 0.1,
+            },
+        )
+
+        self.assertEqual(standard["action"], "Buy")
+        self.assertEqual(personalized["action"], "Hold")
+        self.assertEqual(personalized["score"], 0.025)
+        self.assertEqual(personalized["factor_contributions"]["momentum_weight"], 0.025)
 
 
 class PersonalizationMigrationTests(TestCase):
