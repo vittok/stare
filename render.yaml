@@ -53,7 +53,6 @@ services:
     startCommand: python src/run_render_scheduled_update.py --window market-open
     envVars:
       - key: DATABASE_URL
-        value: https://bprknqcgtezsgfjuztqs.supabase.co
         sync: false
       - key: STARE_APP_URL
         value: https://stare-portal.onrender.com
@@ -65,12 +64,10 @@ services:
         value: "587"
       - key: SMTP_USERNAME
         value: ae97a1001@smtp-brevo.com
-        sync: false
       - key: SMTP_PASSWORD
         sync: false
       - key: SMTP_FROM
         value: ae97a1001@smtp-brevo.com
-        sync: false
       - key: SMTP_AUTH
         value: "true"
       - key: SMTP_STARTTLS
@@ -87,7 +84,6 @@ services:
     startCommand: python src/run_render_scheduled_update.py --window market-close
     envVars:
       - key: DATABASE_URL
-        value: 
         sync: false
       - key: STARE_APP_URL
         value: https://stare-portal.onrender.com
@@ -99,12 +95,10 @@ services:
         value: "587"
       - key: SMTP_USERNAME
         value: ae97a1001@smtp-brevo.com
-        sync: false
       - key: SMTP_PASSWORD
         sync: false
       - key: SMTP_FROM
         value: ae97a1001@smtp-brevo.com
-        sync: false
       - key: SMTP_AUTH
         value: "true"
       - key: SMTP_STARTTLS
