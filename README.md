@@ -522,15 +522,14 @@ Current standalone operations:
 - Host `apps/web` as the Next.js frontend on Render.
 - Host `apps/api` as the FastAPI backend on Render.
 - Store `DATABASE_URL` and future service secrets in deployment secrets.
-- Persist each GitHub-scheduled market update directly to Supabase as the final
-  output of the shared update command.
+- Run Render market-open and market-close cron jobs with New York daylight-saving
+  guards, Postgres persistence, and SMTP notification.
+- Continue GitHub-scheduled artifact generation and GitHub Pages publishing as
+  the static demo/fallback, without duplicate database writes or email.
 - Allow authorized portal users to start the same update workflow on demand;
   the portal tracks GitHub Actions job-step progress and reloads automatically
   when the new snapshot is complete.
 - Keep GitHub Pages available as the public demo/fallback while the portal matures.
-
-The remaining operational migration is moving market-open and market-close
-execution from the temporary GitHub bridge into a standalone scheduled job.
 
 Important security notes:
 

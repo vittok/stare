@@ -112,7 +112,9 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           PYTHONUNBUFFERED: "1"
-          STARE_POSTGRES_MODE: required
+          # Render owns scheduled portal snapshots. Manual portal refreshes still
+          # use this workflow and therefore require the Postgres output.
+          STARE_POSTGRES_MODE: ${{ github.event_name == 'workflow_dispatch' && 'required' || 'disabled' }}
           STARE_REFRESH_LABEL: ${{ steps.market-window.outputs.label }}
           WITH_FUNDAMENTALS: ${{ steps.market-window.outputs.with_fundamentals }}
         run: |
@@ -159,7 +161,9 @@ jobs:
         uses: actions/deploy-pages@v5
 
       - name: Send app update email
-        if: ${{ steps.market-window.outputs.should_run == 'true' }}
+        # Scheduled notifications now come from Render. Keep this notification
+        # for manual updates dispatched by the portal.
+        if: ${{ steps.market-window.outputs.should_run == 'true' && github.event_name == 'workflow_dispatch' }}
         env:
           SMTP_HOST: smtp-relay.brevo.com
           SMTP_PORT: "587"

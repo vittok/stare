@@ -284,11 +284,24 @@ class PostgresWriterTests(TestCase):
 
 
 class WorkflowContractTests(TestCase):
-    def test_workflow_uses_unified_required_postgres_output(self) -> None:
+    def test_manual_workflow_uses_required_postgres_output(self) -> None:
         workflow = (ROOT / ".github/workflows/pipeline_weekdays.yml").read_text(
             encoding="utf-8"
         )
 
-        self.assertIn("STARE_POSTGRES_MODE: required", workflow)
+        self.assertIn(
+            "STARE_POSTGRES_MODE: ${{ github.event_name == 'workflow_dispatch' && 'required' || 'disabled' }}",
+            workflow,
+        )
         self.assertIn("DATABASE_URL: ${{ secrets.DATABASE_URL }}", workflow)
         self.assertNotIn("Import update into portal database", workflow)
+
+    def test_render_blueprint_defines_both_market_update_jobs(self) -> None:
+        blueprint = (ROOT / "render.yaml").read_text(encoding="utf-8")
+
+        self.assertIn("name: stare-market-open", blueprint)
+        self.assertIn('schedule: "35 13,14 * * 1-5"', blueprint)
+        self.assertIn("--window market-open", blueprint)
+        self.assertIn("name: stare-market-close", blueprint)
+        self.assertIn('schedule: "10 20,21 * * 1-5"', blueprint)
+        self.assertIn("--window market-close", blueprint)

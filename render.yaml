@@ -41,3 +41,67 @@ services:
         sync: false
       - key: FASTAPI_URL
         sync: false
+
+  # Each paired UTC schedule fires twice. The command keeps only the occurrence
+  # that maps to the requested America/New_York market time across DST changes.
+  - type: cron
+    name: stare-market-open
+    runtime: python
+    plan: 0.5c-512mb
+    schedule: "35 13,14 * * 1-5"
+    buildCommand: pip install -r requirements.txt
+    startCommand: python src/run_render_scheduled_update.py --window market-open
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: STARE_APP_URL
+        value: https://stare-portal.onrender.com
+      - key: STARE_EMAIL_TO
+        value: vittok@hotmail.com
+      - key: SMTP_HOST
+        value: smtp-relay.brevo.com
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USERNAME
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: SMTP_FROM
+        sync: false
+      - key: SMTP_AUTH
+        value: "true"
+      - key: SMTP_STARTTLS
+        value: "true"
+      - key: SMTP_SSL
+        value: "false"
+
+  - type: cron
+    name: stare-market-close
+    runtime: python
+    plan: 0.5c-512mb
+    schedule: "10 20,21 * * 1-5"
+    buildCommand: pip install -r requirements.txt
+    startCommand: python src/run_render_scheduled_update.py --window market-close
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: STARE_APP_URL
+        value: https://stare-portal.onrender.com
+      - key: STARE_EMAIL_TO
+        value: vittok@hotmail.com
+      - key: SMTP_HOST
+        value: smtp-relay.brevo.com
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USERNAME
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: SMTP_FROM
+        sync: false
+      - key: SMTP_AUTH
+        value: "true"
+      - key: SMTP_STARTTLS
+        value: "true"
+      - key: SMTP_SSL
+        value: "false"

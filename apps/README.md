@@ -131,6 +131,8 @@ The repository includes `../render.yaml` for Render Blueprint deployment:
 
 - `stare-api` runs FastAPI from `apps/api`.
 - `stare-portal` runs Next.js from `apps/web`.
+- `stare-market-open` updates Supabase at 09:35 America/New_York on weekdays.
+- `stare-market-close` updates Supabase at 16:10 America/New_York on weekdays.
 
 Current UAT URLs:
 
@@ -143,6 +145,9 @@ Set these environment variables in Render:
   `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `GITHUB_ACTIONS_TOKEN`,
   `REFRESH_ALLOWED_EMAILS`
 - `stare-portal`: `FASTAPI_URL=https://stare-api.onrender.com`, `NEXT_PUBLIC_APP_URL=https://stare-portal.onrender.com`
+- Both cron jobs: `DATABASE_URL`, `SMTP_USERNAME`, `SMTP_PASSWORD`, and
+  `SMTP_FROM`. Their non-secret schedule, recipient, and SMTP relay settings are
+  defined in the Blueprint.
 
 `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` are included in the blueprint because they are browser-safe project configuration.
 

@@ -137,12 +137,12 @@ Supabase project:
 - [x] Replace the separate scheduled import with unified Postgres output from
   the shared market update.
 - [x] Allow an authorized portal user to trigger the existing update workflow as a temporary bridge.
-- [ ] Create Render scheduled job for market open refresh.
-- [ ] Create Render scheduled job for market close refresh.
-- [ ] Move SMTP notification into the standalone job flow.
+- [x] Create Render scheduled job for market open refresh.
+- [x] Create Render scheduled job for market close refresh.
+- [x] Move SMTP notification into the standalone job flow.
 - [ ] Include update status and top changes in email body.
 - [ ] Add alerting when an update fails or data is stale.
-- [ ] Confirm schedules handle US market daylight saving time.
+- [x] Confirm schedules handle US market daylight saving time.
 
 ## Phase 8 - Security and Operations
 
