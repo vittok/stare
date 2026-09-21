@@ -55,13 +55,13 @@ BALL,BALL,Ball Corporation,Materials,"Metal, Glass & Plastic Containers"
 BAX,BAX,Baxter International,Health Care,Health Care Equipment
 BBY,BBY,Best Buy,Consumer Discretionary,Computer & Electronics Retail
 BDX,BDX,Becton Dickinson,Health Care,Health Care Equipment
+BE,BE,Bloom Energy,Industrials,Electrical Components & Equipment
 BEN,BEN,Franklin Resources,Financials,Asset Management & Custody Banks
 BF-B,BF.B,Brown–Forman,Consumer Staples,Distillers & Vintners
 BG,BG,Bunge Global,Consumer Staples,Agricultural Products & Services
 BIIB,BIIB,Biogen,Health Care,Biotechnology
 BKNG,BKNG,Booking Holdings,Consumer Discretionary,"Hotels, Resorts & Cruise Lines"
 BKR,BKR,Baker Hughes,Energy,Oil & Gas Equipment & Services
-BLDR,BLDR,Builders FirstSource,Industrials,Building Products
 BLK,BLK,BlackRock,Financials,Asset Management & Custody Banks
 BMY,BMY,Bristol Myers Squibb,Health Care,Pharmaceuticals
 BNY,BNY,BNY Mellon,Financials,Asset Management & Custody Banks
@@ -242,6 +242,7 @@ ICE,ICE,Intercontinental Exchange,Financials,Financial Exchanges & Data
 IDXX,IDXX,Idexx Laboratories,Health Care,Health Care Equipment
 IEX,IEX,IDEX Corporation,Industrials,Industrial Machinery & Supplies & Components
 IFF,IFF,International Flavors & Fragrances,Materials,Specialty Chemicals
+ILMN,ILMN,"Illumina, Inc.",Health Care,Life Sciences Tools & Services
 INCY,INCY,Incyte,Health Care,Biotechnology
 INTC,INTC,Intel,Information Technology,Semiconductors
 INTU,INTU,Intuit,Information Technology,Application Software
@@ -352,6 +353,7 @@ ORCL,ORCL,Oracle Corporation,Information Technology,Application Software
 ORLY,ORLY,O'Reilly Automotive,Consumer Discretionary,Automotive Retail
 OTIS,OTIS,Otis Worldwide,Industrials,Industrial Machinery & Supplies & Components
 OXY,OXY,Occidental Petroleum,Energy,Oil & Gas Exploration & Production
+P,P,Everpure,Information Technology,"Technology Hardware, Storage & Peripherals"
 PANW,PANW,Palo Alto Networks,Information Technology,Systems Software
 PAYX,PAYX,Paychex,Industrials,Human Resource & Employment Services
 PCAR,PCAR,Paccar,Industrials,Construction Machinery & Heavy Transportation Equipment
@@ -425,7 +427,6 @@ SYF,SYF,Synchrony Financial,Financials,Consumer Finance
 SYK,SYK,Stryker Corporation,Health Care,Health Care Equipment
 SYY,SYY,Sysco,Consumer Staples,Food Distributors
 T,T,AT&T,Communication Services,Integrated Telecommunication Services
-TAP,TAP,Molson Coors Beverage Company,Consumer Staples,Brewers
 TDG,TDG,TransDigm Group,Industrials,Aerospace & Defense
 TDY,TDY,Teledyne Technologies,Information Technology,Electronic Equipment & Instruments
 TECH,TECH,Bio-Techne,Health Care,Life Sciences Tools & Services
@@ -447,7 +448,6 @@ TSCO,TSCO,Tractor Supply,Consumer Discretionary,Other Specialty Retail
 TSLA,TSLA,"Tesla, Inc.",Consumer Discretionary,Automobile Manufacturers
 TSN,TSN,Tyson Foods,Consumer Staples,Packaged Foods & Meats
 TT,TT,Trane Technologies,Industrials,Building Products
-TTD,TTD,Trade Desk (The),Communication Services,Advertising
 TTWO,TTWO,Take-Two Interactive,Communication Services,Interactive Home Entertainment
 TXN,TXN,Texas Instruments,Information Technology,Semiconductors
 TXT,TXT,Textron,Industrials,Aerospace & Defense
