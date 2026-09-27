@@ -90,6 +90,9 @@ def run_postgres_step(database_url: str, run_label: str, idx: int, total: int) -
     elapsed = time.time() - start
 
     print(f"✓ Completed {name} in {elapsed:.1f}s (update_run_id={update_run_id})")
+    if os.getenv("GITHUB_OUTPUT"):
+        with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+            output.write(f"update_run_id={update_run_id}\n")
     return update_run_id
 
 

@@ -91,7 +91,7 @@ Incomplete pulls are rolled back and recorded as `failed` in `update_runs`, with
 the failure stage and diagnostics retained for investigation. The portal keeps
 serving the newest successful report.
 
-The local backend uses Supabase's Session Pooler connection string through `DATABASE_URL`. Keep that value in `.env` or deployment secrets only; do not commit it.
+The local backend uses Supabase's Transaction Pooler connection string through `DATABASE_URL`. Keep that value in `.env` or deployment secrets only; do not commit it.
 
 The portal includes All Regions, NA, NA/Sectors, LAC, EMEA, and APAC views;
 country/market and sector navigation; direction and text filters; KPIs;
@@ -436,15 +436,16 @@ Raw stock tables are noisy. STARE adds value by organizing the data into a repea
 
 The dashboard is especially useful as a daily pre-market or morning scan: it points attention toward sectors with broad momentum and toward stocks where activity is highest.
 
-## GitHub Actions Static Publishing
+## GitHub Actions Market Updates and Publishing
 
-This section covers only the GitHub Pages demo/static publishing path.
+GitHub Actions updates both the Supabase-backed portal and the GitHub Pages demo.
 
 The GitHub Actions workflow in `.github/workflows/pipeline_weekdays.yml` refreshes around the regular US market open and close:
 
 ```text
 09:35 America/New_York - market open refresh
 16:10 America/New_York - market close refresh
+13:10 America/New_York - early-close session refresh (when applicable)
 ```
 
 GitHub Actions schedules are defined in UTC/GMT, so the workflow includes paired UTC cron entries for daylight saving time and standard time. A guard step checks which cron expression triggered the run and only lets the active New York-time pair proceed, even if GitHub starts the scheduled job late.
@@ -462,7 +463,12 @@ On each scheduled market refresh, it:
 9. Deploys `docs/` to GitHub Pages
 10. Sends the updated report by SMTP after every successful scheduled or manual refresh
 
-Fundamentals are refreshed weekly after the Monday market close to reduce load.
+The NYSE calendar skips weekends and market holidays, and selects early closes.
+Fundamentals refresh at the first trading session's close each week, including
+Tuesday after a Monday holiday. Manual updates bypass the calendar guard.
+All accepted updates require Postgres persistence before publishing. A final
+check verifies the exact API update ID and the published Pages HTML/JSON.
+Scheduled triggers can be delayed by GitHub; times are targets, not guarantees.
 
 ### SMTP Update Notifications
 
@@ -495,18 +501,21 @@ gh secret set SMTP_PASSWORD --repo vittok/stare
 gh secret set SMTP_FROM --repo vittok/stare
 ```
 
-Do not commit SMTP credentials to the repository. If any of these three secrets is missing, the workflow logs a warning and skips only the email step. Authentication or sender-verification failures fail the email step so a broken notification configuration is visible in GitHub Actions.
+Do not commit SMTP credentials to the repository. `DATABASE_URL` is also required
+as a GitHub Actions secret. Missing secrets fail the preflight before calculation;
+SMTP authentication or sender-verification failures fail the notification step.
 
 The workflow can also be triggered manually from the GitHub Actions tab.
 
 ## Standalone Portal Operations
 
-The standalone portal path is separate from GitHub Actions static publishing.
+The standalone portal is hosted independently, but shares its market updates
+with the GitHub Pages demo through GitHub Actions.
 
 Current status:
 
 - Supabase initial schema has been applied.
-- The local `DATABASE_URL` uses the Supabase Session Pooler because the direct DB host can require IPv6.
+- The local `DATABASE_URL` uses the Supabase Transaction Pooler because the direct DB host can require IPv6.
 - Existing report artifacts have been imported into Supabase.
 - A later import verified `stock_recommendations` has one recommendation row for each imported stock snapshot.
 - The FastAPI latest-report path returns the complete current snapshot and
@@ -522,10 +531,9 @@ Current standalone operations:
 - Host `apps/web` as the Next.js frontend on Render.
 - Host `apps/api` as the FastAPI backend on Render.
 - Store `DATABASE_URL` and future service secrets in deployment secrets.
-- Run Render market-open and market-close cron jobs with New York daylight-saving
-  guards, Postgres persistence, and SMTP notification.
-- Continue GitHub-scheduled artifact generation and GitHub Pages publishing as
-  the static demo/fallback, without duplicate database writes or email.
+- Use GitHub Actions for market-open/close data pulls, calculations, Postgres
+  persistence, SMTP notification, and GitHub Pages fallback publishing.
+- Suspend or delete any old Render cron services to avoid duplicate updates.
 - Allow authorized portal users to start the same update workflow on demand;
   the portal tracks GitHub Actions job-step progress and reloads automatically
   when the new snapshot is complete.

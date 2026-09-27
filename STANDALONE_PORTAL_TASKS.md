@@ -13,7 +13,7 @@ Supabase project:
 
 ## Phase 1 - Architecture Decisions
 
-- [x] Confirm target stack: Supabase for auth/database and Render for app hosting plus scheduled jobs.
+- [x] Confirm target stack: Supabase for auth/database, Render for app hosting, and GitHub Actions for market updates.
 - [x] Confirm frontend framework: Next.js.
 - [x] Confirm backend style: FastAPI service.
 - [x] Confirm database: Supabase Postgres.
@@ -137,9 +137,12 @@ Supabase project:
 - [x] Replace the separate scheduled import with unified Postgres output from
   the shared market update.
 - [x] Allow an authorized portal user to trigger the existing update workflow as a temporary bridge.
-- [x] Create Render scheduled job for market open refresh.
-- [x] Create Render scheduled job for market close refresh.
-- [x] Move SMTP notification into the standalone job flow.
+- [x] Configure GitHub Actions market-open and market-close updates with required Postgres persistence.
+- [x] Skip NYSE holidays and select early-close sessions using an exchange calendar.
+- [x] Send SMTP notifications from GitHub Actions using repository secrets.
+- [x] Remove Render cron definitions from the Blueprint.
+- [ ] Confirm any existing Render market-open/close cron services are suspended or deleted.
+- [ ] Verify a complete live GitHub update reaches the portal API and GitHub Pages.
 - [ ] Include update status and top changes in email body.
 - [ ] Add alerting when an update fails or data is stale.
 - [x] Confirm schedules handle US market daylight saving time.

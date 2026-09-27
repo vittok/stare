@@ -11,6 +11,9 @@ on:
     # Market close refresh: 16:10 America/New_York
     - cron: "10 20 * * 1-5"
     - cron: "10 21 * * 1-5"
+    # Early close refresh (13:10 New York); calendar guard rejects normal days.
+    - cron: "10 17 * * 1-5"
+    - cron: "10 18 * * 1-5"
 
 permissions:
   contents: write
@@ -30,91 +33,55 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
-      - name: Check market refresh window
-        id: market-window
-        env:
-          EVENT_NAME: ${{ github.event_name }}
-          EVENT_SCHEDULE: ${{ github.event.schedule }}
-        run: |
-          python - <<'PY'
-          import os
-          from datetime import datetime
-          from zoneinfo import ZoneInfo
-
-          event_name = os.environ.get("EVENT_NAME", "")
-          event_schedule = os.environ.get("EVENT_SCHEDULE", "")
-          now = datetime.now(ZoneInfo("America/New_York"))
-
-          if event_name == "workflow_dispatch":
-              should_run = True
-              label = "manual"
-          else:
-              # GitHub scheduled runs can start late. Use the cron expression
-              # that triggered the run, and only use NY time to choose the
-              # daylight-saving pair that should be active today.
-              is_dst = bool(now.dst() and now.dst().total_seconds())
-              market_open_schedule = "35 13 * * 1-5" if is_dst else "35 14 * * 1-5"
-              market_close_schedule = "10 20 * * 1-5" if is_dst else "10 21 * * 1-5"
-              should_run = event_schedule in {market_open_schedule, market_close_schedule}
-              label = (
-                  "market-open"
-                  if event_schedule == market_open_schedule
-                  else "market-close"
-                  if event_schedule == market_close_schedule
-                  else "inactive-dst-pair"
-              )
-
-          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as f:
-              f.write(f"should_run={str(should_run).lower()}\n")
-              f.write(f"label={label}\n")
-              f.write(f"ny_time={now.isoformat(timespec='seconds')}\n")
-              with_fundamentals = (
-                  event_name == "schedule"
-                  and should_run
-                  and label == "market-close"
-                  and now.weekday() == 0
-              )
-              f.write(f"with_fundamentals={str(with_fundamentals).lower()}\n")
-
-          print(f"New York time: {now.isoformat(timespec='seconds')}")
-          print(f"Triggered schedule: {event_schedule}")
-          print(f"Refresh label: {label}")
-          print(f"Should run: {should_run}")
-          PY
-
       - name: Checkout
-        if: ${{ steps.market-window.outputs.should_run == 'true' }}
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
           ref: main
 
       - name: Sync latest main before calculation
-        if: ${{ steps.market-window.outputs.should_run == 'true' }}
-        run: |
-          git pull --ff-only origin main
+        run: git pull --ff-only origin main
 
       - name: Set up Python
-        if: ${{ steps.market-window.outputs.should_run == 'true' }}
         uses: actions/setup-python@v6
         with:
           python-version: "3.11"
           cache: "pip"
 
       - name: Install dependencies
-        if: ${{ steps.market-window.outputs.should_run == 'true' }}
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Check market refresh window
+        id: market-window
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_SCHEDULE: ${{ github.event.schedule }}
+        run: python src/github_market_schedule.py
+
+      - name: Validate update secrets
+        if: ${{ steps.market-window.outputs.should_run == 'true' }}
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          SMTP_FROM: ${{ secrets.SMTP_FROM }}
+        run: |
+          for key in DATABASE_URL SMTP_USERNAME SMTP_PASSWORD SMTP_FROM; do
+            if [ -z "${!key}" ]; then
+              echo "::error::Missing Actions secret: $key"
+              exit 1
+            fi
+          done
+
       - name: Calculate and publish market update
+        id: calculation
         if: ${{ steps.market-window.outputs.should_run == 'true' }}
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           PYTHONUNBUFFERED: "1"
-          # Render owns scheduled portal snapshots. Manual portal refreshes still
-          # use this workflow and therefore require the Postgres output.
-          STARE_POSTGRES_MODE: ${{ github.event_name == 'workflow_dispatch' && 'required' || 'disabled' }}
+          STARE_POSTGRES_MODE: required
           STARE_REFRESH_LABEL: ${{ steps.market-window.outputs.label }}
           WITH_FUNDAMENTALS: ${{ steps.market-window.outputs.with_fundamentals }}
         run: |
@@ -161,9 +128,7 @@ jobs:
         uses: actions/deploy-pages@v5
 
       - name: Send app update email
-        # Scheduled notifications now come from Render. Keep this notification
-        # for manual updates dispatched by the portal.
-        if: ${{ steps.market-window.outputs.should_run == 'true' && github.event_name == 'workflow_dispatch' }}
+        if: ${{ steps.market-window.outputs.should_run == 'true' }}
         env:
           SMTP_HOST: smtp-relay.brevo.com
           SMTP_PORT: "587"
@@ -174,12 +139,14 @@ jobs:
           SMTP_STARTTLS: "true"
           SMTP_SSL: "false"
           STARE_EMAIL_TO: vittok@hotmail.com
-          STARE_APP_URL: https://vittok.github.io/stare/
+          STARE_APP_URL: https://stare-portal.onrender.com
           STARE_REFRESH_LABEL: ${{ steps.market-window.outputs.label }}
-        run: |
-          if [ -z "$SMTP_USERNAME" ] || [ -z "$SMTP_PASSWORD" ] || [ -z "$SMTP_FROM" ]; then
-            echo "::warning::Skipping Brevo email because SMTP_USERNAME, SMTP_PASSWORD, or SMTP_FROM is not configured as a repository secret."
-            exit 0
-          fi
+        run: python src/email_stare_report.py
 
-          python src/email_stare_report.py
+      - name: Verify published portal and Pages data
+        if: ${{ steps.market-window.outputs.should_run == 'true' }}
+        env:
+          EXPECTED_UPDATE_ID: ${{ steps.calculation.outputs.update_run_id }}
+          STARE_API_URL: https://stare-api.onrender.com
+          STARE_PAGES_URL: https://vittok.github.io/stare
+        run: python src/verify_published_update.py

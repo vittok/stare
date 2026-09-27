@@ -82,13 +82,14 @@ When a final custom domain is attached later, add that custom origin and callbac
 
 ## Supabase Database Access
 
-Use the Supabase Session Pooler connection string for backend services:
+Use the Supabase Transaction Pooler connection string for backend services:
 
 ```text
-postgresql://postgres.<project-ref>:<url-encoded-password>@<region>.pooler.supabase.com:6543/postgres
+postgresql://postgres.bprknqcgtezsgfjuztqs:[YOUR-PASSWORD]@aws-0-eu-west-1.pooler.supabase.com:6543/postgres
 ```
 
-The password must be URL-encoded if it contains reserved URL characters such as `/`.
+Replace `[YOUR-PASSWORD]` only in Render or GitHub Actions secret values. The password must be
+URL-encoded if it contains reserved URL characters such as `/`.
 
 Store this value only as:
 
@@ -133,47 +134,51 @@ For the Next.js frontend:
 - `NEXT_PUBLIC_APP_URL`
 - `FASTAPI_URL`
 
-Future backend-only secrets may include:
+## GitHub Actions Scheduled Updates
 
-- `SUPABASE_SERVICE_ROLE_KEY`
-- SMTP credentials if notifications move from GitHub Actions to the standalone update job
+Render hosts only the Next.js portal and FastAPI service. The workflow
+`.github/workflows/pipeline_weekdays.yml` owns scheduled and manual updates:
+data pulls, calculations, required Supabase Postgres persistence, static
+artifacts, Pages deployment, and Brevo email.
 
-The shared market update can write its final calculated report to Supabase after
-generating the static artifacts. Render requires this Postgres output for its
-scheduled updates. Manually dispatched GitHub updates also require it so the
-portal's temporary manual-update bridge remains functional.
+Targets are 09:35 New York for open, 16:10 for regular close, and 13:10 for
+early close. Paired UTC schedules cover US daylight saving time.
+`src/github_market_schedule.py` uses the NYSE calendar to skip holidays and
+inactive occurrences. It matches the triggering cron expression, so delayed
+jobs are accepted within the same New York session date. Jobs delayed into a
+different date are not backfilled. Calendar failures stop the update.
+Fundamentals refresh at the first session's close each week.
+Manual dispatch bypasses the calendar guard.
 
-## Render Scheduled Updates
+Store these in **GitHub repository > Settings > Secrets and variables > Actions**:
 
-The Blueprint defines two standalone cron services:
+- `DATABASE_URL`: full Supabase Postgres pooler URL, including the URL-encoded password.
+- `SMTP_USERNAME`: Brevo SMTP login.
+- `SMTP_PASSWORD`: Brevo SMTP key.
+- `SMTP_FROM`: a sender verified in Brevo, not necessarily the SMTP login.
 
-- `stare-market-open` targets 09:35 America/New_York on weekdays.
-- `stare-market-close` targets 16:10 America/New_York on weekdays and refreshes
-  fundamentals on Monday closes.
+Keep `DATABASE_URL` in Render's API environment as well, since the API reads
+the snapshots. No database or SMTP passwords belong in `render.yaml`.
 
-Render cron expressions use UTC. Each service therefore lists both the daylight
-saving and standard-time UTC hour. `src/run_render_scheduled_update.py` checks
-the current New York time and exits successfully for the inactive occurrence.
-This keeps the jobs aligned with the US market when clocks change.
+### Cutover from Render Cron
 
-After syncing an existing Blueprint, manually add these secrets to both cron
-services because Render does not populate new `sync: false` variables on an
-existing Blueprint:
+1. Suspend `stare-market-open` and `stare-market-close` in the Render
+   dashboard if they exist. Removing their definitions from the Blueprint
+   does not stop existing services.
+2. Sync the updated Blueprint, which contains only the two web services, then
+   delete the now-unmanaged cron services if they are no longer needed.
+3. Publish the updated workflow on `main`.
+4. Dispatch **STARE Market Refresh** once and confirm every step succeeds.
+5. The final verification step checks the exact Postgres update ID through
+   FastAPI, both published Pages JSON reports, and the published HTML.
+6. Confirm receipt of the email and open the authenticated portal to check the
+   displayed update. SMTP acceptance does not prove inbox delivery.
 
-- `DATABASE_URL`
-- `SMTP_USERNAME`
-- `SMTP_PASSWORD`
-- `SMTP_FROM`
-
-The remaining SMTP, recipient, and portal URL settings come from `render.yaml`.
-Use each job's **Trigger Run** control only during its active market window. For
-an out-of-window test, temporarily append `--force` to its start command and
-restore the version-controlled command after the test.
-
-GitHub Actions continues producing and publishing the static GitHub Pages demo
-on its existing schedule, but scheduled GitHub updates no longer write duplicate
-portal snapshots or send duplicate email. Manually dispatched GitHub updates
-retain both behaviors for the portal's temporary manual-update bridge.
+GitHub schedules are best-effort and may be delayed. Free Render services may
+sleep, but Actions writes directly to Supabase and sends directly through Brevo,
+so data collection does not depend on Render being awake. The publication check
+retries to allow for API cold starts and Pages propagation. Calendar data should
+be updated when the exchange announces new holidays or exceptional closures.
 
 ## Manual Portal Refresh
 

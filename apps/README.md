@@ -65,7 +65,7 @@ The API expects:
 - `SUPABASE_URL`
 - `SUPABASE_PUBLISHABLE_KEY`
 
-Use the Supabase Session Pooler URL for `DATABASE_URL` when the direct database host is not reachable over IPv6. Keep it in local `.env` or deployment secrets only.
+Use the Supabase Transaction Pooler URL for `DATABASE_URL` when the direct database host is not reachable over IPv6. Keep it in local `.env` or deployment secrets only.
 
 Authenticated preference requests must include the Supabase session access
 token as `Authorization: Bearer <access-token>`. FastAPI validates the token
@@ -123,7 +123,7 @@ weights to the latest successful snapshot. It returns both the persisted
 standard-model result and the calculated personal result so the portal can
 display them side by side without modifying the baseline recommendation.
 
-See `../PORTAL_DEPLOYMENT.md` for production domain, OAuth callback, Session Pooler, and secret-rotation notes.
+See `../PORTAL_DEPLOYMENT.md` for production domain, OAuth callback, Transaction Pooler, and secret-rotation notes.
 
 ## Render UAT
 
@@ -131,8 +131,7 @@ The repository includes `../render.yaml` for Render Blueprint deployment:
 
 - `stare-api` runs FastAPI from `apps/api`.
 - `stare-portal` runs Next.js from `apps/web`.
-- `stare-market-open` updates Supabase at 09:35 America/New_York on weekdays.
-- `stare-market-close` updates Supabase at 16:10 America/New_York on weekdays.
+- GitHub Actions updates Supabase at US market open/close and publishes the Pages fallback.
 
 Current UAT URLs:
 
@@ -145,9 +144,10 @@ Set these environment variables in Render:
   `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `GITHUB_ACTIONS_TOKEN`,
   `REFRESH_ALLOWED_EMAILS`
 - `stare-portal`: `FASTAPI_URL=https://stare-api.onrender.com`, `NEXT_PUBLIC_APP_URL=https://stare-portal.onrender.com`
-- Both cron jobs: `DATABASE_URL`, `SMTP_USERNAME`, `SMTP_PASSWORD`, and
-  `SMTP_FROM`. Their non-secret schedule, recipient, and SMTP relay settings are
-  defined in the Blueprint.
+
+Store `DATABASE_URL`, `SMTP_USERNAME`, `SMTP_PASSWORD`, and `SMTP_FROM` in GitHub
+Actions secrets for updates. Suspend/delete legacy Render cron jobs if present;
+removing them from the Blueprint alone does not stop them.
 
 `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` are included in the blueprint because they are browser-safe project configuration.
 

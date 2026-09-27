@@ -220,7 +220,11 @@ class PostgresWriterTests(TestCase):
         self.assertEqual(update_id, "00000000-0000-0000-0000-000000000001")
         self.assertEqual(executions[0][1]["triggered_by"], "market_pipeline")
         success_updates = [params for sql, params in executions if "status = 'success'" in sql]
-        self.assertEqual(success_updates[0]["latest_price_date"], "2026-09-04")
+        report = json.loads((ROOT / "reports/sector_dashboard.json").read_text())
+        region = json.loads((ROOT / "reports/region_dashboard.json").read_text())
+        self.assertEqual(success_updates[0]["latest_price_date"], max(
+            item["market_data"]["latest_price_date"] for item in (report, region)
+        ))
         self.assertIn("update public.update_runs", executions[-1][0])
 
     def test_validation_failure_is_written_to_update_audit(self) -> None:
@@ -284,24 +288,31 @@ class PostgresWriterTests(TestCase):
 
 
 class WorkflowContractTests(TestCase):
-    def test_manual_workflow_uses_required_postgres_output(self) -> None:
+    def test_all_workflow_updates_use_required_postgres_output(self) -> None:
         workflow = (ROOT / ".github/workflows/pipeline_weekdays.yml").read_text(
             encoding="utf-8"
         )
 
         self.assertIn(
-            "STARE_POSTGRES_MODE: ${{ github.event_name == 'workflow_dispatch' && 'required' || 'disabled' }}",
+            "STARE_POSTGRES_MODE: required",
             workflow,
         )
         self.assertIn("DATABASE_URL: ${{ secrets.DATABASE_URL }}", workflow)
         self.assertNotIn("Import update into portal database", workflow)
 
-    def test_render_blueprint_defines_both_market_update_jobs(self) -> None:
+    def test_render_blueprint_only_hosts_web_services(self) -> None:
         blueprint = (ROOT / "render.yaml").read_text(encoding="utf-8")
 
-        self.assertIn("name: stare-market-open", blueprint)
-        self.assertIn('schedule: "35 13,14 * * 1-5"', blueprint)
-        self.assertIn("--window market-open", blueprint)
-        self.assertIn("name: stare-market-close", blueprint)
-        self.assertIn('schedule: "10 20,21 * * 1-5"', blueprint)
-        self.assertIn("--window market-close", blueprint)
+        self.assertNotIn("type: cron", blueprint)
+        self.assertIn("name: stare-api", blueprint)
+        self.assertIn("name: stare-portal", blueprint)
+
+    def test_email_and_verification_apply_to_scheduled_updates(self) -> None:
+        import yaml
+        workflow = yaml.safe_load((ROOT / ".github/workflows/pipeline_weekdays.yml").read_text())
+        steps = {step["name"]: step for step in workflow["jobs"]["run"]["steps"]}
+        for name in ("Send app update email", "Verify published portal and Pages data"):
+            self.assertEqual(steps[name]["if"], "${{ steps.market-window.outputs.should_run == 'true' }}")
+        env = steps["Send app update email"]["env"]
+        for key in ("SMTP_USERNAME", "SMTP_PASSWORD", "SMTP_FROM"):
+            self.assertEqual(env[key], "${{ secrets." + key + " }}")
