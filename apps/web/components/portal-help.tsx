@@ -87,7 +87,7 @@ export function PortalHelp() {
           </section>
           <section>
             <h3>Save your view</h3>
-            <p>Create separate named watchlists for different ideas and use the star beside a ticker to edit the active list. You can also adjust the influence of group sentiment, valuation, income, and momentum or reset every scoring factor to the standard model. Your lists, weights, theme, filters, and visible columns return with your signed-in profile.</p>
+            <p>Create separate named watchlists for different ideas and use the star beside a ticker to edit the active list. Selecting the active watchlist above the stock table opens a global view of all its symbols, including on-demand stocks outside the scheduled market universe. You can also adjust the influence of group sentiment, valuation, income, and momentum or reset every scoring factor to the standard model.</p>
           </section>
           <section>
             <h3>Refresh market data</h3>

@@ -188,6 +188,7 @@ export function PortalDashboard({ report, preferences, personalizedSignals, scor
   const [stockLookupResults, setStockLookupResults] = useState<StockSearchResult[]>([]);
   const [stockLookupState, setStockLookupState] = useState<"idle" | "searching" | "analyzing" | "error">("idle");
   const [stockLookupMessage, setStockLookupMessage] = useState("");
+  const [watchlistStocksLoading, setWatchlistStocksLoading] = useState(false);
   const [watchlistEditor, setWatchlistEditor] = useState<"new" | "rename" | null>(null);
   const [watchlistName, setWatchlistName] = useState("");
   const [personalizationOpen, setPersonalizationOpen] = useState(false);
@@ -355,6 +356,39 @@ export function PortalDashboard({ report, preferences, personalizedSignals, scor
   const activeWatchlist = namedWatchlists.find((item) => item.id === activeWatchlistId) || null;
   const watchlist = activeWatchlist?.tickers || (namedWatchlists.length ? [] : preferences.watchlist || []);
   const externalWatchlistSymbols = watchlist.filter((ticker) => !allStocks.some((stock) => stock.ticker === ticker));
+  const missingWatchlistSymbols = externalWatchlistSymbols.filter((ticker) => !analyzedStocks.some((stock) => stock.ticker === ticker));
+  const missingWatchlistKey = missingWatchlistSymbols.join("|");
+  useEffect(() => {
+    if (!signedIn || !watchlistOnly || !missingWatchlistSymbols.length) {
+      setWatchlistStocksLoading(false);
+      return;
+    }
+    let cancelled = false;
+    const symbols = missingWatchlistSymbols.slice(0, 50);
+    setWatchlistStocksLoading(true);
+    setStatus(`Loading ${symbols.length} saved ${symbols.length === 1 ? "symbol" : "symbols"}...`);
+
+    void (async () => {
+      const loaded: StockSnapshot[] = [];
+      for (let index = 0; index < symbols.length && !cancelled; index += 4) {
+        const batch = await Promise.all(symbols.slice(index, index + 4).map((symbol) => analyzeStock(symbol)));
+        loaded.push(...batch.filter((result) => result.ok).map((result) => result.stock));
+      }
+      if (cancelled) return;
+      setAnalyzedStocks((current) => {
+        const byTicker = new Map(current.map((stock) => [stock.ticker, stock]));
+        loaded.forEach((stock) => byTicker.set(stock.ticker, stock));
+        return Array.from(byTicker.values());
+      });
+      setWatchlistStocksLoading(false);
+      const failed = symbols.length - loaded.length;
+      setStatus(failed ? `${loaded.length} saved symbols loaded; ${failed} could not be refreshed.` : `${loaded.length} saved ${loaded.length === 1 ? "symbol" : "symbols"} loaded.`);
+    })();
+
+    return () => { cancelled = true; };
+  // The joined key changes only when the unresolved saved-symbol set changes.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeWatchlistId, missingWatchlistKey, signedIn, watchlistOnly]);
   const regionalTopRows = useMemo(() => {
     const rows: StockSnapshot[] = [];
     for (const region of ["NA", "LAC", "EMEA", "APAC"]) {
@@ -387,11 +421,13 @@ export function PortalDashboard({ report, preferences, personalizedSignals, scor
     });
   });
   const displayedRows = useMemo(() => {
-    let rows = [...baseRows];
-    if (selectedGroup && regionMode === "Sectors") rows = rows.filter((stock) => stock.sector === selectedGroup);
-    if (selectedMarket) rows = rows.filter((stock) => stock.market === selectedMarket);
-    if (direction !== "All") rows = rows.filter((stock) => groupDirection(stock) === direction);
-    if (watchlistOnly) rows = rows.filter((stock) => watchlist.includes(stock.ticker));
+    let rows = watchlistOnly
+      ? Array.from(new Map([...allStocks, ...analyzedStocks].map((stock) => [stock.ticker, stock])).values())
+        .filter((stock) => watchlist.includes(stock.ticker))
+      : [...baseRows];
+    if (!watchlistOnly && selectedGroup && regionMode === "Sectors") rows = rows.filter((stock) => stock.sector === selectedGroup);
+    if (!watchlistOnly && selectedMarket) rows = rows.filter((stock) => stock.market === selectedMarket);
+    if (!watchlistOnly && direction !== "All") rows = rows.filter((stock) => groupDirection(stock) === direction);
     if (search.trim()) { const query = search.trim().toLowerCase(); rows = rows.filter((stock) => [stock.ticker, stockName(stock), stock.sector, stock.region, stock.market, stock.country, stock.industry, stock.exchange].some((value) => String(value || "").toLowerCase().includes(query))); }
     const ranked = [...rows].sort((a, b) => (toNumber(a.dollar_vol_latest) || 0) - (toNumber(b.dollar_vol_latest) || 0));
     const percentiles = new Map(ranked.map((stock, index) => [`${stock.region}|${stock.market}|${stock.sector}|${stock.ticker}`, ranked.length ? ((index + 1) / ranked.length) * 100 : null]));
@@ -399,7 +435,7 @@ export function PortalDashboard({ report, preferences, personalizedSignals, scor
     return enriched.sort((a, b) => { const factor = sortDirection === "asc" ? 1 : -1; const av = sortValue(a, sortKey); const bv = sortValue(b, sortKey); if (typeof av === "number" || typeof bv === "number") return ((Number(av) || 0) - (Number(bv) || 0)) * factor; return String(av || "").localeCompare(String(bv || "")) * factor; });
   // The group-direction lookup is derived from the same report arrays listed here.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [baseRows, selectedGroup, selectedMarket, direction, search, sortKey, sortDirection, regionMode, sectors, regions, watchlistOnly, watchlist]);
+  }, [allStocks, analyzedStocks, baseRows, selectedGroup, selectedMarket, direction, search, sortKey, sortDirection, regionMode, sectors, regions, watchlistOnly, watchlist]);
   const topActiveStocks = useMemo(() => {
     const byVolume = [...displayedRows].sort((a, b) => (toNumber(b.dollar_vol_latest) || 0) - (toNumber(a.dollar_vol_latest) || 0));
     if (regionMode === "All") return ["NA", "LAC", "EMEA", "APAC"].flatMap((region) => byVolume.filter((stock) => stock.region === region).slice(0, 3));
@@ -408,15 +444,18 @@ export function PortalDashboard({ report, preferences, personalizedSignals, scor
     return [...groups].sort((a, b) => (b.strength || 0) - (a.strength || 0)).map((group) => byVolume.find((stock) => stock.sector === groupName(group))).filter((stock): stock is DisplayStock => Boolean(stock)).slice(0, 6);
   }, [displayedRows, groups, regionMode, selectedGroup]);
   const topPicks = useMemo(() => {
-    let candidates: DisplayStock[] = allStocks.map((stock) => ({
+    const sourceStocks = watchlistOnly
+      ? Array.from(new Map([...allStocks, ...analyzedStocks].map((stock) => [stock.ticker, stock])).values())
+      : allStocks;
+    let candidates: DisplayStock[] = sourceStocks.map((stock) => ({
       ...stock,
       daily_percentile: toNumber(stock.daily_trading_percentile)
     }));
-    if (regionMode === "NA" || regionMode === "Sectors") candidates = candidates.filter((stock) => stock.region === "NA");
-    else if (regionMode !== "All") candidates = candidates.filter((stock) => stock.region === regionMode);
-    if (selectedGroup && regionMode === "Sectors") candidates = candidates.filter((stock) => stock.sector === selectedGroup);
-    if (selectedMarket) candidates = candidates.filter((stock) => stock.market === selectedMarket);
-    if (direction !== "All") candidates = candidates.filter((stock) => groupDirection(stock) === direction);
+    if (!watchlistOnly && (regionMode === "NA" || regionMode === "Sectors")) candidates = candidates.filter((stock) => stock.region === "NA");
+    else if (!watchlistOnly && regionMode !== "All") candidates = candidates.filter((stock) => stock.region === regionMode);
+    if (!watchlistOnly && selectedGroup && regionMode === "Sectors") candidates = candidates.filter((stock) => stock.sector === selectedGroup);
+    if (!watchlistOnly && selectedMarket) candidates = candidates.filter((stock) => stock.market === selectedMarket);
+    if (!watchlistOnly && direction !== "All") candidates = candidates.filter((stock) => groupDirection(stock) === direction);
     if (watchlistOnly) candidates = candidates.filter((stock) => watchlist.includes(stock.ticker));
     if (search.trim()) {
       const query = search.trim().toLowerCase();
@@ -439,7 +478,7 @@ export function PortalDashboard({ report, preferences, personalizedSignals, scor
     return ranked.slice(0, selectedGroup || selectedMarket ? 6 : 9);
   // The direction helper reads the report groups already listed here.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [allStocks, direction, regionMode, regions, search, sectors, selectedGroup, selectedMarket, watchlist, watchlistOnly]);
+  }, [allStocks, analyzedStocks, direction, regionMode, regions, search, sectors, selectedGroup, selectedMarket, watchlist, watchlistOnly]);
   const snapshotExportRows = useMemo(() => displayedRows.map((stock) => ({
     ticker: stock.ticker,
     company_name: stockName(stock),
@@ -700,13 +739,13 @@ export function PortalDashboard({ report, preferences, personalizedSignals, scor
       <div className="analysis-grid"><section className="section-block strength-section"><div className="section-heading"><div><p className="eyebrow">Comparison</p><h2>Strength by {regionMode === "Sectors" ? "Sector" : "Region"}</h2></div><span>Select a bar to inspect</span></div><div className="strength-chart">{[...groups].sort((a, b) => (b.strength || 0) - (a.strength || 0)).map((group) => <button className="chart-column" key={groupName(group)} onClick={() => regionMode === "Sectors" && chooseGroup(groupName(group))} type="button"><span className="chart-value">{group.strength ?? 0}</span><span className={`chart-bar ${classFor(group.direction)}`} style={{ height: `${Math.max(3, group.strength || 0)}%` }} /><span className="chart-label">{groupName(group)}</span></button>)}</div></section>
       <section className="section-block picks-section"><div className="section-heading"><div><p className="eyebrow">Last trading day</p><h2>Top Active Stocks <ExplainButton className="help-button" label="?" title="Top Active Stocks" content={HELP.topActive} onShow={showPopover} onHide={hidePopover} onPin={pinPopover} /></h2></div><span>{topActiveStocks.length} stocks</span></div><div className="picks-grid">{topActiveStocks.map((stock) => <StockCard key={`active-${stock.region}-${stock.market}-${stock.ticker}`} onOpen={setSelectedStock} stock={stock} />)}</div></section></div>
       <section className="section-block top-picks-section"><div className="section-heading"><div><p className="eyebrow">Fundamentals + last trading day</p><h2>Top Picks <ExplainButton className="help-button" label="?" title="Top Picks" content={HELP.topPicks} onShow={showPopover} onHide={hidePopover} onPin={pinPopover} /></h2></div><span>{topPicks.length} stocks</span></div>{topPicks.length ? <div className="picks-grid top-picks-grid">{topPicks.map((stock) => <StockCard key={`top-pick-${stock.region}-${stock.market}-${stock.ticker}`} onOpen={setSelectedStock} pick={stock} stock={stock} />)}</div> : <p className="section-empty">No stocks match the current filters.</p>}</section>
-      <section className="section-block table-section"><div className="section-heading table-heading"><div><p className="eyebrow">Complete snapshot</p><h2>{displayedRows.length} stocks</h2></div><div className="table-tools"><span className="save-status">{isPending ? "Saving..." : status}</span><div className="export-buttons"><button className="button secondary icon-command" disabled={!displayedRows.length} onClick={() => exportSnapshot("csv")} title="Download visible stocks as CSV" type="button"><Download aria-hidden="true" size={15} /><span>CSV</span></button><button className="button secondary icon-command" disabled={!displayedRows.length} onClick={() => exportSnapshot("json")} title="Download visible stocks as JSON" type="button"><FileJson aria-hidden="true" size={15} /><span>JSON</span></button></div><button aria-pressed={watchlistOnly} className={watchlistOnly ? "button secondary active" : "button secondary"} disabled={!activeWatchlist && !watchlist.length} onClick={() => setWatchlistOnly((active) => !active)} type="button">{activeWatchlist?.name || "Watchlist"} ({watchlist.length})</button><div className="column-menu-wrap"><button className="button secondary" onClick={() => setColumnMenuOpen((open) => !open)} type="button">Columns</button>{columnMenuOpen ? <div className="column-menu">{DEFAULT_COLUMNS.map((column) => <label key={column}><input checked={visibleColumns.includes(column)} onChange={() => toggleColumn(column)} type="checkbox" /> {COLUMNS[column]}</label>)}</div> : null}</div></div></div>
+      <section className="section-block table-section"><div className="section-heading table-heading"><div><p className="eyebrow">{watchlistOnly ? activeWatchlist?.name || "Watchlist" : "Complete snapshot"}</p><h2>{watchlistStocksLoading ? "Loading saved stocks..." : `${displayedRows.length} stocks`}</h2></div><div className="table-tools"><span className="save-status">{isPending ? "Saving..." : status}</span><div className="export-buttons"><button className="button secondary icon-command" disabled={!displayedRows.length} onClick={() => exportSnapshot("csv")} title="Download visible stocks as CSV" type="button"><Download aria-hidden="true" size={15} /><span>CSV</span></button><button className="button secondary icon-command" disabled={!displayedRows.length} onClick={() => exportSnapshot("json")} title="Download visible stocks as JSON" type="button"><FileJson aria-hidden="true" size={15} /><span>JSON</span></button></div><button aria-pressed={watchlistOnly} className={watchlistOnly ? "button secondary active" : "button secondary"} disabled={!activeWatchlist && !watchlist.length} onClick={() => setWatchlistOnly((active) => !active)} type="button">{activeWatchlist?.name || "Watchlist"} ({watchlist.length})</button><div className="column-menu-wrap"><button className="button secondary" onClick={() => setColumnMenuOpen((open) => !open)} type="button">Columns</button>{columnMenuOpen ? <div className="column-menu">{DEFAULT_COLUMNS.map((column) => <label key={column}><input checked={visibleColumns.includes(column)} onChange={() => toggleColumn(column)} type="checkbox" /> {COLUMNS[column]}</label>)}</div> : null}</div></div></div>
       <div className="table-wrap"><table><thead><tr>{DEFAULT_COLUMNS.filter((column) => visibleColumns.includes(column)).map((column) => <th className={NUMERIC_COLUMNS.has(column) ? "num" : ""} key={column}>{!["watch", "decision"].includes(column) ? <button className="sort-button" onClick={() => sortBy(column)} type="button">{COLUMNS[column]} <span aria-hidden="true">{sortKey === column ? sortDirection === "asc" ? "↑" : "↓" : "↕"}</span></button> : COLUMNS[column]}</th>)}</tr></thead><tbody>{displayedRows.map((stock) => <StockRow key={`${stock.region}-${stock.market}-${stock.sector}-${stock.ticker}`} stock={stock} columns={visibleColumns} watched={watchlist.includes(stock.ticker)} onOpenStock={setSelectedStock} onWatch={toggleWatchlist} onShow={showPopover} onHide={hidePopover} onPin={pinPopover} />)}</tbody></table></div></section>
       </>}
       <footer className="data-footer"><span>Updated {formatTimestamp(currentReport.update.completed_at)} · Market data {currentReport.update.latest_price_date || currentReport.update.market_data_date || "n/a"}</span><span>Source: Yahoo Finance market and fundamental data. Signals are deterministic research outputs and may be incomplete or delayed.</span><span>Created by vittok. GitHub Pages remains available as the static fallback.</span></footer>
     </div>
     {popover ? <aside className={`summary-popover ${popover.pinned ? "pinned" : "hovering"}`} onClick={(event) => event.stopPropagation()} style={{ left: popover.x, top: popover.y }}><div><strong>{popover.title}</strong>{popover.pinned ? <button aria-label="Close explanation" onClick={() => setPopover(null)} type="button">×</button> : null}</div><p>{popover.content}</p></aside> : null}
-    <StockDetailDialog groupSignal={selectedGroupSignal ? { direction: selectedGroupSignal.direction, name: groupName(selectedGroupSignal), strength: selectedGroupSignal.strength } : null} onClose={() => setSelectedStock(null)} stock={activeSelectedStock} watchlistAction={signedIn && activeSelectedStock ? { disabled: watchlist.includes(activeSelectedStock.ticker) || isPending, label: watchlist.includes(activeSelectedStock.ticker) ? `Saved in ${activeWatchlist?.name || "watchlist"}` : `Add to ${activeWatchlist?.name || "watchlist"}`, onClick: () => toggleWatchlist(activeSelectedStock.ticker) } : undefined} />
+    <StockDetailDialog groupSignal={selectedGroupSignal ? { direction: selectedGroupSignal.direction, name: groupName(selectedGroupSignal), strength: selectedGroupSignal.strength } : null} onClose={() => setSelectedStock(null)} stock={activeSelectedStock} watchlistAction={signedIn && activeSelectedStock ? { disabled: watchlist.includes(activeSelectedStock.ticker) || isPending, label: watchlist.includes(activeSelectedStock.ticker) ? `Saved in ${activeWatchlist?.name || "watchlist"}` : `Add to ${activeWatchlist?.name || "watchlist"}`, onClick: () => { toggleWatchlist(activeSelectedStock.ticker); setWatchlistOnly(true); } } : undefined} />
   </div>;
 }
 

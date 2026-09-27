@@ -26,6 +26,7 @@ The project turns raw market data into a publishable dashboard with:
 - Top active stocks per region by latest trading-day traded value
 - Fundamentals-led Top Picks using the latest trading day for every covered market
 - Authenticated on-demand ticker and company search with fundamentals analysis and watchlist saving
+- Global named-watchlist views that reload saved symbols outside the scheduled market universe
 - Latest available close price for every displayed stock
 - Weekly stock returns
 - Volume activity versus recent baseline
