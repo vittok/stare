@@ -146,6 +146,7 @@ jobs:
       - name: Send app update email
         if: ${{ steps.market-window.outputs.should_run == 'true' }}
         env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
           SMTP_HOST: smtp-relay.brevo.com
           SMTP_PORT: "587"
           SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
@@ -154,7 +155,6 @@ jobs:
           SMTP_AUTH: "true"
           SMTP_STARTTLS: "true"
           SMTP_SSL: "false"
-          STARE_EMAIL_TO: vittok@hotmail.com
           STARE_APP_URL: https://stare-portal.onrender.com
           STARE_REFRESH_LABEL: ${{ steps.market-window.outputs.label }}
           STARE_UPDATE_STATUS: success

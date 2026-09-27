@@ -6,7 +6,10 @@ import os
 import re
 import smtplib
 import ssl
+from copy import deepcopy
+from dataclasses import dataclass
 from email.message import EmailMessage
+from email.utils import parseaddr
 from pathlib import Path
 from typing import Any
 
@@ -17,6 +20,14 @@ DATA_RE = re.compile(
     r'<script id="stare-data" type="application/json">(.*?)</script>',
     re.DOTALL,
 )
+
+
+@dataclass(frozen=True)
+class EmailSubscription:
+    email: str
+    frequency: str = "every_update"
+    scope: str = "full"
+    tickers: tuple[str, ...] = ()
 
 
 def _env(name: str, default: str = "") -> str:
@@ -36,6 +47,101 @@ def _env_bool(name: str, default: bool) -> bool:
 def _recipients(value: str) -> list[str]:
     recipients = [item.strip() for item in value.replace(";", ",").split(",")]
     return [item for item in recipients if item]
+
+
+def _valid_email(value: str) -> bool:
+    _, address = parseaddr(value)
+    return address == value and "@" in address and "." in address.rsplit("@", 1)[-1]
+
+
+def _database_subscriptions(database_url: str) -> list[EmailSubscription]:
+    import psycopg
+
+    if database_url.startswith("postgresql+psycopg://"):
+        database_url = database_url.replace("postgresql+psycopg://", "postgresql://", 1)
+
+    query = """
+        select users.email,
+               preferences.notification_settings->'email_reports' as settings,
+               coalesce(
+                 (
+                   select array_agg(items.ticker order by items.ticker)
+                   from public.user_watchlists watchlists
+                   join public.user_watchlist_items items
+                     on items.watchlist_id = watchlists.id
+                    and items.user_id = watchlists.user_id
+                   where watchlists.user_id = preferences.user_id
+                     and watchlists.is_default
+                 ),
+                 preferences.watchlist,
+                 array[]::text[]
+               ) as tickers
+        from public.user_preferences preferences
+        join auth.users users on users.id = preferences.user_id
+        where lower(coalesce(
+                preferences.notification_settings->'email_reports'->>'enabled',
+                'false'
+              )) = 'true'
+          and users.email is not null
+          and users.email_confirmed_at is not null
+          and users.deleted_at is null
+    """
+    with psycopg.connect(database_url) as connection:
+        rows = connection.execute(query).fetchall()
+
+    subscriptions = []
+    for email, settings, tickers in rows:
+        settings = settings if isinstance(settings, dict) else {}
+        frequency = settings.get("frequency", "market_close")
+        scope = settings.get("scope", "full")
+        if not _valid_email(email):
+            continue
+        subscriptions.append(
+            EmailSubscription(
+                email=email,
+                frequency=frequency if frequency in {"every_update", "market_close"} else "market_close",
+                scope=scope if scope in {"full", "watchlist"} else "full",
+                tickers=tuple(sorted({str(ticker).upper() for ticker in tickers or []})),
+            )
+        )
+    return subscriptions
+
+
+def _configured_subscriptions() -> list[EmailSubscription]:
+    subscriptions = []
+    database_url = _env("DATABASE_URL")
+    if database_url:
+        subscriptions.extend(_database_subscriptions(database_url))
+    subscriptions.extend(
+        EmailSubscription(email=recipient)
+        for recipient in _recipients(_env("STARE_EMAIL_TO"))
+        if _valid_email(recipient)
+    )
+    return list({subscription.email.lower(): subscription for subscription in subscriptions}.values())
+
+
+def _subscription_is_due(subscription: EmailSubscription, refresh_label: str) -> bool:
+    return subscription.frequency == "every_update" or "close" in refresh_label.lower()
+
+
+def _filter_data_for_tickers(data: dict[str, Any], tickers: tuple[str, ...]) -> dict[str, Any]:
+    selected = set(tickers)
+    filtered = deepcopy(data)
+    for group in [*filtered.get("sectors", []), *filtered.get("regions", [])]:
+        group["top10_active"] = [
+            stock for stock in group.get("top10_active", [])
+            if str(stock.get("ticker") or "").upper() in selected
+        ]
+        group["top3_explanations"] = [
+            pick for pick in group.get("top3_explanations", [])
+            if str(pick.get("ticker") or "").upper() in selected
+        ]
+        for market in group.get("markets", []):
+            market["top10_active"] = [
+                stock for stock in market.get("top10_active", [])
+                if str(stock.get("ticker") or "").upper() in selected
+            ]
+    return filtered
 
 
 def _num(value: Any) -> float | None:
@@ -391,8 +497,16 @@ def send_email() -> None:
     smtp_username = _env("SMTP_USERNAME")
     smtp_password = _env("SMTP_PASSWORD")
     smtp_from = _env("SMTP_FROM", smtp_username)
-    recipients = _recipients(_env("STARE_EMAIL_TO", "vittok@hotmail.com"))
     require_auth = _env_bool("SMTP_AUTH", True)
+    refresh_label = _env("STARE_REFRESH_LABEL", "app update")
+    subscriptions = [
+        subscription for subscription in _configured_subscriptions()
+        if _subscription_is_due(subscription, refresh_label)
+    ]
+
+    if not subscriptions:
+        print("No email report subscriptions are due for this update.")
+        return
 
     required = {"SMTP_HOST": smtp_host, "SMTP_FROM": smtp_from}
     if require_auth:
@@ -405,9 +519,6 @@ def send_email() -> None:
     missing = [name for name, value in required.items() if not value]
     if missing:
         raise RuntimeError(f"Missing required email environment variables: {', '.join(missing)}")
-    if not recipients:
-        raise RuntimeError("STARE_EMAIL_TO must contain at least one recipient")
-
     data = _load_app_data()
     previous_path = _env("STARE_PREVIOUS_APP_HTML")
     previous = None
@@ -418,14 +529,23 @@ def send_email() -> None:
             print("Previous report unavailable; sending the current report without comparisons.")
     refresh = data.get("last_refresh") or {}
     subject_date = refresh.get("display") or refresh.get("iso_utc") or "latest refresh"
-    refresh_label = _env("STARE_REFRESH_LABEL", "app update")
+    messages = []
+    for subscription in subscriptions:
+        current_data = data
+        previous_data = previous
+        subject_scope = ""
+        if subscription.scope == "watchlist":
+            current_data = _filter_data_for_tickers(data, subscription.tickers)
+            previous_data = _filter_data_for_tickers(previous, subscription.tickers) if previous else None
+            subject_scope = " Watchlist"
 
-    msg = EmailMessage()
-    msg["Subject"] = f"S.T.A.R.E Update ({refresh_label}) - {subject_date}"
-    msg["From"] = smtp_from
-    msg["To"] = ", ".join(recipients)
-    msg.set_content(_build_text_email(data, previous))
-    msg.add_alternative(_build_html_email(data, previous), subtype="html")
+        msg = EmailMessage()
+        msg["Subject"] = f"S.T.A.R.E{subject_scope} Update ({refresh_label}) - {subject_date}"
+        msg["From"] = smtp_from
+        msg["To"] = subscription.email
+        msg.set_content(_build_text_email(current_data, previous_data))
+        msg.add_alternative(_build_html_email(current_data, previous_data), subtype="html")
+        messages.append(msg)
 
     use_ssl = _env_bool("SMTP_SSL", False)
     use_starttls = _env_bool("SMTP_STARTTLS", True)
@@ -435,16 +555,18 @@ def send_email() -> None:
         with smtplib.SMTP_SSL(smtp_host, smtp_port, context=context) as server:
             if require_auth:
                 server.login(smtp_username, smtp_password)
-            server.send_message(msg)
+            for msg in messages:
+                server.send_message(msg)
     else:
         with smtplib.SMTP(smtp_host, smtp_port) as server:
             if use_starttls:
                 server.starttls(context=context)
             if require_auth:
                 server.login(smtp_username, smtp_password)
-            server.send_message(msg)
+            for msg in messages:
+                server.send_message(msg)
 
-    print(f"Sent STARE report email to {', '.join(recipients)}")
+    print(f"Sent {len(messages)} configured STARE report email(s).")
 
 
 if __name__ == "__main__":

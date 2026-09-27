@@ -24,6 +24,7 @@ import { rankTopPicks, type TopPick } from "../lib/top-picks.mjs";
 import {
   defaultScoringWeights,
   type DecisionSnapshot,
+  type EmailReportSettings,
   type LatestReport,
   type PersonalizedSignal,
   type RegionSnapshot,
@@ -82,6 +83,11 @@ const SCORING_FACTORS: { key: keyof ScoringWeights; label: string }[] = [
   { key: "dividend_weight", label: "Dividend yield" },
   { key: "momentum_weight", label: "Momentum" }
 ];
+const DEFAULT_EMAIL_REPORT_SETTINGS: EmailReportSettings = {
+  enabled: false,
+  frequency: "market_close",
+  scope: "full"
+};
 
 function toNumber(value?: number | string | null) {
   if (value === null || value === undefined || value === "") return null;
@@ -192,6 +198,10 @@ export function PortalDashboard({ report, preferences, personalizedSignals, scor
   const [watchlistEditor, setWatchlistEditor] = useState<"new" | "rename" | null>(null);
   const [watchlistName, setWatchlistName] = useState("");
   const [personalizationOpen, setPersonalizationOpen] = useState(false);
+  const [emailSettingsOpen, setEmailSettingsOpen] = useState(false);
+  const [emailReportSettings, setEmailReportSettings] = useState<EmailReportSettings>(
+    preferences.notification_settings?.email_reports || DEFAULT_EMAIL_REPORT_SETTINGS
+  );
   const [weightState, setWeightState] = useState(scoringWeights);
   const [personalizedSignalState, setPersonalizedSignalState] = useState(personalizedSignals);
   const [workspaceView, setWorkspaceView] = useState<"snapshot" | "history">("snapshot");
@@ -681,6 +691,14 @@ export function PortalDashboard({ report, preferences, personalizedSignals, scor
       else setStatus(result.error);
     })(); });
   }
+  function persistEmailReportSettings() {
+    persist({
+      notification_settings: {
+        ...preferenceState.notification_settings,
+        email_reports: emailReportSettings
+      }
+    });
+  }
   function toggleColumn(column: string) { const next = visibleColumns.includes(column) ? visibleColumns.filter((item) => item !== column) : DEFAULT_COLUMNS.filter((item) => item === column || visibleColumns.includes(item)); setVisibleColumns(next); persist({ visible_columns: next }); }
   function toggleTheme() { const next = theme === "dark" ? "light" : "dark"; setTheme(next); window.localStorage.setItem("stare-theme", next); document.documentElement.dataset.theme = next; persist({ theme: next }); }
   function sortBy(key: string) { if (sortKey === key) setSortDirection((current) => current === "asc" ? "desc" : "asc"); else { setSortKey(key); setSortDirection("asc"); } }
@@ -726,6 +744,7 @@ export function PortalDashboard({ report, preferences, personalizedSignals, scor
       <div className="sidebar-section"><span className="control-label">Direction</span><div className="segmented direction-control">{(["All", "Bullish", "Bearish", "Neutral"] as Direction[]).map((item) => <button className={direction === item ? "active" : ""} key={item} onClick={() => setDirection(item)} type="button">{item}</button>)}</div></div>
       <div className="sidebar-section"><span className="control-label">Regions</span><div className="segmented region-control">{REGION_ORDER.map((region) => <button className={regionMode === region ? "active" : ""} key={region} onClick={() => chooseRegion(region)} type="button">{REGION_LABELS[region]}</button>)}</div></div>
       {signedIn ? <div className="sidebar-section personalization-controls"><span className="control-label">Watchlists</span><select aria-label="Active watchlist" onChange={(event) => selectWatchlist(event.target.value)} value={activeWatchlistId}>{!namedWatchlists.length ? <option value="">No watchlist</option> : null}{namedWatchlists.map((item) => <option key={item.id} value={item.id}>{item.name} ({item.tickers.length})</option>)}</select><div className="personalization-commands"><button className="button secondary" onClick={() => { setWatchlistEditor("new"); setWatchlistName(""); }} type="button">New</button><button className="button secondary" disabled={!activeWatchlist} onClick={() => { setWatchlistEditor("rename"); setWatchlistName(activeWatchlist?.name || ""); }} type="button">Rename</button><button aria-label="Delete active watchlist" className="button secondary danger" disabled={!activeWatchlist} onClick={removeActiveWatchlist} type="button">Delete</button></div>{watchlistEditor ? <div className="watchlist-editor"><input aria-label={watchlistEditor === "new" ? "New watchlist name" : "Rename watchlist"} autoFocus maxLength={60} onChange={(event) => setWatchlistName(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") submitWatchlistName(); if (event.key === "Escape") setWatchlistEditor(null); }} placeholder="Watchlist name" value={watchlistName} /><div><button className="button" disabled={!watchlistName.trim()} onClick={submitWatchlistName} type="button">Save</button><button className="button secondary" onClick={() => setWatchlistEditor(null)} type="button">Cancel</button></div></div> : null}<button aria-expanded={personalizationOpen} className="button secondary scoring-toggle" onClick={() => setPersonalizationOpen((open) => !open)} type="button">Scoring weights</button>{personalizationOpen ? <div className="scoring-controls">{SCORING_FACTORS.map(({ key, label }) => <label key={key}><span>{label}<output>{Number(weightState[key] ?? 1).toFixed(1)}x</output></span><input max="2" min="0" onChange={(event) => setWeightState((current) => ({ ...current, [key]: Number(event.target.value) }))} step="0.1" type="range" value={weightState[key] ?? defaultScoringWeights[key]} /></label>)}<div className="personalization-commands"><button className="button" disabled={SCORING_FACTORS.every(({ key }) => Number(weightState[key]) === 0)} onClick={persistScoringWeights} type="button">Save</button><button className="button secondary" onClick={restoreScoringWeights} type="button">Reset</button></div></div> : null}</div> : null}
+      {signedIn && user ? <div className="sidebar-section email-report-controls"><button aria-expanded={emailSettingsOpen} className="button secondary scoring-toggle" onClick={() => setEmailSettingsOpen((open) => !open)} type="button">Email reports</button>{emailSettingsOpen ? <div className="email-report-settings"><label className="email-report-toggle"><input checked={emailReportSettings.enabled} onChange={(event) => setEmailReportSettings((current) => ({ ...current, enabled: event.target.checked }))} type="checkbox" /><span>Send reports to <strong>{user.email}</strong></span></label><label><span>Delivery</span><select disabled={!emailReportSettings.enabled} onChange={(event) => setEmailReportSettings((current) => ({ ...current, frequency: event.target.value as EmailReportSettings["frequency"] }))} value={emailReportSettings.frequency}><option value="market_close">Market close only</option><option value="every_update">Every market update</option></select></label><label><span>Contents</span><select disabled={!emailReportSettings.enabled} onChange={(event) => setEmailReportSettings((current) => ({ ...current, scope: event.target.value as EmailReportSettings["scope"] }))} value={emailReportSettings.scope}><option value="full">Full market report</option><option value="watchlist">Default watchlist</option></select></label><p>{emailReportSettings.scope === "watchlist" ? "Uses the watchlist selected above as your default." : "Includes the full sector report and all tracked stocks."}</p><button className="button" disabled={isPending} onClick={persistEmailReportSettings} type="button">Save email settings</button></div> : null}</div> : null}
       {regionMode === "Sectors" ? <div className="sidebar-section group-list"><span className="control-label">Sectors</span>{sectors.map((sector) => <button className={selectedGroup === sector.sector ? "group-button active" : "group-button"} key={sector.sector} onClick={() => chooseGroup(sector.sector)} type="button"><span><strong>{sector.sector}</strong><small>{sector.direction} · {sector.week_ending}</small></span><b className={classFor(sector.direction)}>{sector.strength}</b></button>)}</div>
       : markets.length ? <div className="sidebar-section group-list"><span className="control-label">Countries</span>{markets.map((market) => <button className={selectedMarket === market.market ? "group-button active" : "group-button"} key={market.market} onClick={() => chooseMarket(market.market)} type="button"><span><strong>{market.country}</strong><small>{market.market}</small></span><b>{market.count}</b></button>)}</div> : null}
     </aside>

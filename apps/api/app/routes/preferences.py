@@ -1,8 +1,8 @@
-import json
+from typing import Literal
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
@@ -12,6 +12,18 @@ from ..db import get_db
 router = APIRouter(prefix="/api/me", tags=["preferences"])
 
 
+class EmailReportSettings(BaseModel):
+    enabled: bool = False
+    frequency: Literal["every_update", "market_close"] = "market_close"
+    scope: Literal["full", "watchlist"] = "full"
+
+
+class NotificationSettings(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
+    email_reports: EmailReportSettings = Field(default_factory=EmailReportSettings)
+
+
 class PreferencesPayload(BaseModel):
     theme: str = Field(default="system", pattern="^(light|dark|system)$")
     default_region: str | None = None
@@ -19,7 +31,7 @@ class PreferencesPayload(BaseModel):
     default_market: str | None = None
     visible_columns: list[str] = Field(default_factory=list)
     watchlist: list[str] = Field(default_factory=list)
-    notification_settings: dict = Field(default_factory=dict)
+    notification_settings: NotificationSettings = Field(default_factory=NotificationSettings)
 
 
 @router.get("/preferences")
@@ -44,6 +56,9 @@ def get_preferences(
 
     result = dict(row)
     result["user_id"] = str(result["user_id"])
+    result["notification_settings"] = NotificationSettings.model_validate(
+        result["notification_settings"] or {}
+    ).model_dump()
     return result
 
 
@@ -85,11 +100,14 @@ def update_preferences(
             "default_market": payload.default_market,
             "visible_columns": payload.visible_columns,
             "watchlist": payload.watchlist,
-            "notification_settings": json.dumps(payload.notification_settings),
+            "notification_settings": payload.notification_settings.model_dump_json(),
         },
     ).mappings().one()
     db.commit()
 
     result = dict(row)
     result["user_id"] = str(result["user_id"])
+    result["notification_settings"] = NotificationSettings.model_validate(
+        result["notification_settings"] or {}
+    ).model_dump()
     return result

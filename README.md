@@ -483,7 +483,12 @@ Scheduled triggers can be delayed by GitHub; times are targets, not guarantees.
 
 ### SMTP Update Notifications
 
-The workflow sends an HTML email notification after GitHub Pages deployment for both scheduled and manually triggered refreshes. The email body is generated from the freshly embedded `stare_app.html` data and includes:
+The workflow sends individual HTML email notifications after GitHub Pages
+deployment. Signed-in portal users can opt in, choose every update or
+market-close delivery, and receive either the full report or their default
+watchlist. Delivery uses the verified email address on the user's Supabase Auth
+account. The email body is generated from the freshly embedded `stare_app.html`
+data and includes:
 
 - Last refresh timestamp
 - Explicit update status and market-data date
@@ -509,7 +514,7 @@ The production workflow is configured for Brevo's SMTP relay:
 - Host: `smtp-relay.brevo.com`
 - Port: `587`
 - Encryption: STARTTLS
-- Recipient: `vittok@hotmail.com`
+- Recipients: enabled per-user subscriptions from Supabase
 
 Create a free Brevo account, verify the sender address or domain, and create an SMTP key under Brevo's transactional SMTP settings. Then add these GitHub repository secrets:
 

@@ -144,6 +144,8 @@ Supabase project:
 - [x] Configure GitHub Actions market-open and market-close updates with required Postgres persistence.
 - [x] Skip NYSE holidays and select early-close sessions using an exchange calendar.
 - [x] Send SMTP notifications from GitHub Actions using repository secrets.
+- [x] Let each signed-in user opt into email reports, choose every update or
+  market-close delivery, and select the full report or default watchlist.
 - [x] Remove Render cron definitions from the Blueprint.
 - [x] Confirm no Render market-open/close cron services need disabling: account owner confirmed none exist on 2026-09-27.
 - [x] Verify a complete live GitHub update reaches the portal page/API and GitHub Pages.
@@ -188,5 +190,5 @@ Supabase project:
 - [x] Allow users to create custom watchlists and configure custom scoring weights.
 - [ ] Should historical data be stored for every tracked ticker or only displayed top picks?
 - [x] Retain daily snapshots for a rolling 30-day period for now.
-- [ ] Should email reports become per-user configurable?
+- [x] Make email reports configurable per user.
 - [ ] Should future recommendations include user risk profile and investment horizon?

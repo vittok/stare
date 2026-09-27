@@ -160,6 +160,16 @@ export type TickerHistoryResponse = {
   series: { name: string; points: TickerHistoryPoint[] }[];
 };
 
+export type EmailReportSettings = {
+  enabled: boolean;
+  frequency: "every_update" | "market_close";
+  scope: "full" | "watchlist";
+};
+
+export type NotificationSettings = {
+  email_reports: EmailReportSettings;
+};
+
 export type UserPreferences = {
   user_id?: string;
   theme: "light" | "dark" | "system";
@@ -168,7 +178,7 @@ export type UserPreferences = {
   default_market: string | null;
   visible_columns: string[];
   watchlist: string[];
-  notification_settings: Record<string, unknown>;
+  notification_settings: NotificationSettings;
 };
 
 export type UserWatchlist = {
@@ -246,7 +256,13 @@ const defaultPreferences: UserPreferences = {
   default_market: null,
   visible_columns: [],
   watchlist: [],
-  notification_settings: {}
+  notification_settings: {
+    email_reports: {
+      enabled: false,
+      frequency: "market_close",
+      scope: "full"
+    }
+  }
 };
 
 export const defaultScoringWeights: ScoringWeights = {

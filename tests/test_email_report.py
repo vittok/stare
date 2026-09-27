@@ -74,6 +74,29 @@ class EmailReportTests(TestCase):
         with mock.patch.dict(email.os.environ, {}, clear=True):
             self.assertIn("Not supplied", email._update_summary(report(), None)[0])
 
+    def test_subscription_timing_and_watchlist_filter(self):
+        every_update = email.EmailSubscription("every@example.test", "every_update")
+        market_close = email.EmailSubscription("close@example.test", "market_close")
+        self.assertTrue(email._subscription_is_due(every_update, "market open"))
+        self.assertFalse(email._subscription_is_due(market_close, "market open"))
+        self.assertTrue(email._subscription_is_due(market_close, "market close"))
+
+        data = report()
+        data["sectors"][0]["top10_active"].append({"ticker": "OTHER", "rank": 2})
+        filtered = email._filter_data_for_tickers(data, ("TEST",))
+        self.assertEqual(
+            [stock["ticker"] for stock in filtered["sectors"][0]["top10_active"]],
+            ["TEST"],
+        )
+        self.assertEqual(len(data["sectors"][0]["top10_active"]), 2)
+
+    def test_no_due_subscriptions_skips_smtp(self):
+        with mock.patch.dict(email.os.environ, {}, clear=True), mock.patch.object(
+            email, "_configured_subscriptions", return_value=[]
+        ), mock.patch.object(email.smtplib, "SMTP") as smtp:
+            email.send_email()
+        smtp.assert_not_called()
+
     def test_smtp_message_uses_baseline_and_tolerates_missing_history(self):
         env = {"SMTP_HOST": "smtp.test", "SMTP_FROM": "sender@example.test", "SMTP_AUTH": "false",
                "STARE_EMAIL_TO": "reader@example.test", "STARE_UPDATE_STATUS": "success",
@@ -103,4 +126,6 @@ class EmailReportTests(TestCase):
         self.assertLess(names.index("Verify published portal and Pages data"), names.index("Send app update email"))
         env = steps[names.index("Send app update email")]["env"]
         self.assertEqual(env["STARE_UPDATE_STATUS"], "success")
+        self.assertEqual(env["DATABASE_URL"], "${{ secrets.DATABASE_URL }}")
+        self.assertNotIn("STARE_EMAIL_TO", env)
         self.assertIn("runner.temp", env["STARE_PREVIOUS_APP_HTML"])
