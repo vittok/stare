@@ -70,12 +70,95 @@ def _fmt_big(value: Any) -> str:
     return f"{n:,.0f}"
 
 
-def _load_app_data() -> dict[str, Any]:
-    raw_html = APP_HTML.read_text(encoding="utf-8")
+def _load_app_data(path: Path | None = None) -> dict[str, Any]:
+    raw_html = (path or APP_HTML).read_text(encoding="utf-8")
     match = DATA_RE.search(raw_html)
     if not match:
         raise RuntimeError(f"Could not find embedded STARE data block in {APP_HTML}")
     return json.loads(match.group(1))
+
+
+def _groups(data: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    return {
+        **{f"NA / {s['sector']}": s for s in data.get("sectors", [])},
+        **{str(r["region"]): r for r in data.get("regions", [])},
+    }
+
+
+def _stocks(data: dict[str, Any]) -> dict[tuple, dict[str, Any]]:
+    stocks = {}
+    for label, group in _groups(data).items():
+        region = label.split(" / ")[0]
+        collections = [group, *group.get("markets", [])]
+        for collection in collections:
+            for stock in collection.get("top10_active", []):
+                market = stock.get("market") or collection.get("market") or ("S&P 500" if region == "NA" else "")
+                key = (region, market, stock.get("ticker"))
+                if key[-1]:
+                    stocks[key] = stock
+    return stocks
+
+
+def _top_changes(data: dict[str, Any], previous: dict[str, Any] | None) -> list[str]:
+    if previous is None:
+        return ["No previous report is available for comparison."]
+    current_stocks, previous_stocks = _stocks(data), _stocks(previous)
+    signals, prices = [], []
+    for key in current_stocks.keys() & previous_stocks.keys():
+        current, old = current_stocks[key], previous_stocks[key]
+        label = f"{key[2]} ({key[0]})"
+        action = (current.get("recommendation") or {}).get("action")
+        old_action = (old.get("recommendation") or {}).get("action")
+        volume = _num(current.get("dollar_vol_latest")) or 0
+        if action and old_action and action != old_action:
+            signals.append((volume, f"Signal: {label} changed from {old_action} to {action}."))
+        price, old_price = _num(current.get("currentPrice")), _num(old.get("currentPrice"))
+        currency = (current.get("fundamentals") or {}).get("currency") or current.get("currency")
+        old_currency = (old.get("fundamentals") or {}).get("currency") or old.get("currency")
+        if price is not None and old_price is not None and price > 0 and old_price > 0 and currency == old_currency:
+            change = (price / old_price - 1) * 100
+            if abs(change) >= 0.005:
+                unit = f" {currency}" if currency else ""
+                prices.append((abs(change), f"Price: {label} {change:+.2f}% "
+                               f"({old_price:,.2f} to {price:,.2f}{unit})."))
+
+    strengths, picks = [], []
+    old_groups = _groups(previous)
+    for label, group in _groups(data).items():
+        old = old_groups.get(label)
+        if old is None:
+            continue
+        strength, old_strength = _num(group.get("strength")), _num(old.get("strength"))
+        if strength is not None and old_strength is not None:
+            delta = strength - old_strength
+            direction, old_direction = group.get("direction"), old.get("direction")
+            if delta or direction != old_direction:
+                strengths.append((abs(delta), f"Strength: {label} {old_strength:g} to {strength:g} "
+                                  f"({delta:+g} points); {old_direction or 'unknown'} to {direction or 'unknown'}."))
+        def top_three(item):
+            rows = sorted(item.get("top10_active", []),
+                          key=lambda s: (_num(s.get("rank")) or float("inf"), str(s.get("ticker"))))
+            return {s["ticker"] for s in rows[:3] if s.get("ticker")}
+        current_picks, old_picks = top_three(group), top_three(old)
+        added, removed = sorted(current_picks - old_picks), sorted(old_picks - current_picks)
+        if added or removed:
+            picks.append((len(added) + len(removed), f"Top-three picks: {label}; "
+                          f"added {', '.join(added) or 'none'}; removed {', '.join(removed) or 'none'}."))
+    changes = []
+    for category in (signals, strengths, picks, prices):
+        changes.extend(message for _, message in sorted(category, key=lambda item: (-item[0], item[1]))[:2])
+    return changes or ["No material changes in tracked signals, strength, top-three picks, or comparable prices."]
+
+
+def _update_summary(data: dict[str, Any], previous: dict[str, Any] | None) -> list[str]:
+    status = {"success": "Successful", "partial": "Partial", "failed": "Failed"}.get(
+        _env("STARE_UPDATE_STATUS"), "Not supplied")
+    previous_refresh = (previous or {}).get("last_refresh") or {}
+    baseline = previous_refresh.get("display") or previous_refresh.get("iso_utc")
+    return [f"Update status: {status}",
+            f"Coverage: {len(data.get('sectors', []))} sectors, {len(data.get('regions', []))} regions.",
+            f"Compared with previous update: {baseline or 'timestamp unavailable'}." if previous is not None
+            else "Comparison baseline: unavailable."]
 
 
 def _flatten_rows(data: dict[str, Any]) -> list[dict[str, Any]]:
@@ -198,13 +281,15 @@ def _sector_pick_summaries(data: dict[str, Any]) -> str:
     return "\n".join(sections) or "<p>No generated sector pick summaries are available.</p>"
 
 
-def _build_html_email(data: dict[str, Any]) -> str:
+def _build_html_email(data: dict[str, Any], previous: dict[str, Any] | None = None) -> str:
     rows = _flatten_rows(data)
     refresh = data.get("last_refresh") or {}
     market_data = data.get("market_data") or {}
     app_url = _env("STARE_APP_URL", "https://vittok.github.io/stare/")
     refresh_display = html.escape(str(refresh.get("display") or refresh.get("iso_utc") or "n/a"))
     market_date = html.escape(str(market_data.get("latest_price_date") or "n/a"))
+    status_html = "".join(f"<p>{html.escape(line)}</p>" for line in _update_summary(data, previous))
+    changes_html = "".join(f"<li>{html.escape(line)}</li>" for line in _top_changes(data, previous))
     return f"""\
 <!doctype html>
 <html>
@@ -225,6 +310,12 @@ def _build_html_email(data: dict[str, Any]) -> str:
     <p class="meta">Market data date: {market_date}</p>
     <p><a href="{html.escape(app_url)}">Open the published S.T.A.R.E dashboard</a></p>
 
+    <h2>Update Status</h2>
+    {status_html}
+    <h2>Top Changes Since the Previous Update</h2>
+    <ul>{changes_html}</ul>
+    <p class="meta">Price changes compare saved updates, not previous-day closes. Missing prices or changed currencies are excluded.</p>
+
     <h2>Sector Overview</h2>
     {_sector_table(data)}
 
@@ -240,7 +331,7 @@ def _build_html_email(data: dict[str, Any]) -> str:
 """
 
 
-def _build_text_email(data: dict[str, Any]) -> str:
+def _build_text_email(data: dict[str, Any], previous: dict[str, Any] | None = None) -> str:
     rows = _flatten_rows(data)
     refresh = data.get("last_refresh") or {}
     market_data = data.get("market_data") or {}
@@ -250,6 +341,12 @@ def _build_text_email(data: dict[str, Any]) -> str:
         f"Last refresh: {refresh.get('display') or refresh.get('iso_utc') or 'n/a'}",
         f"Market data date: {market_data.get('latest_price_date') or 'n/a'}",
         f"Dashboard: {app_url}",
+        "",
+        *_update_summary(data, previous),
+        "",
+        "Top changes since the previous update:",
+        *(f"- {line}" for line in _top_changes(data, previous)),
+        "Price changes compare saved updates, not previous-day closes. Missing prices or changed currencies are excluded.",
         "",
         "Sector overview:",
     ]
@@ -312,6 +409,13 @@ def send_email() -> None:
         raise RuntimeError("STARE_EMAIL_TO must contain at least one recipient")
 
     data = _load_app_data()
+    previous_path = _env("STARE_PREVIOUS_APP_HTML")
+    previous = None
+    if previous_path:
+        try:
+            previous = _load_app_data(Path(previous_path))
+        except (OSError, ValueError, RuntimeError):
+            print("Previous report unavailable; sending the current report without comparisons.")
     refresh = data.get("last_refresh") or {}
     subject_date = refresh.get("display") or refresh.get("iso_utc") or "latest refresh"
     refresh_label = _env("STARE_REFRESH_LABEL", "app update")
@@ -320,8 +424,8 @@ def send_email() -> None:
     msg["Subject"] = f"S.T.A.R.E Update ({refresh_label}) - {subject_date}"
     msg["From"] = smtp_from
     msg["To"] = ", ".join(recipients)
-    msg.set_content(_build_text_email(data))
-    msg.add_alternative(_build_html_email(data), subtype="html")
+    msg.set_content(_build_text_email(data, previous))
+    msg.add_alternative(_build_html_email(data, previous), subtype="html")
 
     use_ssl = _env_bool("SMTP_SSL", False)
     use_starttls = _env_bool("SMTP_STARTTLS", True)

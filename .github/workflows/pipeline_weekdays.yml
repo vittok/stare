@@ -75,6 +75,13 @@ jobs:
             fi
           done
 
+      - name: Preserve previous report for email comparison
+        if: ${{ steps.market-window.outputs.should_run == 'true' }}
+        run: |
+          if [ -f stare_app.html ]; then
+            cp stare_app.html "$RUNNER_TEMP/stare-previous.html"
+          fi
+
       - name: Calculate and publish market update
         id: calculation
         if: ${{ steps.market-window.outputs.should_run == 'true' }}
@@ -127,6 +134,15 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v5
 
+      - name: Verify published portal and Pages data
+        if: ${{ steps.market-window.outputs.should_run == 'true' }}
+        env:
+          EXPECTED_UPDATE_ID: ${{ steps.calculation.outputs.update_run_id }}
+          STARE_API_URL: https://stare-api.onrender.com
+          STARE_PORTAL_URL: https://stare-portal.onrender.com
+          STARE_PAGES_URL: https://vittok.github.io/stare
+        run: python src/verify_published_update.py
+
       - name: Send app update email
         if: ${{ steps.market-window.outputs.should_run == 'true' }}
         env:
@@ -141,13 +157,6 @@ jobs:
           STARE_EMAIL_TO: vittok@hotmail.com
           STARE_APP_URL: https://stare-portal.onrender.com
           STARE_REFRESH_LABEL: ${{ steps.market-window.outputs.label }}
+          STARE_UPDATE_STATUS: success
+          STARE_PREVIOUS_APP_HTML: ${{ runner.temp }}/stare-previous.html
         run: python src/email_stare_report.py
-
-      - name: Verify published portal and Pages data
-        if: ${{ steps.market-window.outputs.should_run == 'true' }}
-        env:
-          EXPECTED_UPDATE_ID: ${{ steps.calculation.outputs.update_run_id }}
-          STARE_API_URL: https://stare-api.onrender.com
-          STARE_PORTAL_URL: https://stare-portal.onrender.com
-          STARE_PAGES_URL: https://vittok.github.io/stare
-        run: python src/verify_published_update.py

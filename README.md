@@ -475,10 +475,23 @@ Scheduled triggers can be delayed by GitHub; times are targets, not guarantees.
 The workflow sends an HTML email notification after GitHub Pages deployment for both scheduled and manually triggered refreshes. The email body is generated from the freshly embedded `stare_app.html` data and includes:
 
 - Last refresh timestamp
+- Explicit update status and market-data date
+- Top changes since the previous saved update: up to two signal changes,
+  strength changes, top-three pick membership changes, and price moves each
 - Link to the published S.T.A.R.E dashboard
 - Sector overview table
 - Top active stock summaries
 - Updated stock report with ticker, price, signal, confidence, weekly return, and latest-day dollar volume
+
+Before calculation, the workflow preserves the previous embedded report in the
+runner's temporary directory. Both HTML and plain-text email compare against
+that fixed baseline, including NA and international stocks. Signal changes are
+ranked by latest-day activity, strength by absolute point change, pick lists by
+membership changes, and prices by absolute percentage move. Prices compare saved
+updates, not previous-day closes; missing/invalid prices and currency mismatches
+are excluded. Missing history and unchanged reports have explicit messages.
+The successful email is sent only after database persistence and portal/Pages
+publication verification. Failure alerting remains a separate task.
 
 The production workflow is configured for Brevo's SMTP relay:
 

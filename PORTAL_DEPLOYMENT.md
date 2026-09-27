@@ -174,6 +174,13 @@ the snapshots. No database or SMTP passwords belong in `render.yaml`.
 6. Confirm receipt of the email and open the authenticated portal to check the
    displayed update. SMTP acceptance does not prove inbox delivery.
 
+The workflow captures the previous embedded report in the runner's temporary
+directory before calculation. After publication verification, the email receives
+`STARE_UPDATE_STATUS=success` and `STARE_PREVIOUS_APP_HTML` pointing to that
+baseline. HTML and plain-text bodies show status and the largest changes since
+the previous update. Missing history is reported explicitly. These are successful
+update notifications, not failure alerts; no new secrets are required.
+
 GitHub schedules are best-effort and may be delayed. Free Render services may
 sleep, but Actions writes directly to Supabase and sends directly through Brevo,
 so data collection does not depend on Render being awake. The publication check

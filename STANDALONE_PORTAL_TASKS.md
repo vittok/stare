@@ -147,7 +147,8 @@ Supabase project:
   `4304e187-9fc2-4347-873b-d18b4ce495cb`, market date 2026-09-25;
   Postgres, Pages deployment, and SMTP submission succeeded. Inbox receipt
   still requires account-owner confirmation.
-- [ ] Include update status and top changes in email body.
+- [x] Include update status and top changes in HTML/plain-text email: signals,
+  sector/region strength, top-three picks, and prices versus the previous update.
 - [ ] Add alerting when an update fails or data is stale.
 - [x] Confirm schedules handle US market daylight saving time.
 
