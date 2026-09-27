@@ -188,8 +188,9 @@ The API and portal page both returned snapshot
 `4304e187-9fc2-4347-873b-d18b4ce495cb`, completed at 16:20:12 UTC with market data
 dated 2026-09-25, 11 sectors, and 182 stocks. Published Pages JSON and HTML matched
 the generated files. DST/holiday/early-close behavior is unit-tested; this live
-verification used manual dispatch. Legacy Render cron suspension and inbox
-receipt remain account-owner checks.
+verification used manual dispatch. On 2026-09-27, the account owner confirmed
+there are no Render cron services, so none need disabling. Inbox receipt remains
+an account-owner check.
 
 ## Manual Portal Refresh
 
