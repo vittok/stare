@@ -32,12 +32,18 @@ def verify(update_id: str, attempts: int = 12) -> None:
     expected_html = (ROOT / "docs/index.html").read_text(encoding="utf-8")
     api = os.environ["STARE_API_URL"].rstrip("/")
     pages = os.environ["STARE_PAGES_URL"].rstrip("/")
+    portal = os.environ["STARE_PORTAL_URL"].rstrip("/")
     for attempt in range(attempts):
         try:
             params = {"update": update_id, "attempt": attempt}
             response = requests.get(f"{api}/api/latest-report", params=params, timeout=90)
             response.raise_for_status()
             check_api(response.json(), update_id, reports["sector"], reports["region"])
+            response = requests.get(f"{portal}/", params=params, timeout=90)
+            response.raise_for_status()
+            # Next.js serializes the dashboard's report ID in its server response.
+            if update_id not in response.text:
+                raise ValueError("Portal page has not received this update")
             for name, expected in reports.items():
                 response = requests.get(f"{pages}/{name}_dashboard.json", params=params, timeout=30)
                 response.raise_for_status()
@@ -47,7 +53,7 @@ def verify(update_id: str, attempts: int = 12) -> None:
             response.raise_for_status()
             if response.text != expected_html:
                 raise ValueError("Pages HTML is not this update")
-            print(f"Verified API snapshot {update_id} and both Pages reports plus HTML.")
+            print(f"Verified API/portal snapshot {update_id} and both Pages reports plus HTML.")
             return
         except (requests.RequestException, ValueError) as exc:
             print(f"Publication check {attempt + 1}/{attempts}: {exc}")

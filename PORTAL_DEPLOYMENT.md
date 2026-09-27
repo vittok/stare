@@ -170,7 +170,7 @@ the snapshots. No database or SMTP passwords belong in `render.yaml`.
 3. Publish the updated workflow on `main`.
 4. Dispatch **STARE Market Refresh** once and confirm every step succeeds.
 5. The final verification step checks the exact Postgres update ID through
-   FastAPI, both published Pages JSON reports, and the published HTML.
+   FastAPI and the portal page, both published Pages JSON reports, and the published HTML.
 6. Confirm receipt of the email and open the authenticated portal to check the
    displayed update. SMTP acceptance does not prove inbox delivery.
 
@@ -179,6 +179,17 @@ sleep, but Actions writes directly to Supabase and sends directly through Brevo,
 so data collection does not depend on Render being awake. The publication check
 retries to allow for API cold starts and Pages propagation. Calendar data should
 be updated when the exchange announces new holidays or exceptional closures.
+
+### Verification Record
+
+On 2026-09-27, [Actions update 36332716974](https://github.com/vittok/stare/actions/runs/36332716974)
+completed data pulls, Postgres persistence, Pages deployment, and SMTP submission.
+The API and portal page both returned snapshot
+`4304e187-9fc2-4347-873b-d18b4ce495cb`, completed at 16:20:12 UTC with market data
+dated 2026-09-25, 11 sectors, and 182 stocks. Published Pages JSON and HTML matched
+the generated files. DST/holiday/early-close behavior is unit-tested; this live
+verification used manual dispatch. Legacy Render cron suspension and inbox
+receipt remain account-owner checks.
 
 ## Manual Portal Refresh
 

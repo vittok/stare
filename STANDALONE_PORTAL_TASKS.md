@@ -142,7 +142,11 @@ Supabase project:
 - [x] Send SMTP notifications from GitHub Actions using repository secrets.
 - [x] Remove Render cron definitions from the Blueprint.
 - [ ] Confirm any existing Render market-open/close cron services are suspended or deleted.
-- [ ] Verify a complete live GitHub update reaches the portal API and GitHub Pages.
+- [x] Verify a complete live GitHub update reaches the portal page/API and GitHub Pages.
+  Verified on 2026-09-27: Actions update `36332716974`, snapshot
+  `4304e187-9fc2-4347-873b-d18b4ce495cb`, market date 2026-09-25;
+  Postgres, Pages deployment, and SMTP submission succeeded. Inbox receipt and
+  disabling legacy Render cron services still require account-owner confirmation.
 - [ ] Include update status and top changes in email body.
 - [ ] Add alerting when an update fails or data is stale.
 - [x] Confirm schedules handle US market daylight saving time.

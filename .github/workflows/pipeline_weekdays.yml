@@ -148,5 +148,6 @@ jobs:
         env:
           EXPECTED_UPDATE_ID: ${{ steps.calculation.outputs.update_run_id }}
           STARE_API_URL: https://stare-api.onrender.com
+          STARE_PORTAL_URL: https://stare-portal.onrender.com
           STARE_PAGES_URL: https://vittok.github.io/stare
         run: python src/verify_published_update.py
