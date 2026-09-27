@@ -5,12 +5,16 @@ import { createClient } from "../lib/supabase/server";
 import {
   type ScoringWeights,
   type PersonalizedSignal,
+  type StockSearchResult,
+  type StockSnapshot,
   type UserPreferences,
   type UserWatchlist,
   deleteUserScoringWeights,
   getMarketRefreshStatus,
+  getMarketStockAnalysis,
   getUserPersonalizedSignals,
   getUserPreferences,
+  searchMarketStocks,
   postUserWatchlist,
   putUserScoringWeights,
   putUserWatchlist,
@@ -100,6 +104,31 @@ export async function deleteWatchlist(
     return { ok: true };
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : "Watchlist could not be deleted." };
+  }
+}
+
+export async function findStocks(
+  query: string
+): Promise<{ ok: true; results: StockSearchResult[] } | { ok: false; error: string }> {
+  const accessToken = await getAccessToken();
+  if (!accessToken) return { ok: false, error: "Sign in to search the market." };
+  try {
+    const response = await searchMarketStocks(accessToken, query.trim());
+    return { ok: true, results: response.results };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : "Market search is unavailable." };
+  }
+}
+
+export async function analyzeStock(
+  symbol: string
+): Promise<{ ok: true; stock: StockSnapshot } | { ok: false; error: string }> {
+  const accessToken = await getAccessToken();
+  if (!accessToken) return { ok: false, error: "Sign in to analyze a stock." };
+  try {
+    return { ok: true, stock: await getMarketStockAnalysis(accessToken, symbol) };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : "Stock analysis is unavailable." };
   }
 }
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { Star } from "lucide-react";
 import { useEffect, useRef } from "react";
 import type { DecisionItem, StockSnapshot } from "../lib/portal-api";
 
@@ -7,6 +8,11 @@ type StockDetailDialogProps = {
   groupSignal: { direction?: string | null; name: string; strength?: number | null } | null;
   onClose: () => void;
   stock: StockSnapshot | null;
+  watchlistAction?: {
+    disabled?: boolean;
+    label: string;
+    onClick: () => void;
+  };
 };
 
 type MetricItem = [label: string, value: string];
@@ -60,7 +66,7 @@ function DecisionDetail({ item, title }: { item?: DecisionItem; title: string })
   return <div><dt>{title}</dt><dd><strong>{item?.label || "n/a"}</strong><span>{item?.detail || "No additional detail is available."}</span></dd></div>;
 }
 
-export function StockDetailDialog({ groupSignal, onClose, stock }: StockDetailDialogProps) {
+export function StockDetailDialog({ groupSignal, onClose, stock, watchlistAction }: StockDetailDialogProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
@@ -90,6 +96,7 @@ export function StockDetailDialog({ groupSignal, onClose, stock }: StockDetailDi
             <p>{fundamentals.longBusinessSummary || `${companyName} operates in ${stock.industry || stock.sector || "its reported business category"}.`}</p>
           </div>
           <div className="stock-detail-header-actions">
+            {watchlistAction ? <button className="button secondary stock-detail-watchlist" disabled={watchlistAction.disabled} onClick={watchlistAction.onClick} type="button"><Star aria-hidden="true" size={15} /> {watchlistAction.label}</button> : null}
             <div className="stock-detail-signal-pair">
               <span><small>Standard</small><b className={`stock-detail-signal ${signalClass(stock.action)}`}>{stock.action || "Hold"}</b></span>
               <span><small>Personal</small><b className={`stock-detail-signal ${signalClass(stock.personalized_action)}`}>{stock.personalized_action || "n/a"}</b></span>

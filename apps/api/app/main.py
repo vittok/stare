@@ -7,6 +7,7 @@ from .routes.history import router as history_router
 from .routes.personalization import router as personalization_router
 from .routes.refresh import router as refresh_router
 from .routes.report import router as report_router
+from .routes.stocks import router as stocks_router
 
 settings = get_settings()
 
@@ -25,6 +26,7 @@ app.include_router(history_router)
 app.include_router(preferences_router)
 app.include_router(personalization_router)
 app.include_router(refresh_router)
+app.include_router(stocks_router)
 
 
 @app.get("/health")

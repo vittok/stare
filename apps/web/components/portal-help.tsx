@@ -74,6 +74,10 @@ export function PortalHelp() {
             <p>Search by ticker, company, sector, country, or market. Select table headers marked with sorting arrows to reorder results, and use Columns to keep only the information useful to your review. Select a company name for a concise business and financial profile.</p>
           </section>
           <section>
+            <h3>Analyze another stock</h3>
+            <p>Use Analyze any stock in the sidebar to enter a ticker or search by company name. Select a matching listed company to load its latest price context, P/E, P/B, PEG, dividend yield, and standard and personalized signals. The result can be saved to the active named watchlist; saved symbols outside the regular market update remain available from the same sidebar section.</p>
+          </section>
+          <section>
             <h3>Review history</h3>
             <p>Open History to chart sector and region strength over the retained 30-day period. Ticker Compare places up to five stocks on common price, return, activity, volume, and recommendation timelines. Multiple observations on one market date represent separate updates, such as market open and close.</p>
           </section>

@@ -118,6 +118,8 @@ Supabase project:
   an unread What's new indicator.
 - [x] Add fundamentals-led Top Picks for every covered market using the latest
   trading session, with the standard model signal shown separately.
+- [x] Let signed-in users search any listed company, analyze its latest price
+  and fundamentals, and save the verified symbol to a named watchlist.
 
 ## Phase 6 - Historical Views
 

@@ -213,6 +213,14 @@ export type PersonalizedSignalsResponse = {
   signals: PersonalizedSignal[];
 };
 
+export type StockSearchResult = {
+  symbol: string;
+  name: string;
+  exchange?: string | null;
+  sector?: string | null;
+  industry?: string | null;
+};
+
 export type MarketRefreshResponse = {
   status: "queued" | "already_running";
   message: string;
@@ -398,6 +406,15 @@ export function removeUserWatchlist(accessToken: string, id: string): Promise<vo
   return authenticatedRequest(accessToken, `/api/me/watchlists/${id}`, {
     method: "DELETE"
   });
+}
+
+export function searchMarketStocks(accessToken: string, query: string): Promise<{ results: StockSearchResult[] }> {
+  const params = new URLSearchParams({ q: query });
+  return authenticatedRequest(accessToken, `/api/stocks/search?${params}`);
+}
+
+export function getMarketStockAnalysis(accessToken: string, symbol: string): Promise<StockSnapshot> {
+  return authenticatedRequest(accessToken, `/api/stocks/${encodeURIComponent(symbol)}/analysis`);
 }
 
 export async function getUserScoringWeights(accessToken?: string): Promise<ScoringWeights> {

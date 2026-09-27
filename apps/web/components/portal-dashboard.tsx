@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useMemo, useState, useTransition } from "react";
-import type { FocusEvent, MouseEvent } from "react";
-import { Download, FileJson, History, LayoutDashboard } from "lucide-react";
+import type { FocusEvent, FormEvent, MouseEvent } from "react";
+import { Download, FileJson, History, LayoutDashboard, LoaderCircle, Search } from "lucide-react";
 import dynamic from "next/dynamic";
 import {
   createWatchlist,
+  analyzeStock,
   deleteWatchlist,
+  findStocks,
   getMarketRefreshProgress,
   loadPersonalizedSignals,
   resetScoringWeights,
@@ -28,6 +30,7 @@ import {
   type ScoringWeights,
   type SectorSnapshot,
   type StockSnapshot,
+  type StockSearchResult,
   type UserPreferences,
   type UserWatchlist
 } from "../lib/portal-api";
@@ -180,6 +183,11 @@ export function PortalDashboard({ report, preferences, personalizedSignals, scor
   const [refreshRunId, setRefreshRunId] = useState<number | undefined>();
   const [refreshBaselineRunId, setRefreshBaselineRunId] = useState<number | undefined>();
   const [selectedStock, setSelectedStock] = useState<StockSnapshot | null>(null);
+  const [analyzedStocks, setAnalyzedStocks] = useState<StockSnapshot[]>([]);
+  const [stockLookupQuery, setStockLookupQuery] = useState("");
+  const [stockLookupResults, setStockLookupResults] = useState<StockSearchResult[]>([]);
+  const [stockLookupState, setStockLookupState] = useState<"idle" | "searching" | "analyzing" | "error">("idle");
+  const [stockLookupMessage, setStockLookupMessage] = useState("");
   const [watchlistEditor, setWatchlistEditor] = useState<"new" | "rename" | null>(null);
   const [watchlistName, setWatchlistName] = useState("");
   const [personalizationOpen, setPersonalizationOpen] = useState(false);
@@ -346,6 +354,7 @@ export function PortalDashboard({ report, preferences, personalizedSignals, scor
   const sectors = currentReport?.sectors || [];
   const activeWatchlist = namedWatchlists.find((item) => item.id === activeWatchlistId) || null;
   const watchlist = activeWatchlist?.tickers || (namedWatchlists.length ? [] : preferences.watchlist || []);
+  const externalWatchlistSymbols = watchlist.filter((ticker) => !allStocks.some((stock) => stock.ticker === ticker));
   const regionalTopRows = useMemo(() => {
     const rows: StockSnapshot[] = [];
     for (const region of ["NA", "LAC", "EMEA", "APAC"]) {
@@ -463,7 +472,9 @@ export function PortalDashboard({ report, preferences, personalizedSignals, scor
   const bearish = groups.filter((group) => group.direction === "Bearish").length;
   const averageStrength = groups.length ? groups.reduce((sum, group) => sum + (group.strength || 0), 0) / groups.length : 0;
   const activeSelectedStock = selectedStock
-    ? allStocks.find((stock) => stockKey(stock) === stockKey(selectedStock)) || selectedStock
+    ? allStocks.find((stock) => stockKey(stock) === stockKey(selectedStock))
+      || analyzedStocks.find((stock) => stock.ticker === selectedStock.ticker)
+      || selectedStock
     : null;
   const selectedGroupSignal = activeSelectedStock
     ? activeSelectedStock.region === "NA"
@@ -576,6 +587,47 @@ export function PortalDashboard({ report, preferences, personalizedSignals, scor
       else { replaceNamedWatchlist(previous); setStatus(result.error); }
     })(); });
   }
+  async function openStockAnalysis(symbol: string) {
+    setStockLookupState("analyzing");
+    setStockLookupMessage(`Analyzing ${symbol}...`);
+    const result = await analyzeStock(symbol);
+    if (!result.ok) {
+      setStockLookupState("error");
+      setStockLookupMessage(result.error);
+      return;
+    }
+    setAnalyzedStocks((current) => [result.stock, ...current.filter((stock) => stock.ticker !== result.stock.ticker)].slice(0, 12));
+    setSelectedStock(result.stock);
+    setStockLookupState("idle");
+    setStockLookupMessage(`Analysis ready for ${result.stock.ticker}.`);
+  }
+  async function runStockLookup(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const query = stockLookupQuery.trim();
+    if (!query) return;
+    setStockLookupState("searching");
+    setStockLookupMessage("Searching listed companies...");
+    setStockLookupResults([]);
+    const result = await findStocks(query);
+    if (!result.ok) {
+      setStockLookupState("error");
+      setStockLookupMessage(result.error);
+      return;
+    }
+    setStockLookupResults(result.results);
+    if (!result.results.length) {
+      setStockLookupState("idle");
+      setStockLookupMessage("No listed company matched that search.");
+      return;
+    }
+    const exact = result.results.find((item) => item.symbol.toUpperCase() === query.toUpperCase());
+    if (exact) {
+      await openStockAnalysis(exact.symbol);
+      return;
+    }
+    setStockLookupState("idle");
+    setStockLookupMessage(`${result.results.length} matches found.`);
+  }
   function persistScoringWeights() {
     startTransition(() => { void (async () => {
       const result = await saveScoringWeights(weightState);
@@ -631,6 +683,7 @@ export function PortalDashboard({ report, preferences, personalizedSignals, scor
     <aside className="sidebar" onClick={(event) => event.stopPropagation()}>
       {signedIn && user ? <section className="sidebar-account" aria-label="Signed-in account"><div><span className="control-label">Signed in</span><strong title={user.displayName}>{user.displayName}</strong><small title={user.email}>{user.email}</small></div><AuthButton className="button secondary sidebar-signout" label="Sign out" signedIn /></section> : null}
       <div className="sidebar-section"><label className="control-label" htmlFor="stock-search">Search</label><input autoComplete="off" className="search-input" id="stock-search" onChange={(event) => setSearch(event.target.value)} placeholder="Ticker, company, group" type="search" value={search} /></div>
+      {signedIn ? <div className="sidebar-section stock-lookup"><span className="control-label">Analyze any stock</span><form onSubmit={runStockLookup}><input aria-label="Ticker symbol or company name" autoComplete="off" onChange={(event) => setStockLookupQuery(event.target.value)} placeholder="Symbol or company" type="search" value={stockLookupQuery} /><button aria-label="Search market" disabled={!stockLookupQuery.trim() || stockLookupState === "searching" || stockLookupState === "analyzing"} title="Search market" type="submit">{stockLookupState === "searching" || stockLookupState === "analyzing" ? <span className="spin"><LoaderCircle aria-hidden="true" size={16} /></span> : <Search aria-hidden="true" size={16} />}</button></form>{stockLookupMessage ? <p className={stockLookupState === "error" ? "lookup-message error" : "lookup-message"} aria-live="polite">{stockLookupMessage}</p> : null}{stockLookupResults.length ? <div className="stock-lookup-results">{stockLookupResults.map((result) => <button key={`${result.symbol}-${result.exchange || "market"}`} onClick={() => void openStockAnalysis(result.symbol)} type="button"><span><strong>{result.symbol}</strong><small>{result.name}</small></span><b>{result.exchange || "Analyze"}</b></button>)}</div> : null}{externalWatchlistSymbols.length ? <div className="external-watchlist-symbols"><span>Saved symbols</span><div>{externalWatchlistSymbols.map((ticker) => <button key={ticker} onClick={() => void openStockAnalysis(ticker)} type="button">{ticker}</button>)}</div></div> : null}</div> : null}
       <div className="sidebar-section"><span className="control-label">Direction</span><div className="segmented direction-control">{(["All", "Bullish", "Bearish", "Neutral"] as Direction[]).map((item) => <button className={direction === item ? "active" : ""} key={item} onClick={() => setDirection(item)} type="button">{item}</button>)}</div></div>
       <div className="sidebar-section"><span className="control-label">Regions</span><div className="segmented region-control">{REGION_ORDER.map((region) => <button className={regionMode === region ? "active" : ""} key={region} onClick={() => chooseRegion(region)} type="button">{REGION_LABELS[region]}</button>)}</div></div>
       {signedIn ? <div className="sidebar-section personalization-controls"><span className="control-label">Watchlists</span><select aria-label="Active watchlist" onChange={(event) => selectWatchlist(event.target.value)} value={activeWatchlistId}>{!namedWatchlists.length ? <option value="">No watchlist</option> : null}{namedWatchlists.map((item) => <option key={item.id} value={item.id}>{item.name} ({item.tickers.length})</option>)}</select><div className="personalization-commands"><button className="button secondary" onClick={() => { setWatchlistEditor("new"); setWatchlistName(""); }} type="button">New</button><button className="button secondary" disabled={!activeWatchlist} onClick={() => { setWatchlistEditor("rename"); setWatchlistName(activeWatchlist?.name || ""); }} type="button">Rename</button><button aria-label="Delete active watchlist" className="button secondary danger" disabled={!activeWatchlist} onClick={removeActiveWatchlist} type="button">Delete</button></div>{watchlistEditor ? <div className="watchlist-editor"><input aria-label={watchlistEditor === "new" ? "New watchlist name" : "Rename watchlist"} autoFocus maxLength={60} onChange={(event) => setWatchlistName(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") submitWatchlistName(); if (event.key === "Escape") setWatchlistEditor(null); }} placeholder="Watchlist name" value={watchlistName} /><div><button className="button" disabled={!watchlistName.trim()} onClick={submitWatchlistName} type="button">Save</button><button className="button secondary" onClick={() => setWatchlistEditor(null)} type="button">Cancel</button></div></div> : null}<button aria-expanded={personalizationOpen} className="button secondary scoring-toggle" onClick={() => setPersonalizationOpen((open) => !open)} type="button">Scoring weights</button>{personalizationOpen ? <div className="scoring-controls">{SCORING_FACTORS.map(({ key, label }) => <label key={key}><span>{label}<output>{Number(weightState[key] ?? 1).toFixed(1)}x</output></span><input max="2" min="0" onChange={(event) => setWeightState((current) => ({ ...current, [key]: Number(event.target.value) }))} step="0.1" type="range" value={weightState[key] ?? defaultScoringWeights[key]} /></label>)}<div className="personalization-commands"><button className="button" disabled={SCORING_FACTORS.every(({ key }) => Number(weightState[key]) === 0)} onClick={persistScoringWeights} type="button">Save</button><button className="button secondary" onClick={restoreScoringWeights} type="button">Reset</button></div></div> : null}</div> : null}
@@ -653,7 +706,7 @@ export function PortalDashboard({ report, preferences, personalizedSignals, scor
       <footer className="data-footer"><span>Updated {formatTimestamp(currentReport.update.completed_at)} · Market data {currentReport.update.latest_price_date || currentReport.update.market_data_date || "n/a"}</span><span>Source: Yahoo Finance market and fundamental data. Signals are deterministic research outputs and may be incomplete or delayed.</span><span>Created by vittok. GitHub Pages remains available as the static fallback.</span></footer>
     </div>
     {popover ? <aside className={`summary-popover ${popover.pinned ? "pinned" : "hovering"}`} onClick={(event) => event.stopPropagation()} style={{ left: popover.x, top: popover.y }}><div><strong>{popover.title}</strong>{popover.pinned ? <button aria-label="Close explanation" onClick={() => setPopover(null)} type="button">×</button> : null}</div><p>{popover.content}</p></aside> : null}
-    <StockDetailDialog groupSignal={selectedGroupSignal ? { direction: selectedGroupSignal.direction, name: groupName(selectedGroupSignal), strength: selectedGroupSignal.strength } : null} onClose={() => setSelectedStock(null)} stock={activeSelectedStock} />
+    <StockDetailDialog groupSignal={selectedGroupSignal ? { direction: selectedGroupSignal.direction, name: groupName(selectedGroupSignal), strength: selectedGroupSignal.strength } : null} onClose={() => setSelectedStock(null)} stock={activeSelectedStock} watchlistAction={signedIn && activeSelectedStock ? { disabled: watchlist.includes(activeSelectedStock.ticker) || isPending, label: watchlist.includes(activeSelectedStock.ticker) ? `Saved in ${activeWatchlist?.name || "watchlist"}` : `Add to ${activeWatchlist?.name || "watchlist"}`, onClick: () => toggleWatchlist(activeSelectedStock.ticker) } : undefined} />
   </div>;
 }
 
