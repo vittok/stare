@@ -164,7 +164,12 @@ Supabase project:
 
 ## Phase 9 - Migration and Cutover
 
-- [ ] Import recent historical JSON/CSV artifacts into Supabase.
+- [x] Import recent historical JSON/CSV artifacts into Supabase.
+  Completed 2026-09-27 using canonical JSON report pairs from Git: 13 missing
+  market dates (2026-09-08 through 2026-09-24), 143 sector snapshots, 39 region
+  snapshots, 2,366 stock rows, and 2,366 reconstructed recommendations. Source
+  values and historical observation times verified; repeat import wrote nothing.
+  Existing snapshots and the latest dashboard were preserved.
 - [x] Validate latest database values and row coverage against the static HTML output.
 - [x] Run standalone portal in parallel with GitHub Pages.
 - [x] Test Google login with at least one real user account.

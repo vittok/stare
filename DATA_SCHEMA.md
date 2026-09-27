@@ -150,6 +150,15 @@ that table remains the standard-model baseline used for comparison.
 
 ## Historical API Views
 
+Historical backfills use `triggered_by=historical_backfill`. Their
+`started_at` and `completed_at` preserve the original report commit timestamp;
+`created_at` records the database insertion time. `source_commit` identifies the
+archived report pair. `diagnostics.historical_import` records import time,
+timestamp provenance, code revision, and the fact that recommendations were
+reconstructed from archived fundamentals using the shared model. Prices and
+fundamentals retain their original report values. Only missing market dates
+within the 30-day window are backfilled, with one final saved report per date.
+
 The portal reads retained snapshots directly through FastAPI without adding
 materialized history tables. `/api/history/groups` joins sector or region
 snapshots to completed updates and synthesizes NA history from its sector raw

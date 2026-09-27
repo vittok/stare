@@ -199,6 +199,25 @@ verification used manual dispatch. On 2026-09-27, the account owner confirmed
 there are no Render cron services, so none need disabling. Inbox receipt remains
 an account-owner check.
 
+## Historical Backfill Verification
+
+On 2026-09-27, `src/backfill_historical_reports.py --apply` filled 13 missing
+market dates from September 8 through September 24. It used the final Git JSON
+report pair for each date and left six already-covered dates unchanged.
+Verified counts: 143 sector snapshots, 39 region snapshots, 2,366 stock rows,
+and 2,366 reconstructed recommendations. Prices, previous closes, weekly returns,
+daily percentiles, and volumes were checked against all source stock rows.
+Original report commit timestamps were preserved. A repeat import skipped all
+19 candidate dates without writing new snapshots. The latest live snapshot
+remained `4304e187-9fc2-4347-873b-d18b4ce495cb`.
+The live sector, region, and ticker history endpoints each returned all 13
+restored dates in checks for Information Technology, APAC, and NVDA.
+
+One initial attempt hit a transaction-pooler prepared-statement conflict and
+rolled back all snapshot rows for that attempt. The failed audit entry is
+retained. Automatic prepared statements are now disabled in the Postgres writer;
+the resumed import completed successfully. No schema changes were required.
+
 ## Manual Portal Refresh
 
 Authenticated update administrators can select **Refresh data** in the portal.

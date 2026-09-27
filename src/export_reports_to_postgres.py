@@ -450,6 +450,7 @@ def _create_update_run(
     triggered_by: str,
     started_at: datetime,
     diagnostics: dict[str, Any],
+    source_commit: str | None = None,
 ) -> str:
     with engine.begin() as conn:
         row = conn.execute(
@@ -470,7 +471,7 @@ def _create_update_run(
                 "run_label": run_label,
                 "triggered_by": triggered_by,
                 "started_at": started_at,
-                "source_commit": _source_commit(),
+                "source_commit": source_commit or _source_commit(),
                 "diagnostics": _json(diagnostics),
             },
         ).mappings().one()
@@ -529,7 +530,8 @@ def record_failed_update(
     diagnostics: dict[str, Any] | None = None,
     started_at: datetime | None = None,
 ) -> str:
-    engine = create_engine(_db_url(database_url), pool_pre_ping=True)
+    engine = create_engine(_db_url(database_url), pool_pre_ping=True,
+                           connect_args={"prepare_threshold": None})
     base = diagnostics or {}
     try:
         update_run_id = _create_update_run(
@@ -578,15 +580,31 @@ def export_reports(
     run_label: str,
     triggered_by: str = "artifact_import",
     max_data_age_days: int | None = None,
+    historical_at: datetime | None = None,
+    source_commit: str | None = None,
 ) -> str:
-    engine = create_engine(_db_url(database_url), pool_pre_ping=True)
-    started_at = datetime.now(UTC)
+    if historical_at is not None and (
+        historical_at.tzinfo is None or historical_at > datetime.now(UTC)
+    ):
+        raise ValueError("Historical timestamp must be timezone-aware and not in the future")
+    # Supabase transaction pooling cannot safely reuse connection-local prepared statements.
+    engine = create_engine(_db_url(database_url), pool_pre_ping=True,
+                           connect_args={"prepare_threshold": None})
+    started_at = historical_at or datetime.now(UTC)
     diagnostics = _base_diagnostics(sector_report_path, region_report_path)
+    if historical_at is not None:
+        diagnostics["historical_import"] = {
+            "imported_at": datetime.now(UTC).isoformat(),
+            "observed_at_source": "artifact commit timestamp",
+            "source_commit": source_commit,
+            "importer_commit": _source_commit(),
+            "signals": "reconstructed from archived fundamentals using the shared model",
+        }
     update_run_id: str | None = None
     stage = "artifact_loading"
     try:
         update_run_id = _create_update_run(
-            engine, run_label, triggered_by, started_at, diagnostics
+            engine, run_label, triggered_by, started_at, diagnostics, source_commit=source_commit
         )
         sector_report = _load_json(sector_report_path)
         region_report = _load_json(region_report_path)
@@ -682,7 +700,7 @@ def export_reports(
                     """
                 ),
                 {
-                    "completed_at": datetime.now(UTC),
+                    "completed_at": historical_at or datetime.now(UTC),
                     "market_data_date": latest_price_date,
                     "latest_price_date": latest_price_date,
                     "diagnostics": _json(diagnostics),

@@ -674,6 +674,33 @@ failed database write fails the update instead of leaving the portal stale.
 Scheduled Postgres writes reject reports older than seven days by default. Set
 `STARE_MAX_DATA_AGE_DAYS` to adjust that tolerance for extended market closures.
 
+### Historical Backfill
+
+Use the complete paired JSON reports from Git history to fill missing market
+dates in Supabase. JSON includes the CSV projections plus the fundamentals and
+group metadata needed by the importer; CSV rows are not imported a second time.
+Set `DATABASE_URL` in the environment or ignored `.env`, then run:
+
+```bash
+git fetch origin
+git pull --ff-only
+python src/backfill_historical_reports.py
+python src/backfill_historical_reports.py --apply
+```
+
+The default is a read-only plan. `--apply` imports the last saved report pair
+for each missing market date within the rolling 30-day window. Existing successful
+or partial dates are left untouched, and transaction locks serialize competing
+backfills for a date. Repeating the import skips dates already present.
+This fills daily history, not every intraday update or every index constituent.
+
+Original artifact commit times become observation/completion times, preventing
+old reports from replacing the live dashboard or receiving a new retention
+window. The source commit and import time are recorded in update diagnostics.
+Recommendations are reconstructed with the shared model using archived
+fundamentals, not fetched from today's market or claimed as original historical
+predictions. The import neither sends email nor republishes GitHub Pages.
+
 Refresh only the publishable app from existing report data:
 
 ```bash
