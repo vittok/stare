@@ -116,6 +116,8 @@ Supabase project:
 - [x] Add a complete stock-information dialog from ticker symbols.
 - [x] Add commit-derived Semantic Versioning, user-facing release notes, and
   an unread What's new indicator.
+- [x] Add fundamentals-led Top Picks for every covered market using the latest
+  trading session, with the standard model signal shown separately.
 
 ## Phase 6 - Historical Views
 

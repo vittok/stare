@@ -24,6 +24,7 @@ The project turns raw market data into a publishable dashboard with:
 - Top active stocks per sector by latest trading-day dollar volume
 - NA, APAC, EMEA, and LAC regional views across selected large local markets
 - Top active stocks per region by latest trading-day traded value
+- Fundamentals-led Top Picks using the latest trading day for every covered market
 - Latest available close price for every displayed stock
 - Weekly stock returns
 - Volume activity versus recent baseline
@@ -353,6 +354,14 @@ dollar_vol_latest = latest_close * latest_day_volume
 ```
 
 The source date is stored as `volume_date`, and the share volume is stored as `latest_volume`. This identifies the names carrying the most current market activity instead of letting older high-volume days dominate the picks. Weekly return, weekly dollar volume, and volume ratio remain available as trend and confirmation context.
+
+### Top Picks
+
+The standalone portal also ranks the active stocks captured in the latest trading session using company fundamentals and same-session market context. The model rewards supportive P/E, P/B, PEG, and dividend-yield values, then adds a bounded contribution from the latest close change and daily trading percentile. Latest-session dollar volume breaks otherwise equal scores.
+
+The All Regions view and international region views display up to three picks from each covered market. More focused region, sector, market, and watchlist views rank the stocks matching the active filters. Each card shows its ranking score, fundamentals coverage, daily move, activity, valuation context, and the separate standard Buy/Hold/Sell signal.
+
+Top Picks is a deterministic research screen, not a forecast or financial advice. Missing fundamentals do not receive a positive valuation score, and the card reports how many of the four inputs were available.
 
 ### Displayed Stock Prices
 

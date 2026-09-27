@@ -410,10 +410,15 @@ button { border-radius: 0; }
 .stock-card-ticker { background: transparent; border: 0; color: var(--ink); cursor: pointer; font-size: 16px; font-weight: 800; padding: 0; text-align: left; }
 .stock-card-ticker:hover, .stock-card-ticker:focus-visible { color: var(--blue); outline: 1px solid var(--blue); outline-offset: 3px; }
 .stock-card-top span { color: var(--muted); font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.stock-card-top small { color: var(--muted); font-size: 10px; margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .stock-card-price { font-size: 18px; font-weight: 800; }
 .stock-card-metrics { border-top: 1px solid var(--line); display: grid; gap: 5px; padding-top: 10px; }
 .stock-card-metrics span { color: var(--muted); display: flex; font-size: 10px; justify-content: space-between; text-transform: uppercase; }
 .stock-card-metrics b { color: var(--ink); }
+.top-picks-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.top-pick-card { align-content: start; }
+.top-pick-rationale { border-top: 1px solid var(--line); color: var(--muted); font-size: 11px; line-height: 1.45; margin: 0; padding-top: 10px; }
+.section-empty { border: 1px solid var(--line); color: var(--muted); font-size: 12px; grid-column: 1 / -1; margin: 0; padding: 18px; }
 
 .table-heading { align-items: center; }
 .table-tools { align-items: center; display: flex; gap: 12px; }
@@ -618,6 +623,7 @@ table.history-table { min-width: 920px; }
   .kpi-strip > div:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
   .heatmap { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .picks-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .top-picks-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .stock-detail-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .stock-decision-details { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .history-toolbar { align-items: stretch; flex-wrap: wrap; }
@@ -637,6 +643,7 @@ table.history-table { min-width: 920px; }
   .region-control { grid-template-columns: repeat(2, 1fr); }
   .group-list { grid-template-columns: 1fr; }
   .picks-grid { grid-template-columns: 1fr; }
+  .top-picks-grid { grid-template-columns: 1fr; }
   .section-block { padding: 16px; }
   .section-heading { align-items: start; }
   .table-heading { align-items: stretch; flex-direction: column; }

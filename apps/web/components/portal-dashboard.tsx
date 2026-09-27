@@ -18,6 +18,7 @@ import {
 import { AuthButton } from "./auth-button";
 import { StockDetailDialog } from "./stock-detail-dialog";
 import { downloadCsv, downloadJson } from "../lib/download-data";
+import { rankTopPicks, type TopPick } from "../lib/top-picks.mjs";
 import {
   defaultScoringWeights,
   type DecisionSnapshot,
@@ -67,7 +68,8 @@ const HELP = {
   fundamentals: "Fundamentals are sourced from Yahoo Finance and stored with each ticker. S.T.A.R.E checks P/E for earnings valuation, P/B for market value versus book value, PEG for valuation relative to growth, and dividend yield for income support. Margin, growth, balance-sheet, beta, market-cap, industry, exchange, and currency fields provide broader company context.",
   strength: "Strength summarizes recent behavior across the tracked names in a sector or region. Breadth measures the share of positive returns, median return captures the typical move, and volume ratio compares current trading activity with its recent baseline. The blended raw score determines Bullish, Bearish, or Neutral direction and a 0-100 magnitude.",
   recommendation: "The recommendation starts with the sector or region raw score and adjusts it using weekly momentum and fundamentals. Lower P/E, lower P/B, PEG below 1, and dividend support can improve the score. Expensive valuation, weak momentum, or bearish group sentiment can reduce it. The final deterministic score maps to Buy, Hold, or Sell; confidence reflects score magnitude.",
-  topPicks: "Top active stocks are ranked by latest available trading-day dollar volume, not cumulative weekly volume. The period is the last trading day captured by the update. Weekly return and volume ratio remain supporting context but do not determine pick order."
+  topActive: "Top active stocks are ranked by latest available trading-day dollar volume, not cumulative weekly volume. The period is the last trading day captured by the update. Weekly return and volume ratio remain supporting context but do not determine activity order.",
+  topPicks: "Top Picks ranks stocks captured in the latest trading session using company fundamentals first, then the last-session price move and trading-activity percentile. The fundamentals check covers P/E, P/B, PEG, and dividend yield. For All Regions and international region views, the section selects up to three stocks per covered market. Latest-day dollar volume breaks ties. This research ranking is separate from the standard Buy, Hold, or Sell signal and is not personalized financial advice."
 };
 const SCORING_FACTORS: { key: keyof ScoringWeights; label: string }[] = [
   { key: "group_sentiment_weight", label: "Group sentiment" },
@@ -389,13 +391,46 @@ export function PortalDashboard({ report, preferences, personalizedSignals, scor
   // The group-direction lookup is derived from the same report arrays listed here.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [baseRows, selectedGroup, selectedMarket, direction, search, sortKey, sortDirection, regionMode, sectors, regions, watchlistOnly, watchlist]);
-  const topPicks = useMemo(() => {
+  const topActiveStocks = useMemo(() => {
     const byVolume = [...displayedRows].sort((a, b) => (toNumber(b.dollar_vol_latest) || 0) - (toNumber(a.dollar_vol_latest) || 0));
     if (regionMode === "All") return ["NA", "LAC", "EMEA", "APAC"].flatMap((region) => byVolume.filter((stock) => stock.region === region).slice(0, 3));
     if (regionMode !== "Sectors") return byVolume.slice(0, 9);
     if (selectedGroup) return byVolume.slice(0, 6);
     return [...groups].sort((a, b) => (b.strength || 0) - (a.strength || 0)).map((group) => byVolume.find((stock) => stock.sector === groupName(group))).filter((stock): stock is DisplayStock => Boolean(stock)).slice(0, 6);
   }, [displayedRows, groups, regionMode, selectedGroup]);
+  const topPicks = useMemo(() => {
+    let candidates: DisplayStock[] = allStocks.map((stock) => ({
+      ...stock,
+      daily_percentile: toNumber(stock.daily_trading_percentile)
+    }));
+    if (regionMode === "NA" || regionMode === "Sectors") candidates = candidates.filter((stock) => stock.region === "NA");
+    else if (regionMode !== "All") candidates = candidates.filter((stock) => stock.region === regionMode);
+    if (selectedGroup && regionMode === "Sectors") candidates = candidates.filter((stock) => stock.sector === selectedGroup);
+    if (selectedMarket) candidates = candidates.filter((stock) => stock.market === selectedMarket);
+    if (direction !== "All") candidates = candidates.filter((stock) => groupDirection(stock) === direction);
+    if (watchlistOnly) candidates = candidates.filter((stock) => watchlist.includes(stock.ticker));
+    if (search.trim()) {
+      const query = search.trim().toLowerCase();
+      candidates = candidates.filter((stock) => [stock.ticker, stockName(stock), stock.sector, stock.region, stock.market, stock.country, stock.industry, stock.exchange]
+        .some((value) => String(value || "").toLowerCase().includes(query)));
+    }
+    const ranked = rankTopPicks(candidates);
+    if (regionMode === "All" || (!["NA", "Sectors"].includes(regionMode) && !selectedMarket)) {
+      const byMarket = new Map<string, TopPick[]>();
+      for (const stock of ranked) {
+        const key = `${stock.region || "Other"}|${stock.market || stock.country || "Other"}`;
+        const picks = byMarket.get(key) || [];
+        if (picks.length < 3) picks.push(stock);
+        byMarket.set(key, picks);
+      }
+      return Array.from(byMarket.entries())
+        .sort(([left], [right]) => left.localeCompare(right))
+        .flatMap(([, picks]) => picks);
+    }
+    return ranked.slice(0, selectedGroup || selectedMarket ? 6 : 9);
+  // The direction helper reads the report groups already listed here.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allStocks, direction, regionMode, regions, search, sectors, selectedGroup, selectedMarket, watchlist, watchlistOnly]);
   const snapshotExportRows = useMemo(() => displayedRows.map((stock) => ({
     ticker: stock.ticker,
     company_name: stockName(stock),
@@ -610,7 +645,8 @@ export function PortalDashboard({ report, preferences, personalizedSignals, scor
       <section className="kpi-strip" aria-label="Dashboard KPIs"><Metric label={regionMode === "Sectors" ? "Sectors" : "Regions"} value={groups.length.toString()} /><Metric label="Bullish / Bearish" value={`${bullish} / ${bearish}`} /><Metric label="Avg Strength" value={averageStrength.toFixed(1)} /><Metric label="Tracked Names" value={new Set(displayedRows.map((stock) => stock.ticker)).size.toString()} /></section>
       <section className="section-block"><div className="section-heading"><div><p className="eyebrow">Market map</p><h2>{regionMode === "Sectors" ? "Sector Heatmap" : "Region Heatmap"}</h2></div><span>{groups.length} groups</span></div><div className="heatmap">{groups.map((group) => <button className={`heat-cell ${classFor(group.direction)}`} key={groupName(group)} onClick={() => regionMode === "Sectors" && chooseGroup(groupName(group))} type="button"><strong>{groupName(group)}</strong><span>{group.strength ?? 0}</span><small>{group.direction || "Neutral"}</small></button>)}</div></section>
       <div className="analysis-grid"><section className="section-block strength-section"><div className="section-heading"><div><p className="eyebrow">Comparison</p><h2>Strength by {regionMode === "Sectors" ? "Sector" : "Region"}</h2></div><span>Select a bar to inspect</span></div><div className="strength-chart">{[...groups].sort((a, b) => (b.strength || 0) - (a.strength || 0)).map((group) => <button className="chart-column" key={groupName(group)} onClick={() => regionMode === "Sectors" && chooseGroup(groupName(group))} type="button"><span className="chart-value">{group.strength ?? 0}</span><span className={`chart-bar ${classFor(group.direction)}`} style={{ height: `${Math.max(3, group.strength || 0)}%` }} /><span className="chart-label">{groupName(group)}</span></button>)}</div></section>
-      <section className="section-block picks-section"><div className="section-heading"><div><p className="eyebrow">Last trading day</p><h2>Top Active Stocks <ExplainButton className="help-button" label="?" title="Top Active Stocks" content={HELP.topPicks} onShow={showPopover} onHide={hidePopover} onPin={pinPopover} /></h2></div><span>{topPicks.length} picks</span></div><div className="picks-grid">{topPicks.map((stock) => <article className="stock-card" key={`pick-${stock.region}-${stock.market}-${stock.ticker}`}><div className="stock-card-top"><div><button className="stock-card-ticker" onClick={() => setSelectedStock(stock)} type="button">{stock.ticker}</button><span>{stockName(stock)}</span></div><b className={classFor(stock.action)}>{formatPercent(stock.weekly_return)}</b></div><div className="stock-card-price">{formatPrice(stock, stock.current_price)}</div><div className="stock-card-metrics"><span>Standard <b className={classFor(stock.action)}>{stock.action || "Hold"}</b></span><span>Personal <b className={classFor(stock.personalized_action)}>{stock.personalized_action || "n/a"}</b></span><span>Valuation <b>{stock.decision_snapshot?.valuation?.label || "n/a"}</b></span><span>Risk <b>{stock.decision_snapshot?.risk?.label || "n/a"}</b></span></div></article>)}</div></section></div>
+      <section className="section-block picks-section"><div className="section-heading"><div><p className="eyebrow">Last trading day</p><h2>Top Active Stocks <ExplainButton className="help-button" label="?" title="Top Active Stocks" content={HELP.topActive} onShow={showPopover} onHide={hidePopover} onPin={pinPopover} /></h2></div><span>{topActiveStocks.length} stocks</span></div><div className="picks-grid">{topActiveStocks.map((stock) => <StockCard key={`active-${stock.region}-${stock.market}-${stock.ticker}`} onOpen={setSelectedStock} stock={stock} />)}</div></section></div>
+      <section className="section-block top-picks-section"><div className="section-heading"><div><p className="eyebrow">Fundamentals + last trading day</p><h2>Top Picks <ExplainButton className="help-button" label="?" title="Top Picks" content={HELP.topPicks} onShow={showPopover} onHide={hidePopover} onPin={pinPopover} /></h2></div><span>{topPicks.length} stocks</span></div>{topPicks.length ? <div className="picks-grid top-picks-grid">{topPicks.map((stock) => <StockCard key={`top-pick-${stock.region}-${stock.market}-${stock.ticker}`} onOpen={setSelectedStock} pick={stock} stock={stock} />)}</div> : <p className="section-empty">No stocks match the current filters.</p>}</section>
       <section className="section-block table-section"><div className="section-heading table-heading"><div><p className="eyebrow">Complete snapshot</p><h2>{displayedRows.length} stocks</h2></div><div className="table-tools"><span className="save-status">{isPending ? "Saving..." : status}</span><div className="export-buttons"><button className="button secondary icon-command" disabled={!displayedRows.length} onClick={() => exportSnapshot("csv")} title="Download visible stocks as CSV" type="button"><Download aria-hidden="true" size={15} /><span>CSV</span></button><button className="button secondary icon-command" disabled={!displayedRows.length} onClick={() => exportSnapshot("json")} title="Download visible stocks as JSON" type="button"><FileJson aria-hidden="true" size={15} /><span>JSON</span></button></div><button aria-pressed={watchlistOnly} className={watchlistOnly ? "button secondary active" : "button secondary"} disabled={!activeWatchlist && !watchlist.length} onClick={() => setWatchlistOnly((active) => !active)} type="button">{activeWatchlist?.name || "Watchlist"} ({watchlist.length})</button><div className="column-menu-wrap"><button className="button secondary" onClick={() => setColumnMenuOpen((open) => !open)} type="button">Columns</button>{columnMenuOpen ? <div className="column-menu">{DEFAULT_COLUMNS.map((column) => <label key={column}><input checked={visibleColumns.includes(column)} onChange={() => toggleColumn(column)} type="checkbox" /> {COLUMNS[column]}</label>)}</div> : null}</div></div></div>
       <div className="table-wrap"><table><thead><tr>{DEFAULT_COLUMNS.filter((column) => visibleColumns.includes(column)).map((column) => <th className={NUMERIC_COLUMNS.has(column) ? "num" : ""} key={column}>{!["watch", "decision"].includes(column) ? <button className="sort-button" onClick={() => sortBy(column)} type="button">{COLUMNS[column]} <span aria-hidden="true">{sortKey === column ? sortDirection === "asc" ? "↑" : "↓" : "↕"}</span></button> : COLUMNS[column]}</th>)}</tr></thead><tbody>{displayedRows.map((stock) => <StockRow key={`${stock.region}-${stock.market}-${stock.sector}-${stock.ticker}`} stock={stock} columns={visibleColumns} watched={watchlist.includes(stock.ticker)} onOpenStock={setSelectedStock} onWatch={toggleWatchlist} onShow={showPopover} onHide={hidePopover} onPin={pinPopover} />)}</tbody></table></div></section>
       </>}
@@ -627,6 +663,19 @@ function sortValue(stock: DisplayStock, key: string): string | number | null {
 }
 function SignalExplanation({ title, text, content, onShow, onHide, onPin }: { title: string; text: string; content: string; onShow: PopoverHandler; onHide: () => void; onPin: PopoverHandler }) { return <div><h2>{title} <ExplainButton className="help-button" label="?" title={title} content={content} onShow={onShow} onHide={onHide} onPin={onPin} /></h2><p>{text}</p></div>; }
 function Metric({ label, value }: { label: string; value: string }) { return <div><span>{label}</span><strong>{value}</strong></div>; }
+
+function StockCard({ stock, pick, onOpen }: { stock: StockSnapshot; pick?: TopPick; onOpen: (stock: StockSnapshot) => void }) {
+  return <article className={pick ? "stock-card top-pick-card" : "stock-card"}>
+    <div className="stock-card-top"><div><button className="stock-card-ticker" onClick={() => onOpen(stock)} type="button">{stock.ticker}</button><span>{stockName(stock)}</span><small>{stock.market || stock.sector || stock.region || "Market unavailable"}</small></div><b className={classFor(stock.action)}>{pick ? `Score ${pick.top_pick.score.toFixed(2)}` : formatPercent(stock.weekly_return)}</b></div>
+    <div className="stock-card-price">{formatPrice(stock, stock.current_price)}</div>
+    <div className="stock-card-metrics">
+      <span>Standard <b className={classFor(stock.action)}>{stock.action || "Hold"}</b></span>
+      {pick ? <><span>Last move <b className={(toNumber(stock.close_change_pct) || 0) >= 0 ? "positive" : "negative"}>{formatPercent(stock.close_change_pct)}</b></span><span>Daily activity <b>{toNumber(stock.daily_trading_percentile) === null ? "n/a" : `${toNumber(stock.daily_trading_percentile)?.toFixed(0)}%`}</b></span><span>Fundamentals <b>{pick.top_pick.coverage}/4 fields</b></span></> : <span>Personal <b className={classFor(stock.personalized_action)}>{stock.personalized_action || "n/a"}</b></span>}
+      <span>Valuation <b>{stock.decision_snapshot?.valuation?.label || "n/a"}</b></span><span>Risk <b>{stock.decision_snapshot?.risk?.label || "n/a"}</b></span>
+    </div>
+    {pick ? <p className="top-pick-rationale">{pick.top_pick.rationale}</p> : null}
+  </article>;
+}
 
 function StockRow({ stock, columns, watched, onOpenStock, onWatch, onShow, onHide, onPin }: { stock: DisplayStock; columns: string[]; watched: boolean; onOpenStock: (stock: StockSnapshot) => void; onWatch: (ticker: string) => void; onShow: PopoverHandler; onHide: () => void; onPin: PopoverHandler }) {
   const snapshot = stock.decision_snapshot;

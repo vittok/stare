@@ -10,7 +10,8 @@
     "start": "next start",
     "lint": "next lint",
     "release:generate": "node scripts/generate-release-notes.mjs",
-    "test:releases": "node --test scripts/generate-release-notes.test.mjs"
+    "test:releases": "node --test scripts/generate-release-notes.test.mjs",
+    "test:top-picks": "node --test lib/top-picks.test.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.7.0",

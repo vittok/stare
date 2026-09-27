@@ -66,6 +66,10 @@ export function PortalHelp() {
             <p>Top Active Stocks highlights names with the highest dollar trading volume during the latest available trading day. High activity makes a stock noteworthy for review, but does not by itself make the stock attractive to buy.</p>
           </section>
           <section>
+            <h3>Review Top Picks</h3>
+            <p>Top Picks ranks the active stocks captured in the latest trading session using P/E, P/B, PEG, and dividend yield first, then uses the latest daily price move and trading-activity percentile as current context. All Regions and international region views show up to three picks from each covered market. The standard Buy, Hold, or Sell signal remains visible as a separate model opinion.</p>
+          </section>
+          <section>
             <h3>Explore and compare</h3>
             <p>Search by ticker, company, sector, country, or market. Select table headers marked with sorting arrows to reorder results, and use Columns to keep only the information useful to your review. Select a company name for a concise business and financial profile.</p>
           </section>
