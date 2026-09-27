@@ -34,11 +34,16 @@ export function parseReleaseCommit(commit) {
   };
 }
 
-export function isIgnoredCommit(commit) {
-  return /^Automated STARE daily update$/i.test(commit.subject)
-    || /^Merge\b/i.test(commit.subject)
-    || /^(build|chore|ci|docs|refactor|style|test)(?:\([^)]+\))?:/i.test(commit.subject)
+function isExplicitlyExcluded(commit, config) {
+  return Object.hasOwn(config.non_release_commits || {}, commit.hash)
     || /(^|\n)Release-Note:\s*none\s*($|\n)/i.test(commit.body);
+}
+
+export function isIgnoredCommit(commit, config = {}) {
+  return isExplicitlyExcluded(commit, config)
+    || /^Automated STARE daily update$/i.test(commit.subject)
+    || /^Merge\b/i.test(commit.subject)
+    || /^(build|chore|ci|docs|refactor|style|test)(?:\([^)]+\))?:/i.test(commit.subject);
 }
 
 export function buildManifest(config, commits) {
@@ -51,6 +56,7 @@ export function buildManifest(config, commits) {
   ];
 
   for (const commit of commits) {
+    if (isExplicitlyExcluded(commit, config)) continue;
     const parsed = parseReleaseCommit(commit);
     if (!parsed) continue;
     version = bumpVersion(version, parsed.level);
@@ -72,8 +78,8 @@ export function buildManifest(config, commits) {
   };
 }
 
-export function validateCommitClassification(commits) {
-  const unclassified = commits.filter((commit) => !parseReleaseCommit(commit) && !isIgnoredCommit(commit));
+export function validateCommitClassification(commits, config = {}) {
+  const unclassified = commits.filter((commit) => !parseReleaseCommit(commit) && !isIgnoredCommit(commit, config));
   if (!unclassified.length) return;
   const subjects = unclassified.map((commit) => `- ${commit.hash.slice(0, 7)} ${commit.subject}`).join("\n");
   throw new Error(
@@ -86,7 +92,7 @@ function readLocalCommits(baseCommit) {
   const output = execFileSync(
     "git",
     ["log", "--reverse", "--format=%H%x1f%cI%x1f%s%x1f%b%x1e", `${baseCommit}..HEAD`],
-    { cwd: WEB_ROOT, encoding: "utf8" }
+    { cwd: WEB_ROOT, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }
   );
   return output
     .split("\x1e")
@@ -129,19 +135,23 @@ async function readRemoteCommits(config) {
   });
 }
 
-export async function generateReleaseNotes() {
-  const config = JSON.parse(readFileSync(resolve(WEB_ROOT, "release-baseline.json"), "utf8"));
-  let commits = [];
+export async function readReleaseCommits(config, { local = readLocalCommits, remote = readRemoteCommits } = {}) {
   try {
-    commits = readLocalCommits(config.base_commit);
+    return local(config.base_commit);
   } catch (localError) {
+    console.log("Local release history is unavailable; loading the baseline-to-deployment history from GitHub.");
     try {
-      commits = await readRemoteCommits(config);
+      return await remote(config);
     } catch (remoteError) {
       throw new Error(`Release history could not read local or remote Git metadata: ${localError.message}; ${remoteError.message}`);
     }
   }
-  validateCommitClassification(commits);
+}
+
+export async function generateReleaseNotes() {
+  const config = JSON.parse(readFileSync(resolve(WEB_ROOT, "release-baseline.json"), "utf8"));
+  const commits = await readReleaseCommits(config);
+  validateCommitClassification(commits, config);
   const manifest = buildManifest(config, commits);
   writeFileSync(resolve(WEB_ROOT, "public/releases.json"), `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
   console.log(`Generated S.T.A.R.E v${manifest.current_version} with ${manifest.releases.length} release entries.`);

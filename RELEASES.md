@@ -47,6 +47,14 @@ cannot silently disappear. Use a conventional maintenance prefix such as
 `docs:`, `test:`, `ci:`, or `chore:` for non-user-facing work. For an unusual
 internal commit, add `Release-Note: none` to its body deliberately.
 
+Already-published legacy maintenance commits can be classified without rewriting
+Git history: add their full hash and a reviewable explanation to
+`non_release_commits` in `apps/web/release-baseline.json`. Exceptions apply only
+to those exact hashes; new unclassified commits still fail validation. Do not
+move the baseline forward to bypass an error, because that would discard release
+history. `Release-Note: none` also suppresses version bumps for conventional
+release subjects when explicitly used.
+
 Users see this history from the **What's new** button. The button displays an
 unread indicator when its latest version differs from the version last opened
 in that browser.
