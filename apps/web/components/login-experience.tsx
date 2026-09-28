@@ -7,11 +7,13 @@ import { PortalHelp } from "./portal-help";
 
 type LoginExperienceProps = {
   children: ReactNode;
+  marketDataDate?: string | null;
+  portalUpdated?: string | null;
   signedIn: boolean;
 };
 
-export function LoginExperience({ children, signedIn }: LoginExperienceProps) {
-  if (signedIn) return <><PortalHelp />{children}</>;
+export function LoginExperience({ children, marketDataDate, portalUpdated, signedIn }: LoginExperienceProps) {
+  if (signedIn) return <><PortalHelp marketDataDate={marketDataDate} portalUpdated={portalUpdated} />{children}</>;
 
   function movePreview(event: PointerEvent<HTMLDivElement>) {
     const bounds = event.currentTarget.getBoundingClientRect();
@@ -29,7 +31,7 @@ export function LoginExperience({ children, signedIn }: LoginExperienceProps) {
 
   return (
     <div className="login-experience" onPointerLeave={resetPreview} onPointerMove={movePreview}>
-      <PortalHelp />
+      <PortalHelp marketDataDate={marketDataDate} portalUpdated={portalUpdated} />
       <div aria-hidden="true" className="login-preview" inert>
         {children}
       </div>

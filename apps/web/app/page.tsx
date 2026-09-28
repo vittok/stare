@@ -28,7 +28,11 @@ export default async function Home() {
   } : null;
 
   return (
-    <LoginExperience signedIn={signedIn}>
+    <LoginExperience
+      marketDataDate={latestReport?.update?.latest_price_date || latestReport?.update?.market_data_date}
+      portalUpdated={latestReport?.update?.completed_at}
+      signedIn={signedIn}
+    >
       <main className="page">
         <header className="topbar">
           <div className="topbar-inner">
