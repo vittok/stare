@@ -187,6 +187,12 @@ so data collection does not depend on Render being awake. The publication check
 retries to allow for API cold starts and Pages propagation. Calendar data should
 be updated when the exchange announces new holidays or exceptional closures.
 
+When the Render portal process starts, its Next.js instrumentation hook sends a
+background request to the FastAPI `/health` endpoint. This wakes the API at the
+same time as the portal without delaying the portal startup. The existing report
+request retries remain in place while the free API instance finishes its cold
+start.
+
 ### Verification Record
 
 On 2026-09-27, [Actions update 36332716974](https://github.com/vittok/stare/actions/runs/36332716974)
