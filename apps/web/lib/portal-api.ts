@@ -8,6 +8,14 @@ export type UpdateInfo = {
   latest_price_date?: string | null;
 };
 
+export type UpdateAlert = {
+  kind: "failed" | "partial" | "stale";
+  title: string;
+  message: string;
+  detected_at: string;
+  expected_after?: string;
+};
+
 export type RegionSnapshot = {
   region: string;
   week_ending?: string | null;
@@ -117,6 +125,7 @@ export type StockSnapshot = {
 
 export type LatestReport = {
   update: UpdateInfo | null;
+  alert?: UpdateAlert | null;
   regions: RegionSnapshot[];
   sectors: SectorSnapshot[];
   top_stocks: StockSnapshot[];

@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .config import get_settings
+from .request_logging import log_request
 from .routes.preferences import router as preferences_router
 from .routes.history import router as history_router
 from .routes.personalization import router as personalization_router
@@ -12,6 +13,7 @@ from .routes.stocks import router as stocks_router
 settings = get_settings()
 
 app = FastAPI(title=settings.app_name)
+app.middleware("http")(log_request)
 
 app.add_middleware(
     CORSMiddleware,

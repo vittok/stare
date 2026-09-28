@@ -114,6 +114,25 @@ Current approach:
 
 Market snapshot tables are currently accessed through FastAPI rather than direct browser queries. If direct Supabase client reads are added later, add explicit read policies before exposing those tables.
 
+### User Data Privacy Note
+
+Google sign-in creates a Supabase Auth identity, including the user's email. The
+portal may store their display name and avatar plus their selected theme, default
+filters, visible columns, named watchlists, scoring weights, and email-report
+settings. This data is used to restore that user's portal experience and send
+only the notifications they configure. Row Level Security and authenticated API checks restrict profile
+and preference records to their owning user. The public GitHub Pages dashboard
+requires no login and does not provide or persist personalized settings.
+
+### API Request Logs
+
+FastAPI emits one structured JSON log for each non-health request with the HTTP
+method, matched route template, response status, duration, timestamp, and a
+correlation ID. A valid incoming `X-Request-ID` is preserved and returned in the
+response; otherwise the API generates one. Query strings, request bodies,
+authorization headers, and client addresses are intentionally excluded. Successful
+Render health probes log only at debug level to avoid filling the service log.
+
 ## Required Deployment Secrets
 
 For the FastAPI service:
@@ -156,6 +175,8 @@ Store these in **GitHub repository > Settings > Secrets and variables > Actions*
 - `SMTP_USERNAME`: Brevo SMTP login.
 - `SMTP_PASSWORD`: Brevo SMTP key.
 - `SMTP_FROM`: a sender verified in Brevo, not necessarily the SMTP login.
+- `STARE_ALERT_TO`: optional comma-separated operational alert recipients. If
+  omitted, alerts are sent to `SMTP_FROM`.
 
 Keep `DATABASE_URL` in Render's API environment as well, since the API reads
 the snapshots. No database or SMTP passwords belong in `render.yaml`.
@@ -179,7 +200,17 @@ directory before calculation. After publication verification, the email receives
 `STARE_UPDATE_STATUS=success` and `STARE_PREVIOUS_APP_HTML` pointing to that
 baseline. HTML and plain-text bodies show status and the largest changes since
 the previous update. Missing history is reported explicitly. These are successful
-update notifications, not failure alerts; no new secrets are required.
+update notifications.
+
+Operational alerts are separate from user report subscriptions. A failed active
+market-refresh workflow sends an immediate admin email with a link to its Actions
+run. `.github/workflows/data_freshness.yml` checks at 23:30 UTC on weekdays and
+emails the admin if no successful update has completed since the latest due NYSE
+open or close checkpoint. Both checks use `STARE_ALERT_TO`, falling back to
+`SMTP_FROM`. The portal also displays a warning above the dashboard when the API
+detects a newer failed attempt, partial data, or a missed checkpoint. A 75-minute
+grace period avoids warning while a scheduled job is still running; weekends,
+holidays, early closes, and daylight-saving changes use the NYSE calendar.
 
 GitHub schedules are best-effort and may be delayed. Free Render services may
 sleep, but Actions writes directly to Supabase and sends directly through Brevo,

@@ -155,7 +155,9 @@ Supabase project:
   still requires account-owner confirmation.
 - [x] Include update status and top changes in HTML/plain-text email: signals,
   sector/region strength, top-three picks, and prices versus the previous update.
-- [ ] Add alerting when an update fails or data is stale.
+- [x] Add alerting when an update fails or data is stale: show calendar-aware
+  portal warnings, email admins immediately after workflow failures, and run a
+  weekday post-close freshness check with a 75-minute completion grace period.
 - [x] Confirm schedules handle US market daylight saving time.
 
 ## Phase 8 - Security and Operations
@@ -163,10 +165,13 @@ Supabase project:
 - [x] Store current deployment secrets in Render, Supabase, or GitHub secret managers.
 - [x] Ensure service-role Supabase key is never exposed to the browser.
 - [x] Enable row-level security for user preference and market snapshot tables.
-- [ ] Add basic request logging.
+- [x] Add basic structured API request logging with correlation IDs, status,
+  duration, and route templates while excluding credentials and request data.
 - [ ] Add database backup/export plan.
 - [ ] Add monitoring for update duration and data freshness.
-- [ ] Add privacy note for user profile/preferences data.
+- [x] Add a login-screen privacy note explaining stored profile/preferences
+  data, its purpose, and per-user access controls; link to the no-login public
+  read-only dashboard.
 
 ## Phase 9 - Migration and Cutover
 

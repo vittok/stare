@@ -1,4 +1,8 @@
+import logging
+from datetime import UTC, datetime, timedelta
 from decimal import Decimal
+
+import pandas_market_calendars as mcal
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import text
@@ -7,6 +11,70 @@ from sqlalchemy.orm import Session
 from ..db import get_db
 
 router = APIRouter(prefix="/api", tags=["reports"])
+logger = logging.getLogger(__name__)
+
+ALERT_GRACE = timedelta(minutes=75)
+
+
+def _utc(value: datetime) -> datetime:
+    return value.replace(tzinfo=UTC) if value.tzinfo is None else value.astimezone(UTC)
+
+
+def _expected_update_checkpoint(now: datetime | None = None) -> datetime | None:
+    current = _utc(now or datetime.now(UTC))
+    schedule = mcal.get_calendar("NYSE").schedule(
+        start_date=(current - timedelta(days=14)).date(),
+        end_date=current.date(),
+    )
+    checkpoints: list[datetime] = []
+    for _, session in schedule.iterrows():
+        for column, delay in (("market_open", 5), ("market_close", 10)):
+            checkpoint = _utc(session[column].to_pydatetime()) + timedelta(minutes=delay)
+            if current >= checkpoint + ALERT_GRACE:
+                checkpoints.append(checkpoint)
+    return max(checkpoints) if checkpoints else None
+
+
+def _report_alert(
+    update_run: dict | None,
+    latest_attempt: dict | None,
+    now: datetime | None = None,
+) -> dict | None:
+    detected_at = _utc(now or datetime.now(UTC))
+    if latest_attempt and latest_attempt.get("status") == "failed":
+        attempt_started = latest_attempt.get("started_at")
+        update_started = update_run.get("started_at") if update_run else None
+        if update_started is None or (attempt_started and _utc(attempt_started) > _utc(update_started)):
+            return {
+                "kind": "failed",
+                "title": "Latest market update failed",
+                "message": "The last successful snapshot remains available while the update is retried.",
+                "detected_at": detected_at.isoformat(),
+            }
+
+    if update_run and update_run.get("status") == "partial":
+        return {
+            "kind": "partial",
+            "title": "Latest market update is incomplete",
+            "message": "Some market data could not be refreshed. Values shown may have reduced coverage.",
+            "detected_at": detected_at.isoformat(),
+        }
+
+    try:
+        checkpoint = _expected_update_checkpoint(detected_at)
+    except Exception:
+        logger.exception("Could not calculate the expected market update checkpoint.")
+        checkpoint = None
+    completed_at = update_run.get("completed_at") if update_run else None
+    if checkpoint and (completed_at is None or _utc(completed_at) < checkpoint):
+        return {
+            "kind": "stale",
+            "title": "Market data may be stale",
+            "message": "No successful refresh has completed since the latest scheduled market checkpoint.",
+            "detected_at": detected_at.isoformat(),
+            "expected_after": checkpoint.isoformat(),
+        }
+    return None
 
 
 def _north_america_region(sectors: list[dict]) -> dict | None:
@@ -37,6 +105,16 @@ def _north_america_region(sectors: list[dict]) -> dict | None:
 @router.get("/latest-report")
 def latest_report(db: Session = Depends(get_db)) -> dict:
     try:
+        latest_attempt = db.execute(
+            text(
+                """
+                select id, status, started_at, completed_at
+                from public.update_runs
+                order by started_at desc
+                limit 1
+                """
+            )
+        ).mappings().first()
         update_run = db.execute(
             text(
                 """
@@ -53,7 +131,13 @@ def latest_report(db: Session = Depends(get_db)) -> dict:
         raise HTTPException(status_code=503, detail="Database is not reachable") from exc
 
     if update_run is None:
-        return {"update": None, "regions": [], "sectors": [], "top_stocks": []}
+        return {
+            "update": None,
+            "alert": _report_alert(None, dict(latest_attempt) if latest_attempt else None),
+            "regions": [],
+            "sectors": [],
+            "top_stocks": [],
+        }
 
     run_id = update_run["id"]
     regions = db.execute(
@@ -119,6 +203,10 @@ def latest_report(db: Session = Depends(get_db)) -> dict:
 
     return {
         "update": dict(update_run),
+        "alert": _report_alert(
+            dict(update_run),
+            dict(latest_attempt) if latest_attempt else None,
+        ),
         "regions": region_rows,
         "sectors": sector_rows,
         "top_stocks": [dict(row) for row in top_stocks],

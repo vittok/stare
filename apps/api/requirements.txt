@@ -5,3 +5,4 @@ pydantic-settings>=2.10
 python-dotenv>=1.1
 sqlalchemy>=2.0
 psycopg[binary]>=3.2
+pandas-market-calendars==5.1.3

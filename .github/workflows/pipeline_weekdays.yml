@@ -160,3 +160,16 @@ jobs:
           STARE_UPDATE_STATUS: success
           STARE_PREVIOUS_APP_HTML: ${{ runner.temp }}/stare-previous.html
         run: python src/email_stare_report.py
+
+      - name: Send update failure alert
+        if: ${{ failure() && steps.market-window.outputs.should_run == 'true' }}
+        env:
+          SMTP_HOST: smtp-relay.brevo.com
+          SMTP_PORT: "587"
+          SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          SMTP_FROM: ${{ secrets.SMTP_FROM }}
+          STARE_ALERT_TO: ${{ secrets.STARE_ALERT_TO }}
+          STARE_APP_URL: https://stare-portal.onrender.com
+          STARE_ALERT_DETAILS: "GitHub Actions run failed: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        run: python src/update_alerts.py failure
