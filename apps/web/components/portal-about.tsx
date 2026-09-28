@@ -28,14 +28,20 @@ function formatDate(value?: string | null) {
   }).format(date);
 }
 
-function formatTimestamp(value?: string | null) {
+function formatTimestamp(value: string | null | undefined, timeZone: string | null) {
   if (!value) return "Not available";
+  if (!timeZone) return "Detecting browser timezone…";
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
-  return new Intl.DateTimeFormat("en-GB", {
-    dateStyle: "medium",
-    timeStyle: "short",
-    timeZone: "UTC"
+  return new Intl.DateTimeFormat(undefined, {
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    month: "short",
+    second: "2-digit",
+    timeZone,
+    timeZoneName: "short",
+    year: "numeric"
   }).format(date);
 }
 
@@ -43,9 +49,11 @@ export function PortalAbout({ marketDataDate, portalUpdated }: PortalAboutProps)
   const dialogRef = useRef<HTMLDialogElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [release, setRelease] = useState<CurrentRelease | null>(null);
+  const [timeZone, setTimeZone] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
+    setTimeZone(Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC");
     void fetch("/releases.json", { cache: "no-store" })
       .then((response) => response.ok ? response.json() as Promise<ReleaseManifest> : null)
       .then((manifest) => {
@@ -102,10 +110,10 @@ export function PortalAbout({ marketDataDate, portalUpdated }: PortalAboutProps)
           </div>
 
           <section>
-            <p className="eyebrow">Portal snapshot</p>
+            <p className="eyebrow">Data snapshot</p>
             <dl className="about-facts">
-              <div><dt>Portal updated</dt><dd>{portalUpdated ? `${formatTimestamp(portalUpdated)} UTC` : "Not available"}</dd></div>
-              <div><dt>Market data</dt><dd>{formatDate(marketDataDate)}</dd></div>
+              <div><dt>Market data refreshed</dt><dd>{formatTimestamp(portalUpdated, timeZone)}<small>{timeZone || "Browser timezone"}</small></dd></div>
+              <div><dt>Market session represented</dt><dd>{formatDate(marketDataDate)}<small>Latest captured trading date</small></dd></div>
             </dl>
           </section>
 

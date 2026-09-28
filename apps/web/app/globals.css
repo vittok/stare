@@ -216,7 +216,8 @@ button { border-radius: 0; }
 .about-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 0; }
 .about-facts > div { border-left: 2px solid var(--blue); display: grid; gap: 6px; padding: 4px 14px; }
 .about-facts dt { color: var(--muted); font-size: 10px; font-weight: 800; text-transform: uppercase; }
-.about-facts dd { font-size: 13px; font-weight: 800; margin: 0; }
+.about-facts dd { display: grid; font-size: 13px; font-weight: 800; gap: 4px; margin: 0; }
+.about-facts dd small { color: var(--muted); font-size: 9px; font-weight: 600; }
 .about-links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
 .about-links a { border: 1px solid var(--line-strong); color: var(--ink); font-size: 11px; font-weight: 800; padding: 9px 11px; text-decoration: none; }
 .about-links a:hover, .about-links a:focus-visible { background: var(--ink); color: var(--surface); outline: 2px solid var(--blue); outline-offset: 2px; }
