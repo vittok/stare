@@ -18,7 +18,7 @@ Supabase project:
 - [x] Confirm backend style: FastAPI service.
 - [x] Confirm database: Supabase Postgres.
 - [x] Define production domain and DNS plan: start with hosted UAT URL, then attach a custom `stare.<domain>` CNAME after acceptance.
-- [ ] Select the final custom production domain.
+- [x] Select the final custom production domain: `https://stare.vittok.eu`.
 - [x] Defer domain purchase until Render UAT is accepted.
 - [x] Decide whether GitHub Pages remains as a public demo or is retired: keep GitHub Pages as public demo/fallback.
 
@@ -31,7 +31,7 @@ Supabase project:
 - [x] Add authorized JavaScript origins in Google OAuth client:
   - [x] `http://localhost:3000`
   - [x] Render UAT portal URL: `https://stare-portal.onrender.com`
-  - [ ] production custom portal URL when selected
+  - [ ] production custom portal URL: `https://stare.vittok.eu`
 - [x] Add authorized redirect URI in Google OAuth client:
   - [x] `https://bprknqcgtezsgfjuztqs.supabase.co/auth/v1/callback`
 - [x] Copy Google OAuth Client ID and Client Secret into Supabase Auth provider settings.
@@ -40,7 +40,7 @@ Supabase project:
   - [x] `http://localhost:3000/auth/callback`
   - [x] Render UAT callback URL: `https://stare-portal.onrender.com/auth/callback`
   - [x] Confirm Supabase Site URL: `https://stare-portal.onrender.com`
-  - [ ] production custom portal callback URL when selected
+  - [ ] production custom portal callback URL: `https://stare.vittok.eu/auth/callback`
 - [x] Create database roles and row-level security policy approach: user tables use Supabase Auth RLS; market data is backend-served through FastAPI.
 - [x] Store Supabase URL and publishable key in `.env.example`.
 - [x] Add backend-only `DATABASE_URL` locally in ignored `.env`.

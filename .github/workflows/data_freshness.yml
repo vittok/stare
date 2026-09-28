@@ -36,5 +36,5 @@ jobs:
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
           SMTP_FROM: ${{ secrets.SMTP_FROM }}
           STARE_ALERT_TO: ${{ secrets.STARE_ALERT_TO }}
-          STARE_APP_URL: https://stare-portal.onrender.com
+          STARE_APP_URL: ${{ vars.STARE_PORTAL_URL || 'https://stare-portal.onrender.com' }}
         run: python src/update_alerts.py stale

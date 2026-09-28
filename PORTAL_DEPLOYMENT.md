@@ -2,25 +2,57 @@
 
 This document tracks the production setup decisions for the standalone S.T.A.R.E portal. GitHub Pages remains the public demo/fallback.
 
-## Recommended Phase 1 Domain Plan
+## Production Domain
 
-Use a two-step domain rollout:
+The selected production URL is `https://stare.vittok.eu`. The Blueprint declares
+this subdomain on `stare-portal`; the existing `stare-portal.onrender.com` URL
+stays enabled during cutover and rollback. The apex `vittok.eu` domain and its
+`www` record remain available for a future main site. `https://vittok.github.io/stare/`
+remains the public static demo and no-login fallback.
 
-1. **UAT / first hosted build:** use the hosting provider's generated HTTPS URL.
-   - Example shape: `https://stare-portal-<suffix>.onrender.com`
-   - This avoids buying or changing DNS before the portal is usable.
+### GoDaddy and Render Cutover
 
-2. **Production:** attach a custom subdomain after UAT is accepted.
-   - Recommended shape: `https://stare.<your-domain>`
-   - DNS: create a `CNAME` record from `stare.<your-domain>` to the host-provided target.
-   - Keep `https://vittok.github.io/stare/` as the public static demo.
+Perform these steps in order so authentication is never pointed at an
+unverified domain:
 
-After the production URL is known, update:
+1. Sync the Render Blueprint and open **stare-portal > Settings > Custom
+   Domains**. Confirm that `stare.vittok.eu` is listed.
+2. In GoDaddy **Domain Portfolio > vittok.eu > DNS**, add:
 
-- Google OAuth authorized JavaScript origins
-- Supabase Auth redirect URLs
-- Render environment variables
-- Any user-facing links in documentation or notification templates
+   | Type | Name | Value | TTL |
+   | --- | --- | --- | --- |
+   | CNAME | `stare` | `stare-portal.onrender.com` | 600 seconds or the lowest available |
+
+   Remove only a conflicting record for the `stare` host if one exists. Do not
+   modify the apex (`@`), `www`, nameserver, ownership-verification, mail, or
+   unrelated TXT records.
+3. Return to Render and select **Verify**. Wait for both DNS verification and the
+   managed TLS certificate, then confirm `https://stare.vittok.eu` loads
+   successfully.
+4. In Supabase **Authentication > URL Configuration**, set the Site URL to
+   `https://stare.vittok.eu` and add `https://stare.vittok.eu/auth/callback` to
+   the redirect allow list. Keep the localhost and Render UAT callbacks during
+   cutover.
+5. In Google Cloud OAuth, add `https://stare.vittok.eu` as an authorized
+   JavaScript origin. Keep the existing Supabase callback URI unchanged because
+   Supabase remains the OAuth callback handler.
+6. Set Render `stare-portal` environment variable `NEXT_PUBLIC_APP_URL` to
+   `https://stare.vittok.eu`. Set `stare-api` `CORS_ORIGINS` to
+   `https://stare.vittok.eu,https://stare-portal.onrender.com`, then redeploy
+   both services.
+7. Add the GitHub Actions repository variable
+   `STARE_PORTAL_URL=https://stare.vittok.eu`. The workflows fall back to the
+   Render UAT URL until this variable exists. Run **STARE Market Refresh**
+   manually and verify login, logout, the auth callback, manual refresh, email
+   links, and the no-login GitHub Pages link.
+8. After the custom domain has been stable, the Render subdomain can optionally
+   be disabled. Keeping it enabled is recommended while using the free tier for
+   rollback and direct health checks.
+
+At the time this plan was prepared, GoDaddy DNS served two apex A records
+(`13.248.243.5` and `76.223.105.230`) and `www` pointed back to the apex. These
+records are not part of the subdomain cutover and should remain unchanged. Add
+only the `stare` CNAME after checking that the host has no conflicting record.
 
 ## Render UAT Deployment
 

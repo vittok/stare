@@ -139,7 +139,7 @@ jobs:
         env:
           EXPECTED_UPDATE_ID: ${{ steps.calculation.outputs.update_run_id }}
           STARE_API_URL: https://stare-api.onrender.com
-          STARE_PORTAL_URL: https://stare-portal.onrender.com
+          STARE_PORTAL_URL: ${{ vars.STARE_PORTAL_URL || 'https://stare-portal.onrender.com' }}
           STARE_PAGES_URL: https://vittok.github.io/stare
         run: python src/verify_published_update.py
 
@@ -155,7 +155,7 @@ jobs:
           SMTP_AUTH: "true"
           SMTP_STARTTLS: "true"
           SMTP_SSL: "false"
-          STARE_APP_URL: https://stare-portal.onrender.com
+          STARE_APP_URL: ${{ vars.STARE_PORTAL_URL || 'https://stare-portal.onrender.com' }}
           STARE_REFRESH_LABEL: ${{ steps.market-window.outputs.label }}
           STARE_UPDATE_STATUS: success
           STARE_PREVIOUS_APP_HTML: ${{ runner.temp }}/stare-previous.html
@@ -170,6 +170,6 @@ jobs:
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
           SMTP_FROM: ${{ secrets.SMTP_FROM }}
           STARE_ALERT_TO: ${{ secrets.STARE_ALERT_TO }}
-          STARE_APP_URL: https://stare-portal.onrender.com
+          STARE_APP_URL: ${{ vars.STARE_PORTAL_URL || 'https://stare-portal.onrender.com' }}
           STARE_ALERT_DETAILS: "GitHub Actions run failed: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
         run: python src/update_alerts.py failure
