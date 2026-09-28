@@ -3,7 +3,8 @@
   "base_commit": "1f2c5b65b0372dbbf42a00c72c5c09433e20e4e7",
   "repository_url": "https://github.com/vittok/stare",
   "non_release_commits": {
-    "6e81f69ebd30305433acb2b78d336f0523d8de8e": "Legacy Render SMTP environment configuration; maintenance only."
+    "6e81f69ebd30305433acb2b78d336f0523d8de8e": "Legacy Render SMTP environment configuration; maintenance only.",
+    "3b74610685bffd7828050b493813910161147174": "Production domain and deployment configuration; maintenance only."
   },
   "initial_release": {
     "version": "1.0.0",
