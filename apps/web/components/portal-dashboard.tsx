@@ -17,7 +17,6 @@ import {
   saveWatchlist,
   startMarketRefresh
 } from "../app/actions";
-import { AuthButton } from "./auth-button";
 import { StockDetailDialog } from "./stock-detail-dialog";
 import { downloadCsv, downloadJson } from "../lib/download-data";
 import { rankTopPicks, type TopPick } from "../lib/top-picks.mjs";
@@ -738,7 +737,6 @@ export function PortalDashboard({ report, preferences, personalizedSignals, scor
 
   return <div className="portal-layout" onClick={() => popover?.pinned && setPopover(null)}>
     <aside className="sidebar" onClick={(event) => event.stopPropagation()}>
-      {signedIn && user ? <section className="sidebar-account" aria-label="Signed-in account"><div><span className="control-label">Signed in</span><strong title={user.displayName}>{user.displayName}</strong><small title={user.email}>{user.email}</small></div><AuthButton className="button secondary sidebar-signout" label="Sign out" signedIn /></section> : null}
       <div className="sidebar-section"><label className="control-label" htmlFor="stock-search">Search</label><input autoComplete="off" className="search-input" id="stock-search" onChange={(event) => setSearch(event.target.value)} placeholder="Ticker, company, group" type="search" value={search} /></div>
       {signedIn ? <div className="sidebar-section stock-lookup"><span className="control-label">Analyze any stock</span><form onSubmit={runStockLookup}><input aria-label="Ticker symbol or company name" autoComplete="off" onChange={(event) => setStockLookupQuery(event.target.value)} placeholder="Symbol or company" type="search" value={stockLookupQuery} /><button aria-label="Search market" disabled={!stockLookupQuery.trim() || stockLookupState === "searching" || stockLookupState === "analyzing"} title="Search market" type="submit">{stockLookupState === "searching" || stockLookupState === "analyzing" ? <span className="spin"><LoaderCircle aria-hidden="true" size={16} /></span> : <Search aria-hidden="true" size={16} />}</button></form>{stockLookupMessage ? <p className={stockLookupState === "error" ? "lookup-message error" : "lookup-message"} aria-live="polite">{stockLookupMessage}</p> : null}{stockLookupResults.length ? <div className="stock-lookup-results">{stockLookupResults.map((result) => <button key={`${result.symbol}-${result.exchange || "market"}`} onClick={() => void openStockAnalysis(result.symbol)} type="button"><span><strong>{result.symbol}</strong><small>{result.name}</small></span><b>{result.exchange || "Analyze"}</b></button>)}</div> : null}{externalWatchlistSymbols.length ? <div className="external-watchlist-symbols"><span>Saved symbols</span><div>{externalWatchlistSymbols.map((ticker) => <button key={ticker} onClick={() => void openStockAnalysis(ticker)} type="button">{ticker}</button>)}</div></div> : null}</div> : null}
       <div className="sidebar-section"><span className="control-label">Direction</span><div className="segmented direction-control">{(["All", "Bullish", "Bearish", "Neutral"] as Direction[]).map((item) => <button className={direction === item ? "active" : ""} key={item} onClick={() => setDirection(item)} type="button">{item}</button>)}</div></div>

@@ -8,11 +8,12 @@ import { PortalUpdates } from "./portal-updates";
 type PortalHelpProps = {
   marketDataDate?: string | null;
   portalUpdated?: string | null;
+  signedIn: boolean;
 };
 
-export function PortalHelp({ marketDataDate, portalUpdated }: PortalHelpProps) {
+export function PortalHelp({ marketDataDate, portalUpdated, signedIn }: PortalHelpProps) {
   return (
-    <div className="portal-tools">
+    <div className={signedIn ? "portal-tools signed-in" : "portal-tools"}>
       <PortalUpdates />
       <PortalAbout marketDataDate={marketDataDate} portalUpdated={portalUpdated} />
       <Link

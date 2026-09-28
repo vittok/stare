@@ -13,7 +13,7 @@ type LoginExperienceProps = {
 };
 
 export function LoginExperience({ children, marketDataDate, portalUpdated, signedIn }: LoginExperienceProps) {
-  if (signedIn) return <><PortalHelp marketDataDate={marketDataDate} portalUpdated={portalUpdated} />{children}</>;
+  if (signedIn) return <><PortalHelp marketDataDate={marketDataDate} portalUpdated={portalUpdated} signedIn />{children}</>;
 
   function movePreview(event: PointerEvent<HTMLDivElement>) {
     const bounds = event.currentTarget.getBoundingClientRect();
@@ -31,7 +31,7 @@ export function LoginExperience({ children, marketDataDate, portalUpdated, signe
 
   return (
     <div className="login-experience" onPointerLeave={resetPreview} onPointerMove={movePreview}>
-      <PortalHelp marketDataDate={marketDataDate} portalUpdated={portalUpdated} />
+      <PortalHelp marketDataDate={marketDataDate} portalUpdated={portalUpdated} signedIn={false} />
       <div aria-hidden="true" className="login-preview" inert>
         {children}
       </div>
@@ -51,7 +51,7 @@ export function LoginExperience({ children, marketDataDate, portalUpdated, signe
             <p>Use your Google account to open your dashboard and saved preferences.</p>
           </div>
           <AuthButton className="button login-google-button" label="Continue with Google" signedIn={false} />
-          <a className="login-readonly-link" href="https://vittok.github.io/stare/" rel="noreferrer" target="_blank">No login go to read only site</a>
+          <a className="login-readonly-link" href="https://vittok.github.io/stare/" rel="noreferrer" target="_blank">No login? Try less fancy static site :-)</a>
           <div className="login-privacy-note">
             <strong>Privacy and saved data</strong>
             <p>Signing in stores your account identity, including email, and portal preferences in Supabase: filters, watchlists, scoring weights, and email-report settings. This data is used only for your portal experience and is protected by per-user access controls.</p>

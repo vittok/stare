@@ -69,6 +69,13 @@ button { border-radius: 0; }
 .brand { align-items: center; display: flex; font-size: 14px; font-weight: 700; gap: 14px; }
 .brand b { font-weight: 800; }
 .brand-logo { height: 52px; object-fit: contain; width: 52px; }
+.topbar-account { align-items: center; display: grid; gap: 12px; grid-template-columns: minmax(0, 1fr) auto; max-width: 290px; min-width: 250px; }
+.topbar-account-copy { display: grid; gap: 2px; min-width: 0; }
+.topbar-account-copy span { color: var(--muted); font-size: 9px; font-weight: 800; text-transform: uppercase; }
+.topbar-account-copy strong, .topbar-account-copy small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.topbar-account-copy strong { font-size: 12px; }
+.topbar-account-copy small { color: var(--muted); font-size: 9px; }
+.topbar-signout { min-height: 36px; padding: 7px 11px; }
 .button {
   background: var(--ink);
   border: 1px solid var(--ink);
@@ -153,6 +160,7 @@ button { border-radius: 0; }
   top: 19px;
   z-index: 150;
 }
+.portal-tools.signed-in { right: 330px; }
 .portal-tool-button {
   align-items: center;
   background: var(--surface);
@@ -321,21 +329,6 @@ table.field-table { min-width: 720px; }
   position: sticky;
   top: var(--header-height);
 }
-.sidebar-account {
-  align-items: center;
-  border-bottom: 1px solid var(--line);
-  display: grid;
-  gap: 10px;
-  grid-template-columns: minmax(0, 1fr) auto;
-  margin-bottom: 22px;
-  padding: 0 0 20px;
-}
-.sidebar-account > div { display: grid; gap: 3px; min-width: 0; }
-.sidebar-account .control-label { margin-bottom: 3px; }
-.sidebar-account strong, .sidebar-account small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.sidebar-account strong { font-size: 13px; }
-.sidebar-account small { color: var(--muted); font-size: 10px; }
-.sidebar-signout { min-height: 34px; padding: 7px 10px; }
 .sidebar-section { margin-bottom: 24px; }
 .personalization-controls { display: grid; gap: 9px; }
 .personalization-controls .control-label { margin-bottom: 0; }
@@ -761,8 +754,11 @@ table.history-table { min-width: 920px; }
   .brand span { font-size: 12px; }
   .brand b { display: none; }
   .portal-tools { right: 14px; top: 14px; }
+  .portal-tools.signed-in { right: 190px; }
   .portal-tool-button { padding: 0; width: 38px; }
   .portal-tool-button span { display: none; }
+  .topbar-account { max-width: 162px; min-width: 150px; }
+  .topbar-account-copy span { display: none; }
   .portal-layout { display: block; }
   .sidebar { border-bottom: 1px solid var(--line); border-right: 0; height: auto; overflow: visible; padding: 14px; position: static; }
   .sidebar-section { margin-bottom: 14px; }
@@ -811,7 +807,7 @@ table.history-table { min-width: 920px; }
 }
 
 @media (max-width: 540px) {
-  .brand span { max-width: 110px; }
+  .brand span { display: none; }
   .button { padding: 8px 10px; }
   .workspace-header h1 { font-size: 32px; overflow-wrap: anywhere; }
   .workspace-actions { display: grid; grid-template-columns: repeat(2, 1fr); width: 100%; }
@@ -877,6 +873,9 @@ table.history-table { min-width: 920px; }
   .guide-formula span:last-child { border-bottom: 0; }
   .help-footer { align-items: stretch; flex-direction: column; }
   .help-footer .button { text-align: center; }
+  .topbar-account { min-width: auto; }
+  .topbar-account-copy { display: none; }
+  .portal-tools.signed-in { right: 91px; }
 }
 
 @media (hover: none) {
