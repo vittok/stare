@@ -15,7 +15,7 @@
   --amber-soft: #f6ebc8;
   --blue: #175cd3;
   --blue-soft: #e4ecfb;
-  --header-height: 76px;
+  --header-height: 124px;
   --sidebar-width: 280px;
 }
 
@@ -66,10 +66,10 @@ button { border-radius: 0; }
   justify-content: space-between;
   padding: 0 28px;
 }
-.brand { align-items: center; display: flex; font-size: 14px; font-weight: 700; gap: 14px; }
-.brand b { font-weight: 800; }
-.brand-logo { height: 52px; object-fit: contain; width: 52px; }
-.topbar-account { align-items: center; display: grid; gap: 12px; grid-template-columns: minmax(0, 1fr) auto; max-width: 290px; min-width: 250px; }
+.brand { align-items: center; display: flex; font-size: 21px; font-weight: 700; gap: 20px; }
+.brand-logo { height: 104px; object-fit: contain; width: 104px; }
+.topbar-actions { align-items: center; display: flex; gap: 8px; min-width: 0; }
+.topbar-account { max-width: 180px; min-width: 130px; }
 .topbar-account-copy { display: grid; gap: 2px; min-width: 0; }
 .topbar-account-copy span { color: var(--muted); font-size: 9px; font-weight: 800; text-transform: uppercase; }
 .topbar-account-copy strong, .topbar-account-copy small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -160,7 +160,7 @@ button { border-radius: 0; }
   top: 19px;
   z-index: 150;
 }
-.portal-tools.signed-in { right: 330px; }
+.portal-tools.signed-in { position: static; right: auto; top: auto; }
 .portal-tool-button {
   align-items: center;
   background: var(--surface);
@@ -748,16 +748,15 @@ table.history-table { min-width: 920px; }
 }
 
 @media (max-width: 860px) {
-  :root { --header-height: 66px; }
+  :root { --header-height: 84px; }
   .topbar-inner { padding: 0 14px; }
-  .brand-logo { height: 42px; width: 42px; }
-  .brand span { font-size: 12px; }
-  .brand b { display: none; }
+  .brand-logo { height: 68px; width: 68px; }
+  .brand span { font-size: 18px; }
   .portal-tools { right: 14px; top: 14px; }
-  .portal-tools.signed-in { right: 190px; }
   .portal-tool-button { padding: 0; width: 38px; }
   .portal-tool-button span { display: none; }
-  .topbar-account { max-width: 162px; min-width: 150px; }
+  .topbar-actions { gap: 4px; }
+  .topbar-account { max-width: 140px; min-width: 100px; }
   .topbar-account-copy span { display: none; }
   .portal-layout { display: block; }
   .sidebar { border-bottom: 1px solid var(--line); border-right: 0; height: auto; overflow: visible; padding: 14px; position: static; }
@@ -873,9 +872,7 @@ table.history-table { min-width: 920px; }
   .guide-formula span:last-child { border-bottom: 0; }
   .help-footer { align-items: stretch; flex-direction: column; }
   .help-footer .button { text-align: center; }
-  .topbar-account { min-width: auto; }
-  .topbar-account-copy { display: none; }
-  .portal-tools.signed-in { right: 91px; }
+  .topbar-account { display: none; }
 }
 
 @media (hover: none) {

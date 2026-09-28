@@ -13,7 +13,7 @@ type LoginExperienceProps = {
 };
 
 export function LoginExperience({ children, marketDataDate, portalUpdated, signedIn }: LoginExperienceProps) {
-  if (signedIn) return <><PortalHelp marketDataDate={marketDataDate} portalUpdated={portalUpdated} signedIn />{children}</>;
+  if (signedIn) return children;
 
   function movePreview(event: PointerEvent<HTMLDivElement>) {
     const bounds = event.currentTarget.getBoundingClientRect();

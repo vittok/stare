@@ -1,6 +1,7 @@
 import { LoginExperience } from "../components/login-experience";
 import { PortalDashboard } from "../components/portal-dashboard";
 import { AuthButton } from "../components/auth-button";
+import { PortalHelp } from "../components/portal-help";
 import { getLatestReport, getUserPersonalizedSignals, getUserPreferences, getUserScoringWeights, getUserWatchlists } from "../lib/portal-api";
 import { createClient } from "../lib/supabase/server";
 import Image from "next/image";
@@ -38,10 +39,10 @@ export default async function Home() {
         <header className="topbar">
           <div className="topbar-inner">
             <div className="brand">
-              <Image alt="S.T.A.R.E logo" className="brand-logo" height={52} priority src="/Logo.png" width={52} />
-              <span>Stock Trend Analysis Risk Engine <b>(S.T.A.R.E)</b></span>
+              <Image alt="S.T.A.R.E logo" className="brand-logo" height={104} priority src="/Logo.png" width={104} />
+              <span>Stock Trend Analysis Risk Engine</span>
             </div>
-            {userIdentity ? <section className="topbar-account" aria-label="Signed-in account"><div className="topbar-account-copy"><span>Signed in</span><strong title={userIdentity.displayName}>{userIdentity.displayName}</strong><small title={userIdentity.email}>{userIdentity.email}</small></div><AuthButton className="button secondary topbar-signout" label="Sign out" signedIn /></section> : null}
+            {userIdentity ? <div className="topbar-actions"><section className="topbar-account" aria-label="Signed-in account"><div className="topbar-account-copy"><span>Signed in</span><strong title={userIdentity.displayName}>{userIdentity.displayName}</strong><small title={userIdentity.email}>{userIdentity.email}</small></div></section><AuthButton className="button secondary topbar-signout" label="Sign out" signedIn /><PortalHelp marketDataDate={latestReport?.update?.latest_price_date || latestReport?.update?.market_data_date} portalUpdated={latestReport?.update?.completed_at} signedIn /></div> : null}
           </div>
         </header>
 
