@@ -132,7 +132,24 @@ button { border-radius: 0; }
 .login-dialog-copy { padding: 30px 0 24px; }
 .login-dialog-copy h1 { font-size: 38px; line-height: 1.05; margin: 0 0 14px; }
 .login-dialog-copy > p:last-child { color: var(--muted); font-size: 15px; line-height: 1.55; margin: 0; }
-.login-google-button { align-items: center; display: flex; font-weight: 700; justify-content: center; min-height: 50px; width: 100%; }
+.login-google-button {
+  align-items: center;
+  background: #fff;
+  border-color: #747775;
+  color: #1f1f1f;
+  display: flex;
+  font-family: "Google Sans", Roboto, Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  gap: 10px;
+  justify-content: center;
+  line-height: 20px;
+  min-height: 50px;
+  padding: 12px;
+  width: 100%;
+}
+.login-google-button:hover { background: #f8faff; border-color: #747775; }
+.google-auth-logo { flex: 0 0 18px; height: 18px; width: 18px; }
 .login-readonly-link {
   align-items: center;
   border: 1px solid var(--line-strong);

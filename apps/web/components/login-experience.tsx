@@ -50,7 +50,7 @@ export function LoginExperience({ children, marketDataDate, portalUpdated, signe
             <h1 id="login-title">Sign in to continue</h1>
             <p>Use your Google account to open your dashboard and saved preferences.</p>
           </div>
-          <AuthButton className="button login-google-button" label="Continue with Google" signedIn={false} />
+          <AuthButton className="button login-google-button" label="Sign in with Google" signedIn={false} />
           <a className="login-readonly-link" href="https://vittok.github.io/stare/" rel="noreferrer" target="_blank">No login? Try less fancy static site :-)</a>
           <div className="login-privacy-note">
             <strong>Privacy and saved data</strong>
