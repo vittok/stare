@@ -6,6 +6,8 @@ from dataclasses import dataclass
 import pandas as pd
 from sqlalchemy import create_engine, text
 
+from weekly_stats_selection import select_latest_universe_week
+
 
 SENTIMENT_SCHEMA = """
 CREATE TABLE IF NOT EXISTS sector_sentiment (
@@ -42,9 +44,8 @@ def load_inputs(engine, universe_csv: Path):
     )
     if weekly.empty:
         raise RuntimeError("No weekly_stats data found. Run compute_weekly_stats.py first.")
-    latest_week = weekly["week_ending"].max()
-    weekly = weekly[weekly["week_ending"] == latest_week].copy()
     universe = pd.read_csv(universe_csv)
+    weekly = select_latest_universe_week(weekly, universe)
     return weekly, universe
 
 
@@ -118,6 +119,10 @@ def compute_sector_sentiment(weekly: pd.DataFrame, universe: pd.DataFrame) -> pd
 
 
 def save_sector_sentiment(engine, df: pd.DataFrame):
+    if df is None or df.empty:
+        raise RuntimeError(
+            "No sector sentiment rows were produced; refusing to write an empty update."
+        )
     records = df.to_dict(orient="records")
     with engine.begin() as conn:
         conn.execute(

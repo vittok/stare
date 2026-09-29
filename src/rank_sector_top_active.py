@@ -5,6 +5,8 @@ from dataclasses import dataclass
 import pandas as pd
 from sqlalchemy import create_engine, text
 
+from weekly_stats_selection import select_latest_universe_week
+
 
 TOP_ACTIVE_SCHEMA = """
 CREATE TABLE IF NOT EXISTS sector_top_active (
@@ -51,8 +53,8 @@ def load_inputs(engine, universe_csv: Path):
     weekly = pd.read_sql("SELECT * FROM weekly_stats", engine)
     if weekly.empty:
         raise RuntimeError("No weekly_stats data found. Run compute_weekly_stats.py first.")
-    latest_week = weekly["week_ending"].max()
-    weekly = weekly[weekly["week_ending"] == latest_week].copy()
+    universe = pd.read_csv(universe_csv)
+    weekly = select_latest_universe_week(weekly, universe)
     latest_volume = pd.read_sql(
         text("""
             SELECT p.ticker, p.date AS volume_date, p.close, p.volume
@@ -77,11 +79,16 @@ def load_inputs(engine, universe_csv: Path):
     latest_volume["volume"] = pd.to_numeric(latest_volume["volume"], errors="coerce").fillna(0)
     latest_volume["dollar_vol_latest"] = latest_volume["close"] * latest_volume["volume"]
     latest_volume.rename(columns={"volume": "latest_volume"}, inplace=True)
-    universe = pd.read_csv(universe_csv)
-    return weekly, latest_volume[["ticker", "volume_date", "dollar_vol_latest", "latest_volume"]], universe
+    volume_columns = ["ticker", "volume_date", "dollar_vol_latest", "latest_volume"]
+    return weekly, latest_volume[volume_columns], universe
 
 
-def rank_top_active(weekly: pd.DataFrame, latest_volume: pd.DataFrame, universe: pd.DataFrame, top_n: int):
+def rank_top_active(
+    weekly: pd.DataFrame,
+    latest_volume: pd.DataFrame,
+    universe: pd.DataFrame,
+    top_n: int,
+):
     df = weekly.merge(
         universe[["ticker_yahoo", "sector"]],
         left_on="ticker",
@@ -115,6 +122,10 @@ def rank_top_active(weekly: pd.DataFrame, latest_volume: pd.DataFrame, universe:
 
 
 def save_top_active(engine, df: pd.DataFrame):
+    if df is None or df.empty:
+        raise RuntimeError(
+            "No sector top-active rows were produced; refusing to replace the existing data."
+        )
     records = df.to_dict(orient="records")
     with engine.begin() as conn:
         conn.execute(text("DELETE FROM sector_top_active"))
