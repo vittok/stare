@@ -120,7 +120,6 @@ CSGP,CSGP,CoStar Group,Real Estate,Real Estate Services
 CSX,CSX,CSX Corporation,Industrials,Rail Transportation
 CTAS,CTAS,Cintas,Industrials,Diversified Support Services
 CTSH,CTSH,Cognizant,Information Technology,IT Consulting & Other Services
-CTVA,CTVA,Corteva,Materials,Fertilizers & Agricultural Chemicals
 CVNA,CVNA,Carvana,Consumer Discretionary,Automotive Retail
 CVS,CVS,CVS Health,Health Care,Health Care Services
 CVX,CVX,Chevron Corporation,Energy,Integrated Oil & Gas
@@ -378,7 +377,6 @@ PPG,PPG,PPG Industries,Materials,Specialty Chemicals
 PPL,PPL,PPL Corporation,Utilities,Electric Utilities
 PRU,PRU,Prudential Financial,Financials,Life & Health Insurance
 PSA,PSA,Public Storage,Real Estate,Self-Storage REITs
-PSKY,PSKY,Paramount Skydance Corporation,Communication Services,Movies & Entertainment
 PSX,PSX,Phillips 66,Energy,Oil & Gas Refining & Marketing
 PTC,PTC,PTC Inc.,Information Technology,Application Software
 PWR,PWR,Quanta Services,Industrials,Construction & Engineering
@@ -405,6 +403,7 @@ SBUX,SBUX,Starbucks,Consumer Discretionary,Restaurants
 SCHW,SCHW,Charles Schwab Corporation,Financials,Investment Banking & Brokerage
 SHW,SHW,Sherwin-Williams,Materials,Specialty Chemicals
 SJM,SJM,J.M. Smucker Company (The),Consumer Staples,Packaged Foods & Meats
+SKYD,SKYD,Paramount Skydance Corporation,Communication Services,Movies & Entertainment
 SLB,SLB,Schlumberger,Energy,Oil & Gas Equipment & Services
 SMCI,SMCI,Supermicro,Information Technology,"Technology Hardware, Storage & Peripherals"
 SNA,SNA,Snap-on,Industrials,Industrial Machinery & Supplies & Components
@@ -449,6 +448,7 @@ TSLA,TSLA,"Tesla, Inc.",Consumer Discretionary,Automobile Manufacturers
 TSN,TSN,Tyson Foods,Consumer Staples,Packaged Foods & Meats
 TT,TT,Trane Technologies,Industrials,Building Products
 TTWO,TTWO,Take-Two Interactive,Communication Services,Interactive Home Entertainment
+TWLO,TWLO,Twilio,Information Technology,Systems Software
 TXN,TXN,Texas Instruments,Information Technology,Semiconductors
 TXT,TXT,Textron,Industrials,Aerospace & Defense
 TYL,TYL,Tyler Technologies,Information Technology,Application Software
@@ -476,10 +476,10 @@ VRTX,VRTX,Vertex Pharmaceuticals,Health Care,Biotechnology
 VST,VST,Vistra Corp.,Utilities,Electric Utilities
 VTR,VTR,Ventas,Real Estate,Health Care REITs
 VTRS,VTRS,Viatris,Health Care,Pharmaceuticals
+VYLR,VYLR,Vylor,Consumer Staples,Agricultural Products & Services
 VZ,VZ,Verizon,Communication Services,Integrated Telecommunication Services
 WAB,WAB,Wabtec,Industrials,Construction Machinery & Heavy Transportation Equipment
 WAT,WAT,Waters Corporation,Health Care,Life Sciences Tools & Services
-WBD,WBD,Warner Bros. Discovery,Communication Services,Broadcasting
 WDAY,WDAY,"Workday, Inc.",Information Technology,Application Software
 WDC,WDC,Western Digital,Information Technology,"Technology Hardware, Storage & Peripherals"
 WEC,WEC,WEC Energy Group,Utilities,Electric Utilities
